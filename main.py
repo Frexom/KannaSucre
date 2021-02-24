@@ -32,6 +32,12 @@ async def on_ready():
 
 
 @bot.event
+async def on_guild_channel_create(channel):
+  role = get(channel.guild.roles, name = "Muted")
+  await channel.set_permissions(role, send_messages = False, add_reactions = False, speak = False)
+    
+
+@bot.event
 async def on_member_join(member):
   connection = await aiosqlite.connect('bot.db')
   cursor = await connection.cursor()
