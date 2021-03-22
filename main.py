@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord
 import aiosqlite
 import os
+from PIL import Image, ImageFont, ImageDraw
 from random import randint
 from discord.utils import get
 from asyncio import sleep
@@ -243,6 +244,22 @@ async def general(ctx):
   await connection.commit()
   await connection.close()
 
+@bot.command(name = 'level')
+async def level(ctx):
+  connection = await aiosqlite.connect('bot.db')
+  cursor = await connection.cursor()
+  await cursor.execute("SELECT level, xp FROM users WHERE member_ID = " + str(ctx.message.author.id))
+  stats = await cursor.fetchone()
+  image = Image.open("LevelCommand/Base.png")
+  font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
+  d = ImageDraw.Draw(image)
+  location = (100, 50)
+  text_color = (200, 200, 200)
+  message = str(ctx.author.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(300*2**stats[0]) + "XP"
+  d.text(location, message, font=font, fill=text_color)
+  image.save("LevelCommand/stats" + str(ctx.author.name) + ".png")
+  
+  await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(ctx.author.name) + ".png"))
 
 keep_alive()
 bot.run(os.getenv("TOKEN"))
