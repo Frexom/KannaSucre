@@ -75,16 +75,13 @@ async def on_guild_join(guild):
   await cursor.execute("SELECT Server_ID from info WHERE Server_ID =" + str(guild.id))
   if await cursor.fetchone() == None:
     if guild.system_channel != None:
-      print('avec')
       await cursor.execute("INSERT INTO info(Server_ID, prefix, general_channel_ID) VALUES(?,'!', ?)", (int(guild.id), int(guild.system_channel.id)))
     else:
-      print('sans')
       await cursor.execute("INSERT INTO info(Server_ID, prefix, general_channel_ID) VALUES(?,'!', ?)", (int(guild.id,), 0))
   for user in guild.members:
     if not user.bot:
       await cursor.execute("SELECT member_ID from users where member_ID="+ str(user.id))
       member_ID = await cursor.fetchone()
-      print(member_ID)
       if member_ID == None:
         await cursor.execute("INSERT INTO users(member_ID, level, XP) VALUES(?, 0, 0)", (int(user.id),))
   await connection.commit()
@@ -97,18 +94,24 @@ async def on_message(message):
     await get_pre(bot, message)
     if message.content.lower() == "ping":
       await message.channel.send("Pong! Prefix : `" + str(await get_pre(bot, message)) + "`")
-
     connection = await aiosqlite.connect('bot.db')
     cursor = await connection.cursor()
-    await cursor.execute("SELECT xp, level FROM users WHERE member_ID =" + str(message.author.id))
+    await cursor.execute("SELECT LengthLimit FROM info WHERE Server_ID = " + str(message.guild.id))
+    limit = await cursor.fetchone()
+    if not (type(limit[0]) == type(None)) and len(message.content) > limit[0]:
+      print("a")
+      await message.author.send("Your message has been deleted since it's too long for the server, try to shorten it down to **" + str(limit[0]) + "** characters.\nHere is your message :\n\n"+str(message.content))
+      await message.delete()
+    '''await cursor.execute("SELECT xp, level FROM users WHERE member_ID =" + str(message.author.id))
     user_leveling = await cursor.fetchone()
+    print(user_leveling, message.author.name)
     user_xp, user_level = int(user_leveling[0]), int(user_leveling[1])
     user_xp += randint(30,50)
     if user_xp > 300*2**user_level:
-      user_xp = 0
       user_level += 1
+      user_xp = 1
       await message.channel.send("Congratulations <@"+ str(message.author.id) + ">, you are now level " + str(user_level) + "!")
-    await cursor.execute("UPDATE users SET  xp = ?, level = ? WHERE member_ID = ?", (user_xp, user_level, message.author.id))
+    await cursor.execute("UPDATE users SET  xp = ?, level = ? WHERE member_ID = ?", (user_xp, user_level, message.author.id))'''
     await connection.commit()
     await connection.close()
     await bot.process_commands(message)
@@ -116,6 +119,9 @@ async def on_message(message):
 
 @bot.command(name = 'clear')
 async def clear(ctx, number: int):
+  '''
+  Clear a defined number of messages.
+  Example : !clear 5'''
   if ctx.message.author.guild_permissions.manage_messages:
     messages = await ctx.channel.history(limit = number + 1).flatten()
     count = -1
@@ -182,21 +188,43 @@ async def hug(ctx, hugList):
 
 @bot.command(name = 'mute')
 async def mute(ctx):
-  if ctx.message.author.guild_permissions.manage_messages and ctx.message.mentions[0].guild_permissions.is_strict_subset(ctx.message.author.guild_permissions):
-    reason = ctx.message.content.split(" ")
+  reason = ctx.message.content.split(" ")
+  duration = None
+  if len(reason) > 2 and reason[2].isdecimal():
+    duration = int(reason[2])
+    print(reason[3:])
+    reason = ' '.join(reason[3:])
+  elif len(reason) > 2:
+    print(reason[2:])
     reason = ' '.join(reason[2:])
-    if not discord.utils.get(ctx.guild.roles, name = "Muted"):
-      perms = discord.Permissions(send_messages = False, add_reactions = False, speak = False)
-      await ctx.guild.create_role(name = 'Muted', color = int("d90951", 16), permissions = perms)
+  else:
+    reason = ""
+  print(reason)
+  if ctx.message.author.guild_permissions.manage_messages and ctx.message.mentions[0].guild_permissions.is_strict_subset(ctx.message.author.guild_permissions):
+
+      if not discord.utils.get(ctx.guild.roles, name = "Muted"):
+        perms = discord.Permissions(send_messages = False, add_reactions = False, speak = False)
+        await ctx.guild.create_role(name = 'Muted', color = int("d90951", 16), permissions = perms)
+        role = get(ctx.guild.roles, name = "Muted")
+        for chan in ctx.guild.channels:
+          await chan.set_permissions(role, send_messages = False, add_reactions = False, speak = False)
       role = get(ctx.guild.roles, name = "Muted")
-      for chan in ctx.guild.channels:
-        await chan.set_permissions(role, send_messages = False, add_reactions = False, speak = False)
-    role = get(ctx.guild.roles, name = "Muted")
-    if reason != "":
-      await ctx.message.mentions[0].send("You have been muted on " + str(ctx.guild.name) + ".\nReason : `" + reason + "`.")
-    else:
-      await ctx.message.mentions[0].send("You have been muted on " + str(ctx.guild.name) + ".\nNo reason given.")
-    await ctx.message.mentions[0].add_roles(role)
+      if role not in ctx.message.mentions[0].roles:
+        if type(duration) == int:
+          DM = "You have been muted on " + str(ctx.guild.name) +" for " + str(duration) + " minutes."
+        else:
+          DM = "You have been muted on " + str(ctx.guild.name) +" indefintely."
+
+
+        if reason != "":
+          DM += "\nReason : " + str(reason)
+        await ctx.message.mentions[0].send(DM)
+        await ctx.message.mentions[0].add_roles(role)
+        if type(duration) == int:
+          await sleep(duration)
+          await ctx.message.mentions[0].remove_roles(role)
+      else:
+        await ctx.channel.send("That user is already muted.")
    
   else:
     await missing_perms(ctx, "mute")
@@ -204,62 +232,75 @@ async def mute(ctx):
 
 @bot.command(name = 'unmute')
 async def unmute(ctx):
-  reason = ctx.message.content.split(" ")
-  reason = ' '.join(reason[2:])
-  if ctx.message.author.guild_permissions.manage_messages and ctx.message.mentions[0].guild_permissions.is_strict_subset(ctx.message.author.guild_permissions):
-    role = discord.utils.get(ctx.guild.roles, name = "Muted")
-    await ctx.message.mentions[0].remove_roles(role)
-    await ctx.message.mentions[0].send("You have been unmuted from " + str(ctx.guild.name) + ".")
-
-
-@bot.command(name = 'muteall')
-async def muteall(ctx):
-  if ctx.message.author.guild_permissions.manage_guild:
-    duration = ctx.message.content.split(" ")
-    duration = int(duration[1])
-    if not discord.utils.get(ctx.guild.roles, name = "Muted"):
-      perms = discord.Permissions(send_messages = False, add_reactions = False, speak = False)
-      await ctx.guild.create_role(name = 'Muted', color = int("d90951", 16), permissions = perms)
-      role = get(ctx.guild.roles, name = "Muted")
-      for chan in ctx.guild.channels:
-        await chan.set_permissions(role, send_messages = False, add_reactions = False, speak = False)
-    role = get(ctx.guild.roles, name = "Muted")
-    for member in ctx.guild.members:
-      await member.add_roles(role)
-    await ctx.channel.send("All members have been muted for " + str(duration) + " minutes.", delete_after = duration*60)
-    await sleep(duration*60)
-    for member in ctx.guild.members:
-      await member.remove_roles(role)
+  if ctx.message.author.guild_permissions.manage_messages:
+    reason = ctx.message.content.split(" ")
+    reason = ' '.join(reason[2:])
+    if ctx.message.author.guild_permissions.manage_messages and ctx.message.mentions[0].guild_permissions.is_strict_subset(ctx.message.author.guild_permissions):
+      role = discord.utils.get(ctx.guild.roles, name = "Muted")
+      if role in ctx.message.mentions[0].roles:
+        await ctx.message.mentions[0].remove_roles(role)
+        await ctx.message.mentions[0].send("You have been unmuted from " + str(ctx.guild.name) + ".")
+        await ctx.message.channel.send(str(ctx.message.mentions[0]) + " has been unmuted.")
+      else:
+        await ctx.message.channel.send("That user isn't muted.")
   else:
-    await missing_perms(ctx, "muteall")
+    await missing_perms(ctx, "unmute")
 
 
 @bot.command(name = 'general')
 async def general(ctx):
-  channel = ctx.message.channel_mentions[0].id
-  connection = await aiosqlite.connect('bot.db')
-  cursor = await connection.cursor()
-  await cursor.execute("UPDATE info SET general_channel_ID = ? WHERE Server_ID=?", (channel, ctx.guild.id))
-  await ctx.channel.send("The general channel now is <#" + str(channel) + "> :)")
-  await connection.commit()
-  await connection.close()
+  if ctx.message.author.guild_permissions.manage_guild:
+    channel = ctx.message.channel_mentions[0].id
+    connection = await aiosqlite.connect('bot.db')
+    cursor = await connection.cursor()
+    await cursor.execute("UPDATE info SET general_channel_ID = ? WHERE Server_ID=?", (channel, ctx.guild.id))
+    await ctx.channel.send("The general channel now is <#" + str(channel) + "> :)")
+    await connection.commit()
+    await connection.close()
 
-@bot.command(name = 'level')
+
+'''@bot.command(name = 'level')
 async def level(ctx):
+  if len(ctx.message.mentions) == 0:
+    user = ctx.message.author
+  else:
+    user = ctx.message.mentions[0]
+
   connection = await aiosqlite.connect('bot.db')
   cursor = await connection.cursor()
-  await cursor.execute("SELECT level, xp FROM users WHERE member_ID = " + str(ctx.message.author.id))
+  await cursor.execute("SELECT level, xp FROM users WHERE member_ID = " + str(user.id))
   stats = await cursor.fetchone()
   image = Image.open("LevelCommand/Base.png")
+  #profilePic = 
   font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
   d = ImageDraw.Draw(image)
   location = (100, 50)
   text_color = (200, 200, 200)
-  message = str(ctx.author.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(300*2**stats[0]) + "XP"
+  message = str(user.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(300*2**stats[0]) + "XP"
   d.text(location, message, font=font, fill=text_color)
-  image.save("LevelCommand/stats" + str(ctx.author.name) + ".png")
+  image.save("LevelCommand/stats" + str(user.name) + ".png")
   
-  await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(ctx.author.name) + ".png"))
+  await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(user.name) + ".png"))'''
+
+
+@bot.command(name = 'lengthlimit')
+async def lengthlimit(ctx):
+  limit = ctx.message.content.split(" ")[1]
+  if ctx.message.author.guild_permissions.manage_guild:
+    if limit.isdecimal() and int(limit) > 299:
+      limit = ctx.message.content.split(" ")[1]
+      connection = await aiosqlite.connect('bot.db')
+      cursor = await connection.cursor()
+      await cursor.execute("UPDATE info SET LengthLimit = ? WHERE Server_ID=?", (limit, ctx.guild.id))
+      await ctx.channel.send("The message character limit for this server now is **" + str(limit) + "** characters :)")
+      await connection.commit()
+      await connection.close()
+    else:
+      await ctx.channel.send("I'm sorry but the character limit must be at least 300 characters.")
+  else:
+    await missing_perms(ctx, "lengthlimit")
+
+
 
 keep_alive()
 bot.run(os.getenv("TOKEN"))
