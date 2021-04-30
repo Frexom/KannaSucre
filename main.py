@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord
 import aiosqlite
 import os
+import datetime
 from PIL import Image, ImageFont, ImageDraw
 from random import randint
 from discord.utils import get
@@ -10,7 +11,7 @@ from keep_alive import keep_alive
 
 
 async def get_pre(bot, message):
-  connection = await aiosqlite.connect('bot.db')
+  connection = await aiosqlite.connect('bot.db', timeout = 10)
   c = await connection.cursor()
   await c.execute("SELECT prefix FROM info WHERE Server_ID="+ str(message.guild.id))
   result = await c.fetchone()
@@ -20,7 +21,6 @@ async def get_pre(bot, message):
 
 default_intents = discord.Intents.all()
 bot = commands.Bot(command_prefix = get_pre , intents = default_intents)
-connection = aiosqlite.connect('bot.db')
 
 
 async def missing_perms(ctx, command_name: str, perms: str = "Not renseigned"):
@@ -45,12 +45,12 @@ async def on_guild_channel_create(channel):
 
 @bot.event
 async def on_member_join(member):
-  connection = await aiosqlite.connect('bot.db')
+  connection = await aiosqlite.connect('bot.db', timeout = 10)
   cursor = await connection.cursor()
   await cursor.execute("SELECT general_channel_ID FROM info WHERE Server_ID=" + str(member.guild.id))
-  channel_ID = await cursor.fetchone()
-  if channel_ID[0] != 0:
-    general: discord.TextChannel = bot.get_channel(channel_ID[0])
+  channel_ID = await cursor.fetchone()[0]
+  if channel_ID != 0:
+    general: discord.TextChannel = bot.get_channel(channel_ID)
     await general.send("<@"+str(member.id)+"> joined the server! Yayy!!")
   if not member.bot:
     await cursor.execute("SELECT member_ID from users where member_ID=" + str(member.id))
@@ -58,24 +58,25 @@ async def on_member_join(member):
     if member_ID == None:
       await cursor.execute("INSERT INTO users(member_ID, level, XP) VALUES(?, 0, 0)", (int(member.id),))
       connection.commit()
-    connection.close()
+  await connection.close()
 
 
 @bot.event
 async def on_member_remove(member):
   if member.id != 765255086581612575:
-    connection = await aiosqlite.connect('bot.db')
+    connection = await aiosqlite.connect('bot.db', timeout = 10)
     cursor = await connection.cursor()
     await cursor.execute("SELECT general_channel_ID FROM info WHERE Server_ID=" + str(member.guild.id))
     channel_ID = await cursor.fetchone()
     if channel_ID[0] != 0:
       general: discord.TextChannel = bot.get_channel(channel_ID[0])
       await general.send(str(member)+" left the server. :(")
+    await connection.close()
 
 
 @bot.event
 async def on_guild_join(guild):
-  connection = await aiosqlite.connect('bot.db')
+  connection = await aiosqlite.connect('bot.db', timeout = 10)
   cursor = await connection.cursor()
   await cursor.execute("SELECT Server_ID from info WHERE Server_ID =" + str(guild.id))
   if await cursor.fetchone() == None:
@@ -97,31 +98,55 @@ async def on_guild_join(guild):
 async def on_message(message):
   if not message.author.bot:
     await get_pre(bot, message)
+    Log_chan = bot.get_guild(511647663620620288).get_channel(837667142593282069)
     if message.content.lower() == "ping":
       await message.channel.send("Pong! Prefix : `" + str(await get_pre(bot, message)) + "`")
-    connection = await aiosqlite.connect('bot.db')
+    connection = await aiosqlite.connect('bot.db', timeout = 10)
     cursor = await connection.cursor()
     await cursor.execute("SELECT LengthLimit FROM info WHERE Server_ID = " + str(message.guild.id))
     limit = await cursor.fetchone()
     if not (type(limit[0]) == type(None)) and len(message.content) > limit[0]:
-      print("a")
       await message.author.send("Your message has been deleted since it's too long for the server, try to shorten it down to **" + str(limit[0]) + "** characters.\nHere is your message :\n\n"+str(message.content))
       await message.delete()
     await cursor.execute("SELECT xp, level FROM users WHERE member_ID =" + str(message.author.id))
     user_leveling = await cursor.fetchone()
-    print(user_leveling, message.author.name)
     user_xp, user_level = int(user_leveling[0]), int(user_leveling[1])
     user_xp += randint(30,50)
-    if user_xp > int(2000*0.25*user_level**2):
+    if user_xp > int(500*user_level**2):
       user_level += 1
-      user_xp = 1
+      user_xp += -int(500*(user_level-1)**2)
       await message.channel.send("Congratulations <@"+ str(message.author.id) + ">, you are now level " + str(user_level) + "!")
       await cursor.execute("UPDATE users SET  xp = ?, level = ? WHERE member_ID = ?", (user_xp, user_level, message.author.id))
     else:
       await cursor.execute("UPDATE users SET  xp = ? WHERE member_ID = ?", (user_xp, message.author.id))
     await connection.commit()
     await connection.close()
+    now = datetime.datetime.now()
+    now = str(now.day) + "/" + str(now.month) + "  " + str(now.hour + 2) + ":" + str(now.minute) + ":" + str(now.second)
+    logs = "\n" + now + " " + str((user_xp, user_level)) + ", " + str(message.author.name)
+    await Log_chan.send(logs)
     await bot.process_commands(message)
+
+@bot.command(name = 'xp')
+async def xp(ctx):
+  connection = await aiosqlite.connect('bot.db', timeout = 10)
+  cursor = await connection.cursor()
+  user = ctx.message.mentions[0].id
+  liste = ctx.message.content.split(" ")
+  level = liste[1]
+  xp = liste[2]
+  await cursor.execute("UPDATE users SET xp = ?, level =? WHERE user_ID = ?;", (xp, level, user))
+  await connection.commit()
+  await connection.close()
+
+@bot.command(name = 'xpreset')
+async def xpreset(ctx):
+  connection = await aiosqlite.connect('bot.db', timeout = 10)
+  cursor = await connection.cursor()
+  await cursor.execute("UPDATE users SET xp = 0, level = 1;")
+  await connection.commit()
+  await ctx.message.add_reaction("\u2705")
+  await connection.close()
 
 
 @bot.command(name = 'clear')
@@ -186,7 +211,7 @@ async def ban(ctx):
           await member.send("you have been banned from **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
         else:
           await member.send("You have been banned from **" + str(ctx.guild.name) + "**.\nNo reason given.")
-        #await member.ban()
+        await member.ban()
       else:
         await lack_perms(ctx, "ban")
     else:
@@ -202,7 +227,7 @@ async def prefix(ctx):
     prefix = ctx.message.content.split(" ")
     if len(prefix) > 1:
       prefix = prefix[1]
-      connection = await aiosqlite.connect('bot.db')
+      connection = await aiosqlite.connect('bot.db', timeout = 10)
       cursor = await connection.cursor()
       await cursor.execute("UPDATE info SET prefix = ? WHERE Server_ID=?", (prefix, ctx.guild.id))
       await ctx.channel.send("My prefix for this server now is `" + str(prefix) + "` :)")
@@ -320,7 +345,7 @@ async def general(ctx):
   if ctx.message.author.guild_permissions.manage_guild:
     if len(ctx.message.channel_mentions) > 0:
       channel = ctx.message.channel_mentions[0].id
-      connection = await aiosqlite.connect('bot.db')
+      connection = await aiosqlite.connect('bot.db', timeout = 10)
       cursor = await connection.cursor()
       await cursor.execute("UPDATE info SET general_channel_ID = ? WHERE Server_ID=?", (channel, ctx.guild.id))
       await ctx.channel.send("The general channel now is <#" + str(channel) + "> :)")
@@ -340,7 +365,7 @@ async def level(ctx):
   else:
     user = ctx.message.mentions[0]
 
-  connection = await aiosqlite.connect('bot.db')
+  connection = await aiosqlite.connect('bot.db', timeout = 10)
   cursor = await connection.cursor()
   await cursor.execute("SELECT level, xp FROM users WHERE member_ID = " + str(user.id))
   stats = await cursor.fetchone()
@@ -352,8 +377,9 @@ async def level(ctx):
   message = str(user.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(int(2000*0.25*stats[0]**2)) + "XP"
   d.text(location, message, font=font, fill=text_color)
   image.save("LevelCommand/stats" + str(user.name) + ".png")
-  
   await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(user.name) + ".png"))
+  await connection.close()
+  image.close()
 
 
 @bot.command(name = 'lengthlimit')
@@ -363,7 +389,7 @@ async def lengthlimit(ctx):
     if len(limit) > 1 and type(limit[1]) == int:
       limit = limit[1]
       if limit.isdecimal() and int(limit) > 299:
-        connection = await aiosqlite.connect('bot.db')
+        connection = await aiosqlite.connect('bot.db', timeout = 10)
         cursor = await connection.cursor()
         await cursor.execute("UPDATE info SET LengthLimit = ? WHERE Server_ID=?", (limit, ctx.guild.id))
         await ctx.channel.send("The message character limit for this server now is **" + str(limit) + "** characters :)")
