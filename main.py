@@ -106,7 +106,7 @@ async def on_message(message):
     await cursor.execute("SELECT LengthLimit FROM info WHERE Server_ID = " + str(message.guild.id))
     limit = await cursor.fetchone()
     if not (type(limit[0]) == type(None)) and len(message.content) > limit[0]:
-      await message.author.send("Your message has been deleted since it's too long for the server, try to shorten it down to **" + str(limit[0]) + "** characters.\nHere is your message :\n\n"+str(message.content))
+      await message.author.send("Your message has been deleted since it's too long for the server, try to short it down to **" + str(limit[0]) + "** characters.\nHere is your message :\n\n"+str(message.content))
       await message.delete()
     await cursor.execute("SELECT xp, level FROM users WHERE member_ID =" + str(message.author.id))
     user_leveling = await cursor.fetchone()
@@ -187,6 +187,7 @@ async def kick(ctx):
         else:
           await member.send("You have been kicked from **" + str(ctx.guild.name) + "**.\nNo reason given.")
         await member.kick()
+        await ctx.message.add_reaction("\u2705")
       else:
         await lack_perms(ctx, "kick")
     else:
@@ -212,6 +213,7 @@ async def ban(ctx):
         else:
           await member.send("You have been banned from **" + str(ctx.guild.name) + "**.\nNo reason given.")
         await member.ban()
+        await ctx.message.add_reaction("\u2705")
       else:
         await lack_perms(ctx, "ban")
     else:
@@ -296,6 +298,7 @@ async def mute(ctx):
             DM += "\nReason : `" + str(reason) + "`."
           await member.send(DM)
           await member.add_roles(role)
+          await ctx.message.add_reaction("\u2705")
           if type(duration) == int:
             await sleep(duration*60)
             if role in member.roles:
@@ -327,8 +330,9 @@ async def unmute(ctx):
         role = discord.utils.get(ctx.guild.roles, name = "Muted")
         if role in ctx.message.mentions[0].roles:
           await member.remove_roles(role)
+          await ctx.message.add_reaction("\u2705")
           await member.send("You have been unmuted from " + str(ctx.guild.name) + ".")
-          await member.send(str(ctx.message.mentions[0]) + " has been unmuted.", delete_after = 5)
+          await ctx.channel.send(str(ctx.message.mentions[0]) + " has been unmuted.", delete_after = 5)
         else:
           await ctx.channel.send("That user isn't muted.", delete_after = 5)
       else:
@@ -348,7 +352,7 @@ async def general(ctx):
       connection = await aiosqlite.connect('bot.db', timeout = 10)
       cursor = await connection.cursor()
       await cursor.execute("UPDATE info SET general_channel_ID = ? WHERE Server_ID=?", (channel, ctx.guild.id))
-      await ctx.channel.send("The general channel now is <#" + str(channel) + "> :)")
+      await ctx.message.add_reaction("\u2705")
       await connection.commit()
       await connection.close()
     else:
@@ -386,7 +390,7 @@ async def level(ctx):
 async def lengthlimit(ctx):
   if ctx.message.author.guild_permissions.manage_guild:
     limit = ctx.message.content.split(" ")
-    if len(limit) > 1 and type(limit[1]) == int:
+    if len(limit) >= 1 and limit[1].isdecimal():
       limit = limit[1]
       if limit.isdecimal() and int(limit) > 299:
         connection = await aiosqlite.connect('bot.db', timeout = 10)
@@ -407,13 +411,25 @@ async def lengthlimit(ctx):
 @bot.command(name = "dice")
 async def dice(ctx):
   words = ctx.message.content.split(" ")
-  if len(words) > 1 and words[1].isdecimal():
+  if len(words) > 1 and words[1].isdecimal() and int(words[1]) > 0:
     i = ctx.message.content.split(" ")[1]
     number = randint(1,int(i))
     await ctx.channel.send("Rolled **" + str(number) + "**!")
   else:
     prefix = str(await get_pre(bot, ctx))
     await ctx.channel.send("```"+ str(prefix) + "dice *number>0*```")
+
+
+@bot.command(name = "pokemon")
+async def pokemon(ctx):
+  connection = await aiosqlite.connect('pokedex.db', timeout = 10)
+  cursor = await connection.cursor()
+  await cursor.execute("SELECT Link, Name FROM pokemons WHERE Pokedex_ID = ?", (str(randint(1,3))))
+  data = await cursor.fetchone()
+  await connection.close()
+  e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got a **" + str(data[1]) + "**!")
+  e.set_image(url=str(data[0]))
+  await ctx.send(embed = e)
 
 
 keep_alive()
