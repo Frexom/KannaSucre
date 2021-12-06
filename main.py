@@ -2,6 +2,8 @@ from discord.ext import commands
 import discord
 import aiosqlite
 import os
+import random
+import time
 from random import randint
 from discord.utils import get
 from asyncio import sleep
@@ -34,9 +36,6 @@ async def lack_perms(ctx, command_name: str):
     await ctx.channel.send(
         "I'm sorry but the command target has more permissions than you. You can't target them with the following command : `"
         + command_name + "`.")
-
-
-import random
 
 
 def Nickname(NumberLetters):
@@ -121,24 +120,19 @@ async def on_guild_channel_create(channel):
 async def on_member_join(member):
     connection = await aiosqlite.connect('bot.db', timeout=10)
     cursor = await connection.cursor()
-    await cursor.execute(
-        "SELECT general_channel_ID FROM info WHERE Server_ID=" +
-        str(member.guild.id))
+    await cursor.execute( "SELECT general_channel_ID FROM info WHERE Server_ID=" + str(member.guild.id))
     channel_ID = await cursor.fetchone()
     channel_ID = channel_ID[0]
     if channel_ID != 0:
         general: discord.TextChannel = bot.get_channel(channel_ID)
-        await general.send("<@" + str(member.id) +
-                           "> joined the server! Yayy!!")
+        await general.send("<@" + str(member.id) + "> joined the server! Yayy!!")
+    
     if not member.bot:
-        await cursor.execute("SELECT member_ID from users where member_ID=" +
-                             str(member.id))
+        await cursor.execute("SELECT member_ID from users where member_ID=" + str(member.id))
         member_ID = await cursor.fetchone()
         if member_ID == None:
-            await cursor.execute(
-                "INSERT INTO users(member_ID, level, XP) VALUES(?, 0, 0)",
-                (int(member.id), ))
-            connection.commit()
+            await cursor.execute("INSERT INTO users(member_ID) VALUES(?)", (int(member.id), ))
+            await connection.commit()
     await connection.close()
 
 
@@ -148,8 +142,7 @@ async def on_member_remove(member):
         connection = await aiosqlite.connect('bot.db', timeout=10)
         cursor = await connection.cursor()
         await cursor.execute(
-            "SELECT general_channel_ID FROM info WHERE Server_ID=" +
-            str(member.guild.id))
+            "SELECT general_channel_ID FROM info WHERE Server_ID=" + str(member.guild.id))
         channel_ID = await cursor.fetchone()
         if channel_ID[0] != 0:
             general: discord.TextChannel = bot.get_channel(channel_ID[0])
@@ -166,8 +159,7 @@ async def on_guild_join(guild):
     if await cursor.fetchone() == None:
         if guild.system_channel != None:
             await cursor.execute(
-                "INSERT INTO info(Server_ID, prefix, general_channel_ID) VALUES(?,'!', ?)",
-                (int(guild.id), int(guild.system_channel.id)))
+                "INSERT INTO info(Server_ID, prefix, general_channel_ID) VALUES(?,'!', ?)", (int(guild.id), int(guild.system_channel.id)))
         else:
             await cursor.execute(
                 "INSERT INTO info(Server_ID, prefix, general_channel_ID) VALUES(?,'!', ?)",
@@ -178,9 +170,7 @@ async def on_guild_join(guild):
                 "SELECT member_ID from users where member_ID=" + str(user.id))
             member_ID = await cursor.fetchone()
             if member_ID == None:
-                await cursor.execute(
-                    "INSERT INTO users(member_ID, level, XP) VALUES(?, 0, 0)",
-                    (int(user.id), ))
+                await cursor.execute("INSERT INTO users(member_ID) VALUES(?)", (int(user.id), ))
     await connection.commit()
     await connection.close()
 
@@ -598,17 +588,34 @@ def get_rarity_name(rarity):
 
 @bot.command(name = "pokemon")
 async def pokemon(ctx):
-  connection = await aiosqlite.connect('pokedex.db', timeout = 10)
+  connection = await aiosqlite.connect('bot.db', timeout = 10)
   cursor = await connection.cursor()
-  rarity = get_rarity()
-  rarity_name = get_rarity_name(rarity)
-  await cursor.execute("SELECT Link, Name FROM pokemons WHERE Rarity = ? ORDER BY RANDOM()", (rarity,))
-  data = await cursor.fetchone()
-  await connection.close()
-  e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got **" + str(data[1]) + "**!", description = "This is a **" + rarity_name + "** pokemon!")
-  e.set_image(url=str(data[0]))
-  await ctx.send(embed = e)
-  
+  await cursor.execute("SELECT Last_roll_datetime FROM users WHERE member_ID =?", (ctx.message.author.id,))
+  last_roll = await cursor.fetchone()
+  now = time.time()
+  time_since = int(now - last_roll[0])
+  if time_since > 7200:
+    rarity = get_rarity()
+    rarity_name = get_rarity_name(rarity)
+    await cursor.execute("SELECT Link, Name, Pokedex_ID FROM pokedex WHERE Rarity = ? ORDER BY RANDOM()", (rarity,))
+    data = await cursor.fetchone()
+    await cursor.execute("UPDATE users SET Last_roll_datetime = ? WHERE member_ID = ?", (now, ctx.message.author.id))
+    await connection.commit()
+    e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got **" + str(data[1]) + "**!",  description = "This is a **" + rarity_name + "** pokemon!")
+    e.set_image(url=str(data[0]))
+    await cursor.execute("INSERT INTO obtained (User_ID, Pokedex_ID, Date) VALUES (?, ?, ?)", (ctx.message.author.id, data[2], now))
+    await connection.commit()
+    await connection.close()
+    await ctx.send(embed = e)
+  else:
+    time_left = int(7200 - time_since)
+    if time_left > 3600:
+      time_left -= 3600
+      time_left = int(time_left/60)
+      await ctx.channel.send(str(ctx.message.author.name) + ", your next roll will be available in 1 Hour " + str(time_left) + " minutes.")
+    else:
+      time_left = int(time_left/60)
+      await ctx.channel.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.")
 
 """@bot.command(name='randomNick')
 async def randomNick(ctx):
@@ -629,6 +636,7 @@ async def randomNick(ctx):
     else:
         await missing_perms(ctx, "randomNick", "manage guild")
 """
+
 
 keep_alive()
 bot.run(os.getenv("TOKEN"))
