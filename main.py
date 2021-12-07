@@ -601,21 +601,42 @@ async def pokemon(ctx):
     data = await cursor.fetchone()
     await cursor.execute("UPDATE users SET Last_roll_datetime = ? WHERE member_ID = ?", (now, ctx.message.author.id))
     await connection.commit()
-    e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got **" + str(data[1]) + "**!",  description = "This is a **" + rarity_name + "** pokemon!")
-    e.set_image(url=str(data[0]))
-    await cursor.execute("INSERT INTO obtained (User_ID, Pokedex_ID, Date) VALUES (?, ?, ?)", (ctx.message.author.id, data[2], now))
+    await cursor.execute("SELECT * FROM obtained WHERE User_ID = ? AND Pokedex_ID = ?", (ctx.message.author.id, data[2]))
+    is_obtained = await cursor.fetchone()
+    if is_obtained == None:
+      await cursor.execute("INSERT INTO obtained (User_ID, Pokedex_ID, Date) VALUES (?, ?, ?)", (ctx.message.author.id, data[2], now))
+      desc = "This is a **" + rarity_name + "** pokemon!"
+    else:
+      desc = "This is a **" + rarity_name + "** pokemon!\nYou already had that pokemon. :confused:"
     await connection.commit()
     await connection.close()
+    e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got **" + str(data[1]) + "**!",  description = desc)
+    e.set_image(url=str(data[0]))
     await ctx.send(embed = e)
   else:
     time_left = int(7200 - time_since)
     if time_left > 3600:
       time_left -= 3600
       time_left = int(time_left/60)
-      await ctx.channel.send(str(ctx.message.author.name) + ", your next roll will be available in 1 Hour " + str(time_left) + " minutes.")
+      await ctx.channel.send(str(ctx.message.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.")
     else:
       time_left = int(time_left/60)
       await ctx.channel.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.")
+
+@bot.command(name = "pokedex")
+async def pokedex(ctx):
+  connection = await aiosqlite.connect('bot.db', timeout = 10)
+  cursor = await connection.cursor()
+  await cursor.execute("SELECT Name FROM obtained JOIN pokedex USING(Pokedex_ID) WHERE User_ID = ? ORDER BY Pokedex_ID;", (ctx.message.author.id,))
+  Pokemons = await cursor.fetchall()
+  list_pokemons = ""
+  for elem in Pokemons:
+    list_pokemons += str(elem[0]) + "\n"
+  embed=discord.Embed(title="Your Pokedex")
+  embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
+  embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
+  await ctx.send(embed=embed)
+  await connection.close()
 
 """@bot.command(name='randomNick')
 async def randomNick(ctx):
