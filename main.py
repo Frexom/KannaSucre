@@ -201,7 +201,7 @@ async def on_message(message):
         await bot.process_commands(message)
 
 
-@bot.command(name='clear')
+@bot.command(name='clear', brief = "Delete a given number of messages", description = "Delete a number of messages you give in parameters with a maximum of 50 at a time. THe boy has to own the manage messages permissions.")
 async def clear(ctx):
     if ctx.message.author.guild_permissions.manage_messages:
         number = ctx.message.content.split(" ")
@@ -228,7 +228,7 @@ async def clear(ctx):
         await missing_perms(ctx, "clear", "manage messages")
 
 
-@bot.command(name="kick")
+@bot.command(name="kick", brief = "Kicks a member", description = "Kicks a member. You and the bot require kick members permissions, and the person you target must have less permissions than you.")
 async def kick(ctx):
     if ctx.message.author.guild_permissions.kick_members:
         reason = ctx.message.content.split(" ")
@@ -262,7 +262,7 @@ async def kick(ctx):
         await missing_perms(ctx, "kick", "kick members")
 
 
-@bot.command(name='ban')
+@bot.command(name='ban', brief = "Bans a member", description = "Kicks a member. You and the bot require ban members permissions, and the person you target must have less permissions than you.")
 async def ban(ctx):
     if ctx.message.author.guild_permissions.ban_members:
         reason = ctx.message.content.split(" ")
@@ -297,7 +297,7 @@ async def ban(ctx):
         await missing_perms(ctx, "ban", "ban members")
 
 
-@bot.command(name='prefix')
+@bot.command(name='prefix', brief = "Changes the prefix", description = "Chanegs the bot's command prefix, you must own the manage guild permissions to successfully run that command.")
 async def prefix(ctx):
     if ctx.message.author.guild_permissions.manage_guild:
         prefix = ctx.message.content.split(" ")
@@ -320,7 +320,7 @@ async def prefix(ctx):
         await missing_perms(ctx, "prefix", "manage guild")
 
 
-@bot.command(name='hug')
+@bot.command(name='hug', brief = "Hugs someone!", description = "Hugs someone! If you get any further GIF recommendations, contact Frexom#8376.")
 async def hug(ctx):
     if len(ctx.message.mentions) > 0:
         hugList = [
@@ -381,7 +381,7 @@ async def hug(ctx):
         await ctx.channel.send("```" + str(prefix) + "hug *mention user*```")
 
 
-@bot.command(name='mute')
+@bot.command(name='mute', brief = "Mutes a member", description = "Mutes a member. The member can be muted indefinitely, or for a given duration. You have to own the manage messages permissions and the bot has to own the manage messages + manages roles pemissions.", usage = "@target *duration in minutes*(optionnal) reason(optionnal)")
 async def mute(ctx):
     if ctx.message.author.guild_permissions.manage_messages:
         reason = ctx.message.content.split(" ")
@@ -623,6 +623,7 @@ async def pokemon(ctx):
       time_left = int(time_left/60)
       await ctx.channel.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.")
 
+
 @bot.command(name = "pokedex")
 async def pokedex(ctx):
   connection = await aiosqlite.connect('bot.db', timeout = 10)
@@ -632,13 +633,14 @@ async def pokedex(ctx):
   list_pokemons = ""
   for elem in Pokemons:
     list_pokemons += str(elem[0]) + "\n"
-  embed=discord.Embed(title="Your Pokedex")
+  embed=discord.Embed(title= str(ctx.message.author.name) + "'s Pokedex")
   embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
   embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
   await ctx.send(embed=embed)
   await connection.close()
 
-"""@bot.command(name='randomNick')
+"""
+@bot.command(name='randomNick')
 async def randomNick(ctx):
     me = ctx.guild.get_member(765255086581612575)
     if ctx.message.author.guild_permissions.manage_guild:
