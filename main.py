@@ -639,6 +639,13 @@ async def pokedex(ctx):
   await ctx.send(embed=embed)
   await connection.close()
 
+
+@bot.command(name = "a")
+async def a(ctx):
+  if ctx.message.author.id == 307556664091869185:
+    channel = bot.get_channel(451828254836391946)
+    await channel.send("KannaSucre is back! No new major features night now, but I can say that the 'pokemon' command has been renamed 'poke', for faster typing, see you soon!")
+
 """
 @bot.command(name='randomNick')
 async def randomNick(ctx):
