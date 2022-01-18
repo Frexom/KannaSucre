@@ -671,23 +671,29 @@ async def pokedex(ctx):
 
 @bot.command(name = "announce")
 async def announce(ctx):
-  if ctx.message.author.id == 307556664091869185:
-    connection = await aiosqlite.connect('bot.db', timeout = 10)
-    cursor = await connection.cursor()
-    await cursor.execute("SELECT announcements_channel_ID FROM servers")
-    IDs = await cursor.fetchall()
-    await connection.close()
-    for i in range(len(IDs)):
-      if IDs[i][0] != 0 and IDs[i][0] != None :
-        channel = bot.get_channel(IDs[i][0])
-        await channel.send(ctx.message.content[9:])
+	if ctx.message.author.id == 307556664091869185:
+		connection = await aiosqlite.connect('bot.db', timeout = 10)
+		cursor = await connection.cursor()
+		await cursor.execute("SELECT announcements_channel_ID FROM servers")
+		IDs = await cursor.fetchall()
+		await connection.close()
+		message_list = ctx.message.content.split(" ")[1:]
+		message = ""
+		for i in range(len(message_list)) :
+			message += message_list[i] + " "
+			print(message)
+		for i in range(len(IDs)):
+			if IDs[i][0] != 0 and IDs[i][0] != None :
+				channel = bot.get_channel(IDs[i][0])
+				await channel.send(message)
 
 
 @bot.command(name = "help")
 async def help(ctx):
 	connection = await aiosqlite.connect('bot.db', timeout = 10)
 	cursor = await connection.cursor()
-	if len(ctx.message.content) < 6:
+	message_list = ctx.message.content.split(" ")
+	if len(message_list) < 2:
 		print("a")
 		await cursor.execute("SELECT name, short FROM commands")
 		commands = await cursor.fetchall()
@@ -703,7 +709,7 @@ async def help(ctx):
 		await cursor.execute("SELECT name, description, use_example, user_perms, bot_perms, category FROM commands")
 		commands = await cursor.fetchall()
 		await connection.close()
-		parameter = ctx.message.content[6:].lower()
+		parameter = message_list[1]
 		successful = False
 		for i in range(len(commands)):
 			if commands[i][0] == parameter:
