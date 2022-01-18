@@ -396,7 +396,6 @@ async def mute(ctx):
                     duration = int(reason[2])
                     reason = ' '.join(reason[3:])
                 elif len(reason) > 2:
-                    print(reason[2:])
                     reason = ' '.join(reason[2:])
                 else:
                     reason = ""
@@ -681,7 +680,6 @@ async def announce(ctx):
 		message = ""
 		for i in range(len(message_list)) :
 			message += message_list[i] + " "
-			print(message)
 		for i in range(len(IDs)):
 			if IDs[i][0] != 0 and IDs[i][0] != None :
 				channel = bot.get_channel(IDs[i][0])
@@ -694,15 +692,13 @@ async def help(ctx):
 	cursor = await connection.cursor()
 	message_list = ctx.message.content.split(" ")
 	if len(message_list) < 2:
-		print("a")
 		await cursor.execute("SELECT name, short FROM commands")
 		commands = await cursor.fetchall()
 		content = ""
 		for i in range(len(commands)): 
 			content += "`" + commands[i][0] +  "` : " + commands[i][1] +"\n"
-			embed = discord.Embed(title= commands[i][0] + " command :", colour=discord.Colour(0x635f), description=commands[i][1])
+			embed = discord.Embed(title= "Kannasucre help : ", colour=discord.Colour(0x635f))
 			embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
-			embed.set_author(name="KannaSucre help :")
 			embed.add_field(name="Commands", value=content)
 		await ctx.send(embed=embed)
 	else:
@@ -713,12 +709,13 @@ async def help(ctx):
 		successful = False
 		for i in range(len(commands)):
 			if commands[i][0] == parameter:
+				prefix = str(await get_pre(bot, ctx))
 				embed = discord.Embed(title= commands[i][0] + " command :", colour=discord.Colour(0x635f), description=commands[i][1])
 				embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
 				embed.set_author(name="KannaSucre help,")
 				embed.add_field(name="User's perms :			", value="`" + commands[i][3] + "`", inline = True)
 				embed.add_field(name="Kanna's perms :			", value="`" + commands[i][4] + "`", inline = True)
-				embed.add_field(name="Example : ", value="```" + commands[i][2] + "```", inline = False)
+				embed.add_field(name="Example : ", value= "```" + prefix + commands[i][2] + "```", inline = False)
 				await ctx.send(embed=embed)
 				successful = True
 		if successful == False :
