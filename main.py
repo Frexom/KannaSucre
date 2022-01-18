@@ -1,20 +1,18 @@
 from discord.ext import commands
 import discord
 import aiosqlite
-import os
 import random
 import time
+import os
 from random import randint
 from discord.utils import get
 from asyncio import sleep
-from keep_alive import keep_alive
 
 
 async def get_pre(bot, message):
     connection = await aiosqlite.connect('bot.db', timeout=10)
     c = await connection.cursor()
-    await c.execute("SELECT prefix FROM info WHERE Server_ID=" +
-                    str(message.guild.id))
+    await c.execute("SELECT prefix FROM servers WHERE server_id = ?", (message.guild.id, ))
     result = await c.fetchone()
     await connection.close()
     return result[0]
@@ -22,6 +20,7 @@ async def get_pre(bot, message):
 
 default_intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=get_pre, intents=default_intents)
+bot.remove_command('help')
 
 
 async def missing_perms(ctx, command_name: str, perms: str = "Not renseigned"):
@@ -102,9 +101,9 @@ def Nickname(NumberLetters):
 
 @bot.event
 async def on_ready():
-    game = discord.Game('send "ping" to see prefix')
-    await bot.change_presence(status=discord.Status.online, activity=game)
-    print("Bot is ready")
+	game = discord.Game('send "ping" to see prefix')
+	await bot.change_presence(status=discord.Status.online, activity=game)
+	print("Bot is ready")
 
 
 @bot.event
@@ -120,7 +119,7 @@ async def on_guild_channel_create(channel):
 async def on_member_join(member):
     connection = await aiosqlite.connect('bot.db', timeout=10)
     cursor = await connection.cursor()
-    await cursor.execute( "SELECT general_channel_ID FROM info WHERE Server_ID=" + str(member.guild.id))
+    await cursor.execute( "SELECT welcome_channel_id FROM servers WHERE server_id = ?", (member.guild.id,))
     channel_ID = await cursor.fetchone()
     channel_ID = channel_ID[0]
     if channel_ID != 0:
@@ -128,10 +127,10 @@ async def on_member_join(member):
         await general.send("<@" + str(member.id) + "> joined the server! Yayy!!")
     
     if not member.bot:
-        await cursor.execute("SELECT member_ID from users where member_ID=" + str(member.id))
-        member_ID = await cursor.fetchone()
-        if member_ID == None:
-            await cursor.execute("INSERT INTO users(member_ID) VALUES(?)", (int(member.id), ))
+        await cursor.execute("SELECT member_id FROM users WHERE member_id = ?", (member.id, ))
+        member_id = await cursor.fetchone()
+        if member_id == None:
+            await cursor.execute("INSERT INTO users(member_id) VALUES(?)", (int(member.id), ))
             await connection.commit()
     await connection.close()
 
@@ -142,7 +141,7 @@ async def on_member_remove(member):
         connection = await aiosqlite.connect('bot.db', timeout=10)
         cursor = await connection.cursor()
         await cursor.execute(
-            "SELECT general_channel_ID FROM info WHERE Server_ID=" + str(member.guild.id))
+            "SELECT welcome_channel_ID FROM servers WHERE server_id = ?", (member.guild.id, ))
         channel_ID = await cursor.fetchone()
         if channel_ID[0] != 0:
             general: discord.TextChannel = bot.get_channel(channel_ID[0])
@@ -154,23 +153,21 @@ async def on_member_remove(member):
 async def on_guild_join(guild):
     connection = await aiosqlite.connect('bot.db', timeout=10)
     cursor = await connection.cursor()
-    await cursor.execute("SELECT Server_ID from info WHERE Server_ID =" +
-                         str(guild.id))
+    await cursor.execute("SELECT server_id FROM servers WHERE server_id = ?", (int(guild.id), ))
     if await cursor.fetchone() == None:
         if guild.system_channel != None:
             await cursor.execute(
-                "INSERT INTO info(Server_ID, prefix, general_channel_ID) VALUES(?,'!', ?)", (int(guild.id), int(guild.system_channel.id)))
+                "INSERT INTO servers(server_id, prefix, welcome_channel_id) VALUES(?,'!', ?)", (int(guild.id), int(guild.system_channel.id)))
         else:
             await cursor.execute(
-                "INSERT INTO info(Server_ID, prefix, general_channel_ID) VALUES(?,'!', ?)",
-                (int(guild.id, ), 0))
+                "INSERT INTO servers(server_id, prefix, welcome_channel_ID) VALUES(?,'!', ?)", (guild.id, 0))
     for user in guild.members:
         if not user.bot:
             await cursor.execute(
-                "SELECT member_ID from users where member_ID=" + str(user.id))
-            member_ID = await cursor.fetchone()
-            if member_ID == None:
-                await cursor.execute("INSERT INTO users(member_ID) VALUES(?)", (int(user.id), ))
+                "SELECT member_id FROM users WHERE member_id= ?", (user.id, ))
+            member_id = await cursor.fetchone()
+            if member_id == None:
+                await cursor.execute("INSERT INTO users(member_id) VALUES(?)", (int(user.id), ))
     await connection.commit()
     await connection.close()
 
@@ -180,13 +177,12 @@ async def on_message(message):
     if not message.author.bot:
         await get_pre(bot, message)
         if message.content.lower() == "ping":
-            await message.channel.send("Pong! Prefix : `" +
+            await message.channel.send("Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" +
                                        str(await get_pre(bot, message)) + "`")
         connection = await aiosqlite.connect('bot.db', timeout=10)
         cursor = await connection.cursor()
         await cursor.execute(
-            "SELECT LengthLimit FROM info WHERE Server_ID = " +
-            str(message.guild.id))
+            "SELECT lengthlimit FROM servers WHERE server_id = ?", (message.guild.id, ))
         limit = await cursor.fetchone()
         if not (type(limit[0])
                 == type(None)) and len(message.content) > limit[0]:
@@ -201,7 +197,7 @@ async def on_message(message):
         await bot.process_commands(message)
 
 
-@bot.command(name='clear', brief = "Delete a given number of messages", description = "Delete a number of messages you give in parameters with a maximum of 50 at a time. THe boy has to own the manage messages permissions.")
+@bot.command(name='clear')
 async def clear(ctx):
     if ctx.message.author.guild_permissions.manage_messages:
         number = ctx.message.content.split(" ")
@@ -228,7 +224,7 @@ async def clear(ctx):
         await missing_perms(ctx, "clear", "manage messages")
 
 
-@bot.command(name="kick", brief = "Kicks a member", description = "Kicks a member. You and the bot require kick members permissions, and the person you target must have less permissions than you.")
+@bot.command(name="kick")
 async def kick(ctx):
     if ctx.message.author.guild_permissions.kick_members:
         reason = ctx.message.content.split(" ")
@@ -243,11 +239,11 @@ async def kick(ctx):
             if member.guild_permissions.is_strict_subset(
                     ctx.message.author.guild_permissions):
                 if reason != "":
-                    await member.send("you have been kicked from **" +
+                    await member.send("you have been kicked FROM **" +
                                       str(ctx.guild.name) + "**.\nReason : `" +
                                       reason + "`.")
                 else:
-                    await member.send("You have been kicked from **" +
+                    await member.send("You have been kicked FROM **" +
                                       str(ctx.guild.name) +
                                       "**.\nNo reason given.")
                 await member.kick()
@@ -262,7 +258,7 @@ async def kick(ctx):
         await missing_perms(ctx, "kick", "kick members")
 
 
-@bot.command(name='ban', brief = "Bans a member", description = "Kicks a member. You and the bot require ban members permissions, and the person you target must have less permissions than you.")
+@bot.command(name='ban')
 async def ban(ctx):
     if ctx.message.author.guild_permissions.ban_members:
         reason = ctx.message.content.split(" ")
@@ -277,11 +273,11 @@ async def ban(ctx):
                     ctx.message.author.guild_permissions):
                 reason = ' '.join(reason[2:])
                 if reason != "":
-                    await member.send("you have been banned from **" +
+                    await member.send("you have been banned FROM **" +
                                       str(ctx.guild.name) + "**.\nReason : `" +
                                       reason + "`.")
                 else:
-                    await member.send("You have been banned from **" +
+                    await member.send("You have been banned FROM **" +
                                       str(ctx.guild.name) +
                                       "**.\nNo reason given.")
                 await member.ban()
@@ -306,7 +302,7 @@ async def prefix(ctx):
             connection = await aiosqlite.connect('bot.db', timeout=10)
             cursor = await connection.cursor()
             await cursor.execute(
-                "UPDATE info SET prefix = ? WHERE Server_ID=?",
+                "UPDATE servers SET prefix = ? WHERE server_id = ?",
                 (prefix, ctx.guild.id))
             await ctx.channel.send("My prefix for this server now is `" +
                                    str(prefix) + "` :)")
@@ -437,7 +433,7 @@ async def mute(ctx):
                         await sleep(duration * 60)
                         if role in member.roles:
                             await member.remove_roles(role)
-                            await member.send("You have been unmuted from **" +
+                            await member.send("You have been unmuted FROM **" +
                                               str(ctx.guild.name) + "**.")
                 else:
                     await ctx.channel.send("That user is already muted.",
@@ -473,7 +469,7 @@ async def unmute(ctx):
                 if role in ctx.message.mentions[0].roles:
                     await member.remove_roles(role)
                     await ctx.message.add_reaction("\u2705")
-                    await member.send("You have been unmuted from " +
+                    await member.send("You have been unmuted FROM " +
                                       str(ctx.guild.name) + ".")
                     await ctx.channel.send(str(ctx.message.mentions[0]) +
                                            " has been unmuted.",
@@ -491,23 +487,56 @@ async def unmute(ctx):
         await missing_perms(ctx, "unmute", "manage messages")
 
 
-@bot.command(name='general')
-async def general(ctx):
+@bot.command(name='welcome')
+async def welcome(ctx):
     if ctx.message.author.guild_permissions.manage_guild:
+        connection = await aiosqlite.connect('bot.db', timeout=10)
+        cursor = await connection.cursor()
         if len(ctx.message.channel_mentions) > 0:
             channel = ctx.message.channel_mentions[0].id
-            connection = await aiosqlite.connect('bot.db', timeout=10)
-            cursor = await connection.cursor()
             await cursor.execute(
-                "UPDATE info SET general_channel_ID = ? WHERE Server_ID=?",
+                "UPDATE servers SET welcome_channel_id = ? WHERE server_id=?",
                 (channel, ctx.guild.id))
             await ctx.message.add_reaction("\u2705")
             await connection.commit()
             await connection.close()
         else:
+            await cursor.execute("SELECT welcome_channel_id FROM servers WHERE server_id = ?", (ctx.guild.id,))
+            welcome = await cursor.fetchone()
+            await connection.close()
+            welcome = welcome[0]
             prefix = str(await get_pre(bot, ctx))
-            await ctx.channel.send("```" + str(prefix) +
-                                   "general *mention new general channel*```")
+            if welcome != 0 :
+              await ctx.channel.send("The current welcome channel is <#" + str(welcome) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) + "welcome *mention new welcome channel*```")
+            else :
+              await ctx.channel.send("There is not defined welcome channel defined for this server right now. If you want to set up one to see who enters and leaves your server, please use this command :\n" + "```" + str(prefix) + "welcome *mention new welcome channel*```")
+    else:
+        await missing_perms(ctx, "general", "manage guild")
+
+
+@bot.command(name='announcements')
+async def announcements(ctx):
+    if ctx.message.author.guild_permissions.manage_guild:
+        connection = await aiosqlite.connect('bot.db', timeout=10)
+        cursor = await connection.cursor()
+        if len(ctx.message.channel_mentions) > 0:
+            channel = ctx.message.channel_mentions[0].id
+            await cursor.execute(
+                "UPDATE servers SET announcements_channel_ID = ? WHERE server_id=?",
+                (channel, ctx.guild.id))
+            await ctx.message.add_reaction("\u2705")
+            await connection.commit()
+            await connection.close()
+        else:
+            await cursor.execute("SELECT announcements_channel_ID FROM servers WHERE server_id = ?", (ctx.guild.id,))
+            announcements = await cursor.fetchone()
+            await connection.close()
+            announcements = announcements[0]
+            prefix = str(await get_pre(bot, ctx))
+            if announcements != 0 :
+              await ctx.channel.send("The current announcements channel is <#" + str(announcements) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) + "announcements *mention new announcements channel*```")
+            else :
+              await ctx.channel.send("There is not defined announcements channel defined for this server right now. If you want to set up one to stay tuned with the latest KannaSucre News, please use this command :\n" + "```" + str(prefix) + "announcements *mention new announcements channel*```")
     else:
         await missing_perms(ctx, "general", "manage guild")
 
@@ -522,7 +551,7 @@ async def lengthlimit(ctx):
                 connection = await aiosqlite.connect('bot.db', timeout=10)
                 cursor = await connection.cursor()
                 await cursor.execute(
-                    "UPDATE info SET LengthLimit = ? WHERE Server_ID=?",
+                    "UPDATE servers SET lengthlimit = ? WHERE server_id = ?",
                     (limit, ctx.guild.id))
                 await ctx.channel.send(
                     "The message character limit for this server now is **" +
@@ -556,7 +585,7 @@ async def dice(ctx):
 @bot.command(name="servericon")
 async def servericon(ctx):
   message = ctx.guild.icon_url
-  await ctx.channel.send(message or "This sesrver does not have an icon.")
+  await ctx.channel.send(message or "This server does not have an icon.")
 
 
 def get_rarity():
@@ -586,25 +615,25 @@ def get_rarity_name(rarity):
     return "Common"
 
 
-@bot.command(name = "pokemon")
-async def pokemon(ctx):
+@bot.command(name = "poke")
+async def poke(ctx):
   connection = await aiosqlite.connect('bot.db', timeout = 10)
   cursor = await connection.cursor()
-  await cursor.execute("SELECT Last_roll_datetime FROM users WHERE member_ID =?", (ctx.message.author.id,))
+  await cursor.execute("SELECT last_roll_datetime FROM users WHERE member_id =?", (ctx.message.author.id, ))
   last_roll = await cursor.fetchone()
   now = time.time()
   time_since = int(now - last_roll[0])
   if time_since > 7200:
     rarity = get_rarity()
     rarity_name = get_rarity_name(rarity)
-    await cursor.execute("SELECT Link, Name, Pokedex_ID FROM pokedex WHERE Rarity = ? ORDER BY RANDOM()", (rarity,))
+    await cursor.execute("SELECT image_link, name, pokedex_id FROM pokedex WHERE rarity = ? ORDER BY RANDOM()", (rarity, ))
     data = await cursor.fetchone()
-    await cursor.execute("UPDATE users SET Last_roll_datetime = ? WHERE member_ID = ?", (now, ctx.message.author.id))
+    await cursor.execute("UPDATE users SET last_roll_datetime = ? WHERE member_id = ?", (now, ctx.message.author.id))
     await connection.commit()
-    await cursor.execute("SELECT * FROM obtained WHERE User_ID = ? AND Pokedex_ID = ?", (ctx.message.author.id, data[2]))
+    await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND pokedex_id = ?", (ctx.message.author.id, data[2]))
     is_obtained = await cursor.fetchone()
     if is_obtained == None:
-      await cursor.execute("INSERT INTO obtained (User_ID, Pokedex_ID, Date) VALUES (?, ?, ?)", (ctx.message.author.id, data[2], now))
+      await cursor.execute("INSERT INTO pokemon_obtained (user_ID, pokedex_id, date) VALUES (?, ?, ?)", (ctx.message.author.id, data[2], now))
       desc = "This is a **" + rarity_name + "** pokemon!"
     else:
       desc = "This is a **" + rarity_name + "** pokemon!\nYou already had that pokemon. :confused:"
@@ -628,7 +657,7 @@ async def pokemon(ctx):
 async def pokedex(ctx):
   connection = await aiosqlite.connect('bot.db', timeout = 10)
   cursor = await connection.cursor()
-  await cursor.execute("SELECT Name FROM obtained JOIN pokedex USING(Pokedex_ID) WHERE User_ID = ? ORDER BY Pokedex_ID;", (ctx.message.author.id,))
+  await cursor.execute("SELECT name FROM pokemon_obtained JOIN pokedex USING(pokedex_id) WHERE user_ID = ? ORDER BY pokedex_id;", (ctx.message.author.id,))
   Pokemons = await cursor.fetchall()
   list_pokemons = ""
   for elem in Pokemons:
@@ -640,33 +669,55 @@ async def pokedex(ctx):
   await connection.close()
 
 
-@bot.command(name = "a")
-async def a(ctx):
+@bot.command(name = "announce")
+async def announce(ctx):
   if ctx.message.author.id == 307556664091869185:
-    channel = bot.get_channel(451828254836391946)
-    await channel.send("KannaSucre is back! No new major features night now, but I can say that the 'pokemon' command has been renamed 'poke', for faster typing, see you soon!")
-
-"""
-@bot.command(name='randomNick')
-async def randomNick(ctx):
-    me = ctx.guild.get_member(765255086581612575)
-    if ctx.message.author.guild_permissions.manage_guild:
-        for x in ctx.guild.members:
-            if not x.bot:
-                letters = random.randint(5, 9)
-                nickname = Nickname(letters).capitalize()
-                if x.guild_permissions.is_strict_subset(me.guild_permissions):
-                    await x.edit(nick=nickname)
-                else:
-                    await ctx.send(
-                        "Couldn't rename " + x.name +
-                        " : target has too much permissions.\nIntended nickname : "
-                        + nickname + "\n** **")
-        await ctx.send("Done renaming members!")
-    else:
-        await missing_perms(ctx, "randomNick", "manage guild")
-"""
+    connection = await aiosqlite.connect('bot.db', timeout = 10)
+    cursor = await connection.cursor()
+    await cursor.execute("SELECT announcements_channel_ID FROM servers")
+    IDs = await cursor.fetchall()
+    await connection.close()
+    for i in range(len(IDs)):
+      if IDs[i][0] != 0 and IDs[i][0] != None :
+        channel = bot.get_channel(IDs[i][0])
+        await channel.send(ctx.message.content[9:])
 
 
-keep_alive()
-bot.run(os.getenv("TOKEN"))
+@bot.command(name = "help")
+async def help(ctx):
+	connection = await aiosqlite.connect('bot.db', timeout = 10)
+	cursor = await connection.cursor()
+	if len(ctx.message.content) < 6:
+		print("a")
+		await cursor.execute("SELECT name, short FROM commands")
+		commands = await cursor.fetchall()
+		content = ""
+		for i in range(len(commands)): 
+			content += "`" + commands[i][0] +  "` : " + commands[i][1] +"\n"
+			embed = discord.Embed(title= commands[i][0] + " command :", colour=discord.Colour(0x635f), description=commands[i][1])
+			embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
+			embed.set_author(name="KannaSucre help :")
+			embed.add_field(name="Commands", value=content)
+		await ctx.send(embed=embed)
+	else:
+		await cursor.execute("SELECT name, description, use_example, user_perms, bot_perms, category FROM commands")
+		commands = await cursor.fetchall()
+		await connection.close()
+		parameter = ctx.message.content[6:].lower()
+		successful = False
+		for i in range(len(commands)):
+			if commands[i][0] == parameter:
+				embed = discord.Embed(title= commands[i][0] + " command :", colour=discord.Colour(0x635f), description=commands[i][1])
+				embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
+				embed.set_author(name="KannaSucre help,")
+				embed.add_field(name="User's perms :			", value="`" + commands[i][3] + "`", inline = True)
+				embed.add_field(name="Kanna's perms :			", value="`" + commands[i][4] + "`", inline = True)
+				embed.add_field(name="Example : ", value="```" + commands[i][2] + "```", inline = False)
+				await ctx.send(embed=embed)
+				successful = True
+		if successful == False :
+			await ctx.send("No command named `" + parameter +"` found.")
+
+
+
+bot.run(os.environ['TOKEN'])
