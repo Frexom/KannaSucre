@@ -24,17 +24,11 @@ bot.remove_command('help')
 
 
 async def missing_perms(ctx, command_name: str, perms: str = "Not renseigned"):
-    await ctx.channel.send(
-        "I'm sorry but you don't meet the requirements to run that command : `"
-        + command_name +
-        "`.\nThis command requires the following permission : `" + perms +
-        "`.")
+    await ctx.channel.send("I'm sorry but you don't meet the requirements to run that command : `" + command_name + "`.\nThis command requires the following permission : `" + perms + "`.")
 
 
 async def lack_perms(ctx, command_name: str):
-    await ctx.channel.send(
-        "I'm sorry but the command target has more permissions than you. You can't target them with the following command : `"
-        + command_name + "`.")
+    await ctx.channel.send("I'm sorry but the command target has more permissions than you. You can't target them with the following command : `" + command_name + "`.")
 
 
 def Nickname(NumberLetters):
@@ -42,48 +36,30 @@ def Nickname(NumberLetters):
     nick = ""
     letter = ""
     Alphabet = Alphabet = {
-        "a": [
-            "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o",
-            "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
-        ],
+        "a": ["b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o","p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
         "b": ["a", "e", "i", "l", "n", "o", "r", "u", "y", "z"],
         "c": ["a", "c", "e", "i", "k", "l", "o", "r", "u", "y"],
         "d": ["a", "e", "i", "o", "r", "u", "y"],
-        "e": [
-            "a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n",
-            "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
-        ],
+        "e": ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
         "f": ["a", "e", "f", "i", "l", "o", "r", "u", "y"],
         "g": ["a", "e", "i", "l", "o", "r", "u", "w", "y"],
-        "i": [
-            "a", "b", "c", "d", "e", "f", "g", "j", "k", "l", "m", "n", "o",
-            "p", "q", "r", "s", "t", "u", "v", "w", "x", "z"
-        ],
+        "i": ["a", "b", "c", "d", "e", "f", "g", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "z"],
         "j": ["a", "e", "i", "o", "u", "y"],
         "k": ["a", "e", "i", "l", "o", "r", "s", "u", "y"],
         "l": ["a", "e", "i", "l", "o", "u", "y"],
         "m": ["a", "e", "i", "o", "u", "y"],
         "n": ["a", "e", "i", "n", "o", "u", "y"],
-        "o": [
-            "a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n",
-            "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
-        ],
+        "o": ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
         "p": ["a", "e", "i", "l", "n", "o", "r", "s", "u", "y"],
         "q": ["a", "e", "i", "l", "o", "r", "s", "u", "w", "y"],
         "r": ["a", "e", "i", "o", "u", "y"],
         "s": ["a", "c", "e", "i", "l", "o", "p", "t", "u", "w", "y"],
         "t": ["a", "e", "i", "l", "o", "r", "s", "u", "y"],
-        "u": [
-            "a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n",
-            "o", "p", "q", "r", "s", "t", "v", "w", "x", "z"
-        ],
+        "u": ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "v", "w", "x", "z"],
         "v": ["a", "e", "i", "l", "o", "r", "u", "y"],
         "w": ["a", "e", "i", "o", "u", "y"],
         "x": ["a", "e", "i", "o", "u", "y"],
-        "y": [
-            "a", "b", "c", "d", "e", "f", "g", "j", "k", "l", "m", "n", "o",
-            "p", "q", "r", "s", "t", "u", "v", "w", "x", "z"
-        ],
+        "y": ["a", "b", "c", "d", "e", "f", "g", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "z"],
         "z": ["a", "e", "i", "o", "u"]
     }
 
@@ -92,10 +68,8 @@ def Nickname(NumberLetters):
         letter = chr(random.randint(97, 122))
     nick += letter
     for j in range(NumberLetters - 1):
-        letter = Alphabet[letter][random.randint(0,
-                                                 (len(Alphabet[letter]) - 1))]
+        letter = Alphabet[letter][random.randint(0,(len(Alphabet[letter]) - 1))]
         nick += letter
-
     return nick
 
 
@@ -109,10 +83,7 @@ async def on_ready():
 @bot.event
 async def on_guild_channel_create(channel):
     role = get(channel.guild.roles, name="Muted")
-    await channel.set_permissions(role,
-                                  send_messages=False,
-                                  add_reactions=False,
-                                  speak=False)
+    await channel.set_permissions(role, send_messages=False, add_reactions=False, speak=False)
 
 
 @bot.event
@@ -123,9 +94,9 @@ async def on_member_join(member):
     channel_ID = await cursor.fetchone()
     channel_ID = channel_ID[0]
     if channel_ID != 0:
-        general: discord.TextChannel = bot.get_channel(channel_ID)
-        await general.send("<@" + str(member.id) + "> joined the server! Yayy!!")
-    
+        welcome_channel: discord.TextChannel = bot.get_channel(channel_ID)
+        await welcome_channel.send("<@" + str(member.id) + "> joined the server! Yayy!!")
+
     if not member.bot:
         await cursor.execute("SELECT member_id FROM users WHERE member_id = ?", (member.id, ))
         member_id = await cursor.fetchone()
@@ -140,12 +111,11 @@ async def on_member_remove(member):
     if member.id != 765255086581612575:
         connection = await aiosqlite.connect('bot.db', timeout=10)
         cursor = await connection.cursor()
-        await cursor.execute(
-            "SELECT welcome_channel_ID FROM servers WHERE server_id = ?", (member.guild.id, ))
+        await cursor.execute("SELECT welcome_channel_ID FROM servers WHERE server_id = ?", (member.guild.id, ))
         channel_ID = await cursor.fetchone()
         if channel_ID[0] != 0:
-            general: discord.TextChannel = bot.get_channel(channel_ID[0])
-            await general.send(str(member) + " left the server. :(")
+            welcome_channel: discord.TextChannel = bot.get_channel(channel_ID[0])
+            await welcome_channel.send(str(member) + " left the server. :(")
         await connection.close()
 
 
@@ -156,15 +126,12 @@ async def on_guild_join(guild):
     await cursor.execute("SELECT server_id FROM servers WHERE server_id = ?", (int(guild.id), ))
     if await cursor.fetchone() == None:
         if guild.system_channel != None:
-            await cursor.execute(
-                "INSERT INTO servers(server_id, prefix, welcome_channel_id) VALUES(?,'!', ?)", (int(guild.id), int(guild.system_channel.id)))
+            await cursor.execute("INSERT INTO servers(server_id, prefix, welcome_channel_id) VALUES(?,'!', ?)", (int(guild.id), int(guild.system_channel.id)))
         else:
-            await cursor.execute(
-                "INSERT INTO servers(server_id, prefix, welcome_channel_ID) VALUES(?,'!', ?)", (guild.id, 0))
+            await cursor.execute("INSERT INTO servers(server_id, prefix, welcome_channel_ID) VALUES(?,'!', ?)", (guild.id, 0))
     for user in guild.members:
         if not user.bot:
-            await cursor.execute(
-                "SELECT member_id FROM users WHERE member_id= ?", (user.id, ))
+            await cursor.execute("SELECT member_id FROM users WHERE member_id= ?", (user.id, ))
             member_id = await cursor.fetchone()
             if member_id == None:
                 await cursor.execute("INSERT INTO users(member_id) VALUES(?)", (int(user.id), ))
@@ -175,22 +142,15 @@ async def on_guild_join(guild):
 @bot.event
 async def on_message(message):
     if not message.author.bot:
-        await get_pre(bot, message)
+        prefix = await get_pre(bot, message)
         if message.content.lower() == "ping":
-            await message.channel.send("Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" +
-                                       str(await get_pre(bot, message)) + "`")
+            await message.channel.send("Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" + prefix + "`")
         connection = await aiosqlite.connect('bot.db', timeout=10)
         cursor = await connection.cursor()
-        await cursor.execute(
-            "SELECT lengthlimit FROM servers WHERE server_id = ?", (message.guild.id, ))
+        await cursor.execute("SELECT lengthlimit FROM servers WHERE server_id = ?", (message.guild.id, ))
         limit = await cursor.fetchone()
-        if not (type(limit[0])
-                == type(None)) and len(message.content) > limit[0]:
-            await message.author.send(
-                "Your message has been deleted since it's too long for the server, try to short it down to **"
-                + str(limit[0]) +
-                "** characters.\nHere is your message :\n\n" +
-                str(message.content))
+        if not (type(limit[0]) == type(None)) and len(message.content) > limit[0] :
+            await message.author.send("Your message has been deleted since it's too long for the server, try to short it down to **" + str(limit[0]) + "** characters.\nHere is your message :\n\n" + str(message.content))
             await message.delete()
         await connection.commit()
         await connection.close()
@@ -204,22 +164,17 @@ async def clear(ctx):
         if len(number) > 1 and number[1].isdecimal():
             number = int(number[1])
             if number < 51:
-                messages = await ctx.channel.history(limit=number + 1
-                                                     ).flatten()
+                messages = await ctx.channel.history(limit=number + 1).flatten()
                 count = -1
                 for each in messages:
                     await each.delete()
                     count += 1
-                await ctx.channel.send(str(count) +
-                                       " messages were deleted :D",
-                                       delete_after=5)
+                await ctx.channel.send(str(count) + " messages were deleted :D", delete_after=5)
             else:
-                await ctx.channel.send(
-                    "You can't clear more than 50 messages at the same time.")
+                await ctx.channel.send("You can't clear more than 50 messages at the same time.")
         else:
             prefix = str(await get_pre(bot, ctx))
-            await ctx.channel.send("```" + str(prefix) +
-                                   "clear *number of messages*```")
+            await ctx.channel.send("```" + str(prefix) + "clear *number of messages*```")
     else:
         await missing_perms(ctx, "clear", "manage messages")
 
@@ -228,32 +183,24 @@ async def clear(ctx):
 async def kick(ctx):
     if ctx.message.author.guild_permissions.kick_members:
         reason = ctx.message.content.split(" ")
-        if len(ctx.message.mentions) > 0 or (len(reason) > 1
-                                             and reason[1].isdecimal()
-                                             and len(reason[1]) > 15):
+        if len(ctx.message.mentions) > 0 or (len(reason) > 1 and reason[1].isdecimal() and len(reason[1]) > 15):
             if reason[1].isdecimal():
                 member = ctx.guild.get_member(int(reason[1]))
             else:
                 member = ctx.message.mentions[0]
             reason = ' '.join(reason[2:])
-            if member.guild_permissions.is_strict_subset(
-                    ctx.message.author.guild_permissions):
+            if member.guild_permissions.is_strict_subset(ctx.message.author.guild_permissions):
                 if reason != "":
-                    await member.send("you have been kicked FROM **" +
-                                      str(ctx.guild.name) + "**.\nReason : `" +
-                                      reason + "`.")
+                    await member.send("you have been kicked FROM **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
                 else:
-                    await member.send("You have been kicked FROM **" +
-                                      str(ctx.guild.name) +
-                                      "**.\nNo reason given.")
+                    await member.send("You have been kicked FROM **" + str(ctx.guild.name) + "**.\nNo reason given.")
                 await member.kick()
                 await ctx.message.add_reaction("\u2705")
             else:
                 await lack_perms(ctx, "kick")
         else:
             prefix = str(await get_pre(bot, ctx))
-            await ctx.channel.send("```" + str(prefix) +
-                                   "kick *mention target/target ID*```")
+            await ctx.channel.send("```" + str(prefix) + "kick *mention target/target ID*```")
     else:
         await missing_perms(ctx, "kick", "kick members")
 
@@ -262,38 +209,29 @@ async def kick(ctx):
 async def ban(ctx):
     if ctx.message.author.guild_permissions.ban_members:
         reason = ctx.message.content.split(" ")
-        if len(ctx.message.mentions) > 0 or (len(reason) > 1
-                                             and reason[1].isdecimal()
-                                             and len(reason[1]) > 15):
+        if len(ctx.message.mentions) > 0 or (len(reason) > 1 and reason[1].isdecimal() and len(reason[1]) > 15):
             if reason[1].isdecimal():
                 member = ctx.guild.get_member(int(reason[1]))
             else:
                 member = ctx.message.mentions[0]
-            if member.guild_permissions.is_strict_subset(
-                    ctx.message.author.guild_permissions):
+            if member.guild_permissions.is_strict_subset(ctx.message.author.guild_permissions):
                 reason = ' '.join(reason[2:])
                 if reason != "":
-                    await member.send("you have been banned FROM **" +
-                                      str(ctx.guild.name) + "**.\nReason : `" +
-                                      reason + "`.")
+                    await member.send("you have been banned FROM **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
                 else:
-                    await member.send("You have been banned FROM **" +
-                                      str(ctx.guild.name) +
-                                      "**.\nNo reason given.")
+                    await member.send("You have been banned FROM **" + str(ctx.guild.name) + "**.\nNo reason given.")
                 await member.ban()
                 await ctx.message.add_reaction("\u2705")
             else:
                 await lack_perms(ctx, "ban")
         else:
             prefix = str(await get_pre(bot, ctx))
-            await ctx.channel.send(
-                "```" + str(prefix) +
-                "ban *mention target/target ID* *reason(optional)*```")
+            await ctx.channel.send("```" + str(prefix) + "ban *mention target/target ID* *reason(optional)*```")
     else:
         await missing_perms(ctx, "ban", "ban members")
 
 
-@bot.command(name='prefix', brief = "Changes the prefix", description = "Chanegs the bot's command prefix, you must own the manage guild permissions to successfully run that command.")
+@bot.command(name='prefix')
 async def prefix(ctx):
     if ctx.message.author.guild_permissions.manage_guild:
         prefix = ctx.message.content.split(" ")
@@ -301,17 +239,13 @@ async def prefix(ctx):
             prefix = prefix[1]
             connection = await aiosqlite.connect('bot.db', timeout=10)
             cursor = await connection.cursor()
-            await cursor.execute(
-                "UPDATE servers SET prefix = ? WHERE server_id = ?",
-                (prefix, ctx.guild.id))
-            await ctx.channel.send("My prefix for this server now is `" +
-                                   str(prefix) + "` :)")
+            await cursor.execute("UPDATE servers SET prefix = ? WHERE server_id = ?", (prefix, ctx.guild.id))
+            await ctx.channel.send("My prefix for this server now is `" + str(prefix) + "` :)")
             await connection.commit()
             await connection.close()
         else:
             prefix = str(await get_pre(bot, ctx))
-            await ctx.channel.send("```" + str(prefix) +
-                                   "prefix *new prefix*```")
+            await ctx.channel.send("```" + str(prefix) + "prefix *new prefix*```")
     else:
         await missing_perms(ctx, "prefix", "manage guild")
 
@@ -360,16 +294,10 @@ async def hug(ctx):
             "https://images-ext-1.discordapp.net/external/2TAL2AoHlWYA2U4lStmtWb8CCo0S417XnedHFaz9uaw/%3Fitemid%3D19674705/https/media1.tenor.com/images/f7b6be96e8ebb23319b43304da0e1118/tenor.gif"
         ]
         if ctx.message.author == ctx.message.mentions[0]:
-            e = discord.Embed(title=str(ctx.message.author.name) +
-                              ", I see you're lonely, take my hug! :heart:")
-            e.set_image(
-                url=
-                "https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif"
-            )
+            e = discord.Embed(title=str(ctx.message.author.name) + ", I see you're lonely, take my hug! :heart:")
+            e.set_image(url="https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif")
         else:
-            e = discord.Embed(title=str(ctx.message.mentions[0].name) +
-                              ", you have been hugged by " +
-                              str(ctx.message.author.name) + " :heart:")
+            e = discord.Embed(title=str(ctx.message.mentions[0].name) + ", you have been hugged by " + str(ctx.message.author.name) + " :heart:")
             e.set_image(url=str(hugList[randint(0, len(hugList) - 1)]))
         await ctx.send(embed=e)
     else:
@@ -377,19 +305,16 @@ async def hug(ctx):
         await ctx.channel.send("```" + str(prefix) + "hug *mention user*```")
 
 
-@bot.command(name='mute', brief = "Mutes a member", description = "Mutes a member. The member can be muted indefinitely, or for a given duration. You have to own the manage messages permissions and the bot has to own the manage messages + manages roles pemissions.", usage = "@target *duration in minutes*(optionnal) reason(optionnal)")
+@bot.command(name='mute')
 async def mute(ctx):
     if ctx.message.author.guild_permissions.manage_messages:
         reason = ctx.message.content.split(" ")
-        if len(ctx.message.mentions) > 0 or (len(reason) > 1
-                                             and reason[1].isdecimal()
-                                             and len(reason[1]) > 15):
+        if len(ctx.message.mentions) > 0 or (len(reason) > 1 and reason[1].isdecimal() and len(reason[1]) > 15):
             if reason[1].isdecimal():
                 member = ctx.guild.get_member(int(reason[1]))
             else:
                 member = ctx.message.mentions[0]
-            if member.guild_permissions.is_strict_subset(
-                    ctx.message.author.guild_permissions):
+            if member.guild_permissions.is_strict_subset(ctx.message.author.guild_permissions):
                 reason = ctx.message.content.split(" ")
                 duration = None
                 if len(reason) > 2 and reason[2].isdecimal():
@@ -401,18 +326,11 @@ async def mute(ctx):
                     reason = ""
 
                 if not discord.utils.get(ctx.guild.roles, name="Muted"):
-                    perms = discord.Permissions(send_messages=False,
-                                                add_reactions=False,
-                                                speak=False)
-                    await ctx.guild.create_role(name='Muted',
-                                                color=int("d90951", 16),
-                                                permissions=perms)
+                    perms = discord.Permissions(send_messages=False, add_reactions=False, speak=False)
+                    await ctx.guild.create_role(name='Muted', color=int("d90951", 16), permissions=perms)
                     role = get(ctx.guild.roles, name="Muted")
                     for chan in ctx.guild.channels:
-                        await chan.set_permissions(role,
-                                                   send_messages=False,
-                                                   add_reactions=False,
-                                                   speak=False)
+                        await chan.set_permissions(role, send_messages=False, add_reactions=False, speak=False)
                 role = get(ctx.guild.roles, name="Muted")
 
                 if role not in member.roles:
@@ -432,8 +350,7 @@ async def mute(ctx):
                         await sleep(duration * 60)
                         if role in member.roles:
                             await member.remove_roles(role)
-                            await member.send("You have been unmuted FROM **" +
-                                              str(ctx.guild.name) + "**.")
+                            await member.send("You have been unmuted FROM **" + str(ctx.guild.name) + "**.")
                 else:
                     await ctx.channel.send("That user is already muted.",
                                            delete_after=5)
@@ -441,10 +358,7 @@ async def mute(ctx):
                 await lack_perms(ctx, "mute")
         else:
             prefix = str(await get_pre(bot, ctx))
-            await ctx.channel.send(
-                "```" + str(prefix) +
-                "mute *mention target/target ID* *duration(optional)* *reason(optional)*```"
-            )
+            await ctx.channel.send( "```" + str(prefix) + "mute *mention target/target ID* *duration(optional)* *reason(optional)*```")
     else:
         await missing_perms(ctx, "mute", "manage messages")
 
@@ -453,35 +367,27 @@ async def mute(ctx):
 async def unmute(ctx):
     if ctx.message.author.guild_permissions.manage_messages:
         words = ctx.message.content.split(" ")
-        if len(ctx.message.mentions) > 0 or (len(words) > 1
-                                             and words[1].isdecimal()
-                                             and len(words[1]) > 15):
+        if len(ctx.message.mentions) > 0 or (len(words) > 1 and words[1].isdecimal() and len(words[1]) > 15):
             if words[1].isdecimal():
                 member = ctx.guild.get_member(int(words[1]))
             else:
                 member = ctx.message.mentions[0]
-            if member.guild_permissions.is_strict_subset(
-                    ctx.message.author.guild_permissions):
+            if member.guild_permissions.is_strict_subset(ctx.message.author.guild_permissions):
                 reason = ctx.message.content.split(" ")
                 reason = ' '.join(reason[2:])
                 role = discord.utils.get(ctx.guild.roles, name="Muted")
                 if role in ctx.message.mentions[0].roles:
                     await member.remove_roles(role)
                     await ctx.message.add_reaction("\u2705")
-                    await member.send("You have been unmuted FROM " +
-                                      str(ctx.guild.name) + ".")
-                    await ctx.channel.send(str(ctx.message.mentions[0]) +
-                                           " has been unmuted.",
-                                           delete_after=5)
+                    await member.send("You have been unmuted FROM " + str(ctx.guild.name) + ".")
+                    await ctx.channel.send(str(ctx.message.mentions[0]) + " has been unmuted.", delete_after=5)
                 else:
-                    await ctx.channel.send("That user isn't muted.",
-                                           delete_after=5)
+                    await ctx.channel.send("That user isn't muted.", delete_after=5)
             else:
                 await lack_perms(ctx, "unmute")
         else:
             prefix = str(await get_pre(bot, ctx))
-            await ctx.channel.send("```" + str(prefix) +
-                                   "unmute *mention target/target ID*```")
+            await ctx.channel.send("```" + str(prefix) + "unmute *mention target/target ID*```")
     else:
         await missing_perms(ctx, "unmute", "manage messages")
 
@@ -493,14 +399,12 @@ async def welcome(ctx):
         cursor = await connection.cursor()
         if len(ctx.message.channel_mentions) > 0:
             channel = ctx.message.channel_mentions[0].id
-            await cursor.execute(
-                "UPDATE servers SET welcome_channel_id = ? WHERE server_id=?",
-                (channel, ctx.guild.id))
+            await cursor.execute("UPDATE servers SET welcome_channel_id = ? WHERE server_id=?", (channel, ctx.guild.id))
             await ctx.message.add_reaction("\u2705")
             await connection.commit()
             await connection.close()
         else:
-            await cursor.execute("SELECT welcome_channel_id FROM servers WHERE server_id = ?", (ctx.guild.id,))
+            await cursor.execute("SELECT welcome_channel_id FROM servers WHERE server_id = ?", (ctx.guild.id, ))
             welcome = await cursor.fetchone()
             await connection.close()
             welcome = welcome[0]
@@ -510,7 +414,7 @@ async def welcome(ctx):
             else :
               await ctx.channel.send("There is not defined welcome channel defined for this server right now. If you want to set up one to see who enters and leaves your server, please use this command :\n" + "```" + str(prefix) + "welcome *mention new welcome channel*```")
     else:
-        await missing_perms(ctx, "general", "manage guild")
+        await missing_perms(ctx, "welcome", "manage guild")
 
 
 @bot.command(name='announcements')
@@ -520,9 +424,7 @@ async def announcements(ctx):
         cursor = await connection.cursor()
         if len(ctx.message.channel_mentions) > 0:
             channel = ctx.message.channel_mentions[0].id
-            await cursor.execute(
-                "UPDATE servers SET announcements_channel_ID = ? WHERE server_id=?",
-                (channel, ctx.guild.id))
+            await cursor.execute("UPDATE servers SET announcements_channel_ID = ? WHERE server_id=?",(channel, ctx.guild.id))
             await ctx.message.add_reaction("\u2705")
             await connection.commit()
             await connection.close()
@@ -537,7 +439,7 @@ async def announcements(ctx):
             else :
               await ctx.channel.send("There is not defined announcements channel defined for this server right now. If you want to set up one to stay tuned with the latest KannaSucre News, please use this command :\n" + "```" + str(prefix) + "announcements *mention new announcements channel*```")
     else:
-        await missing_perms(ctx, "general", "manage guild")
+        await missing_perms(ctx, "announcements", "manage guild")
 
 
 @bot.command(name='lengthlimit')
@@ -549,22 +451,15 @@ async def lengthlimit(ctx):
             if limit.isdecimal() and int(limit) > 299:
                 connection = await aiosqlite.connect('bot.db', timeout=10)
                 cursor = await connection.cursor()
-                await cursor.execute(
-                    "UPDATE servers SET lengthlimit = ? WHERE server_id = ?",
-                    (limit, ctx.guild.id))
-                await ctx.channel.send(
-                    "The message character limit for this server now is **" +
-                    str(limit) + "** characters :)")
+                await cursor.execute("UPDATE servers SET lengthlimit = ? WHERE server_id = ?",(limit, ctx.guild.id))
+                await ctx.channel.send("The message character limit for this server now is **" +str(limit) + "** characters :)")
                 await connection.commit()
                 await connection.close()
             else:
-                await ctx.channel.send(
-                    "I'm sorry but the character limit must be at least 300 characters."
-                )
+                await ctx.channel.send("I'm sorry but the character limit must be at least 300 characters.")
         else:
             prefix = str(await get_pre(bot, ctx))
-            await ctx.channel.send("```" + str(prefix) +
-                                   "lengthlimit *characters limit*```")
+            await ctx.channel.send("```" + str(prefix) +"lengthlimit *characters limit*```")
     else:
         await missing_perms(ctx, "lengthlimit", "manage guild")
 
@@ -656,7 +551,7 @@ async def poke(ctx):
 async def pokedex(ctx):
   connection = await aiosqlite.connect('bot.db', timeout = 10)
   cursor = await connection.cursor()
-  await cursor.execute("SELECT name FROM pokemon_obtained JOIN pokedex USING(pokedex_id) WHERE user_ID = ? ORDER BY pokedex_id;", (ctx.message.author.id,))
+  await cursor.execute("SELECT name FROM pokemon_obtained JOIN pokedex USING(pokedex_id) WHERE user_ID = ? ORDER BY pokedex_id;", (ctx.message.author.id, ))
   Pokemons = await cursor.fetchall()
   list_pokemons = ""
   for elem in Pokemons:
@@ -692,17 +587,22 @@ async def help(ctx):
 	cursor = await connection.cursor()
 	message_list = ctx.message.content.split(" ")
 	if len(message_list) < 2:
-		await cursor.execute("SELECT name, short FROM commands")
+		categories = ["__Admin commands :__ \n\n", "\n\n__Moderation commands :__ \n\n", "\n\n__Utilities commands :__ \n\n", "\n\n__Miscellaneous/Fun commands :__ \n\n"]
+		await cursor.execute("SELECT name, short, category FROM commands ORDER BY category, name")
 		commands = await cursor.fetchall()
 		content = ""
-		for i in range(len(commands)): 
-			content += "`" + commands[i][0] +  "` : " + commands[i][1] +"\n"
-			embed = discord.Embed(title= "Kannasucre help : ", colour=discord.Colour(0x635f))
-			embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
-			embed.add_field(name="Commands", value=content)
+		index = 0
+		for i in range(4):
+			content += categories[i]
+			while(index < len(commands) and commands[index][2] == i+1):
+				content += "`" + commands[index][0] +  "` : " + commands[index][1] +"\n"
+				index += 1;
+		embed = discord.Embed(title= "Kannasucre help : ", colour=discord.Colour(0x635f))
+		embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
+		embed.add_field(name="** **", value=content)
 		await ctx.send(embed=embed)
 	else:
-		await cursor.execute("SELECT name, description, use_example, user_perms, bot_perms, category FROM commands")
+		await cursor.execute("SELECT name, description, use_example, user_perms, bot_perms FROM commands")
 		commands = await cursor.fetchall()
 		await connection.close()
 		parameter = message_list[1]
