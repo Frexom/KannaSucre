@@ -571,9 +571,12 @@ async def pokedex(ctx):
 	cursor = await connection.cursor()
 	await cursor.execute("SELECT name FROM pokemon_obtained JOIN pokedex USING(pokedex_id) WHERE user_ID = ? ORDER BY pokedex_id;", (ctx.message.author.id, ))
 	Pokemons = await cursor.fetchall()
-	list_pokemons = ""
-	for elem in Pokemons:
-		list_pokemons += str(elem[0]) + "\n"
+	if Pokemons == [] :
+		list_pokemons = "You don't have any pokemon right now."
+	else:
+		list_pokemons = ""
+		for elem in Pokemons:
+			list_pokemons += str(elem[0]) + "\n"
 	embed=discord.Embed(title= str(ctx.message.author.name) + "'s Pokedex")
 	embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
 	embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
@@ -593,12 +596,19 @@ async def announce(ctx):
 	await connection.close()
 	message_list = ctx.message.content.split(" ")[1:]
 	message = ""
-	for i in range(len(message_list)) :
-		message += message_list[i] + " "
+	message = " ".join(message_list)
 	for i in range(len(IDs)):
 		if IDs[i][0] != 0 and IDs[i][0] != None :
 			channel = bot.get_channel(IDs[i][0])
 			await channel.send(message)
+
+
+@bot.command(name = "preview")
+@commands.is_owner()
+async def preview(ctx):
+	message_list = ctx.message.content.split(" ")[1:]
+	message = " ".join(message_list)
+	await ctx.channel.send(message)
 
 
 @bot.command(name = "help")
@@ -660,6 +670,7 @@ async def level(ctx):
 	await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(ctx.author.name) + ".png"))
 	await cursor.close()
 	await connection.close()
+
 
 @bot.command(name = 'sql')
 @commands.is_owner()
