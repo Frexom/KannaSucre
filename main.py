@@ -1,7 +1,6 @@
 from discord.ext import commands
 import discord
 import aiosqlite
-import random
 import time
 import os
 from PIL import Image, ImageFont, ImageDraw
@@ -33,53 +32,33 @@ async def lack_perms(ctx, command_name: str):
   await ctx.channel.send("I'm sorry but the command target has more permissions than you. You can't target them with the following command : `" + command_name + "`.")
 
 
-def Nickname(NumberLetters):
-  nick = ""
-  letter = ""
-  Alphabet = Alphabet = {
-  "a": ["b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o","p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
-  "b": ["a", "e", "i", "l", "n", "o", "r", "u", "y", "z"],
-  "c": ["a", "c", "e", "i", "k", "l", "o", "r", "u", "y"],
-  "d": ["a", "e", "i", "o", "r", "u", "y"],
-  "e": ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
-  "f": ["a", "e", "f", "i", "l", "o", "r", "u", "y"],
-  "g": ["a", "e", "i", "l", "o", "r", "u", "w", "y"],
-  "i": ["a", "b", "c", "d", "e", "f", "g", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "z"],
-  "j": ["a", "e", "i", "o", "u", "y"],
-  "k": ["a", "e", "i", "l", "o", "r", "s", "u", "y"],
-  "l": ["a", "e", "i", "l", "o", "u", "y"],
-  "m": ["a", "e", "i", "o", "u", "y"],
-  "n": ["a", "e", "i", "n", "o", "u", "y"],
-  "o": ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
-  "p": ["a", "e", "i", "l", "n", "o", "r", "s", "u", "y"],
-  "q": ["a", "e", "i", "l", "o", "r", "s", "u", "w", "y"],
-  "r": ["a", "e", "i", "o", "u", "y"],
-  "s": ["a", "c", "e", "i", "l", "o", "p", "t", "u", "w", "y"],
-  "t": ["a", "e", "i", "l", "o", "r", "s", "u", "y"],
-  "u": ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "v", "w", "x", "z"],
-  "v": ["a", "e", "i", "l", "o", "r", "u", "y"],
-  "w": ["a", "e", "i", "o", "u", "y"],
-  "x": ["a", "e", "i", "o", "u", "y"],
-  "y": ["a", "b", "c", "d", "e", "f", "g", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "z"],
-  "z": ["a", "e", "i", "o", "u"]
-  }
-
-  letter = chr(random.randint(97, 122))
-  while letter == 'h':
-    letter = chr(random.randint(97, 122))
-  nick += letter
-  for j in range(NumberLetters - 1):
-    letter = Alphabet[letter][random.randint(0,(len(Alphabet[letter]) - 1))]
-    nick += letter
-  return nick
-
-
 @bot.event
 async def on_ready():
+	for i in range(len(bot.guilds)):
+		await setup(bot.guilds[i])
 	game = discord.Game('send "ping" to see prefix')
 	await bot.change_presence(status=discord.Status.online, activity=game)
 	print("Bot is ready")
 
+
+async def setup(guild) :
+	connection = await aiosqlite.connect('bot.db', timeout=10)
+	cursor = await connection.cursor()
+	await cursor.execute("SELECT server_id FROM servers WHERE server_id = ?", (guild.id, ))
+	if await cursor.fetchone() == None:	
+		await cursor.execute("INSERT INTO servers(server_id, prefix) VALUES(?, '!')", (guild.id, ))
+	for user in guild.members :
+		if not user.bot:
+			await cursor.execute("SELECT member_id FROM users WHERE member_id = ?", (user.id, ))
+			if await cursor.fetchone() == None:
+				await cursor.execute("INSERT INTO users(member_id) VALUES(?)", (user.id, ))
+	await connection.commit()
+	await cursor.close()
+	await connection.close()
+
+
+
+	
 
 @bot.event
 async def on_member_join(member):
@@ -118,23 +97,7 @@ async def on_member_remove(member):
 
 @bot.event
 async def on_guild_join(guild):
-	connection = await aiosqlite.connect('bot.db', timeout=10)
-	cursor = await connection.cursor()
-	await cursor.execute("SELECT server_id FROM servers WHERE server_id = ?", (int(guild.id), ))
-	if await cursor.fetchone() == None:
-		if guild.system_channel != None:
-			await cursor.execute("INSERT INTO servers(server_id, prefix, welcome_channel_id) VALUES(?,'!', ?)", (int(guild.id), int(guild.system_channel.id)))
-		else:
-			await cursor.execute("INSERT INTO servers(server_id, prefix, welcome_channel_ID) VALUES(?,'!', ?)", (guild.id, 0))
-	for user in guild.members:
-		if not user.bot:
-			await cursor.execute("SELECT member_id FROM users WHERE member_id= ?", (user.id, ))
-			member_id = await cursor.fetchone()
-			if member_id == None:
-				await cursor.execute("INSERT INTO users(member_id) VALUES(?)", (int(user.id), ))
-	await connection.commit()
-	await cursor.close()
-	await connection.close()
+	await setup(guild)
 
 
 @bot.event
@@ -147,7 +110,7 @@ async def on_message(message):
 		cursor = await connection.cursor()
 		await cursor.execute("SELECT lengthlimit FROM servers WHERE server_id = ?", (message.guild.id, ))
 		limit = await cursor.fetchone()
-		if not (type(limit[0]) == type(None)) and len(message.content) > limit[0] :
+		if limit[0] != None and len(message.content) > limit[0] :
 			await message.author.send("Your message has been deleted since it's too long for the server, try to short it down to **" + str(limit[0]) + "** characters.\nHere is your message :\n\n" + str(message.content))
 			await message.delete()
 		await cursor.execute("SELECT xp, level FROM users WHERE member_id = ?", (message.author.id, ))
@@ -156,8 +119,8 @@ async def on_message(message):
 		user_level = user_leveling[1]
 		user_xp += randint(30,50)
 		if user_xp > 300*2**user_level:
-			user_level +=1
 			user_xp -= 300*2**user_level
+			user_level +=1
 			await cursor.execute("UPDATE users SET xp = ?, level = ? WHERE member_id = ?", (user_xp, user_level, message.author.id))
 			await message.channel.send("Congratulations <@" + str(message.author.id) + ">, you are now level " + str(user_level) + "!")
 		else:
@@ -549,8 +512,6 @@ async def poke(ctx):
 		else:
 			desc = "This is a **" + rarity_name + "** pokemon!\nYou already had that pokemon. :confused:"
 		await connection.commit()
-		await cursor.close()
-		await connection.close()
 		e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got **" + str(data[1]) + "**!",  description = desc)
 		e.set_image(url=str(data[0]))
 		await ctx.send(embed = e)
@@ -563,6 +524,8 @@ async def poke(ctx):
 		else:
 			time_left = int(time_left/60)
 			await ctx.channel.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.")
+	await cursor.close()
+	await connection.close()
 
 
 @bot.command(name = "pokedex")
@@ -620,6 +583,8 @@ async def help(ctx):
 		categories = ["__Admin commands :__ \n\n", "\n\n__Moderation commands :__ \n\n", "\n\n__Utilities commands :__ \n\n", "\n\n__Miscellaneous/Fun commands :__ \n\n"]
 		await cursor.execute("SELECT name, short, category FROM commands ORDER BY category, name")
 		commands = await cursor.fetchall()
+		await cursor.close()
+		await connection.close()
 		content = ""
 		index = 0
 		for i in range(4):
@@ -683,13 +648,24 @@ async def sql(ctx):
 		await cursor.execute(query)
 		await ctx.channel.send("That went alright!")
 		result = await cursor.fetchall()
-		await ctx.channel.send(result)
+		if result == None:
+			await ctx.channel.send("None")
+		else:
+			await ctx.channel.send(result)
 	else:
 		await cursor.execute(query)
 		await ctx.channel.send("That went alright!")
 	await connection.commit()
 	await cursor.close()
 	await connection.close()
+
+
+@bot.command(name = 'shutdown')
+@commands.is_owner()
+async def shutdown(ctx):
+  print("Shutting down...")
+  await ctx.bot.logout()
+
 
 
 bot.run(os.environ['TOKEN'])
