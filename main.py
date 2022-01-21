@@ -664,7 +664,7 @@ async def sql(ctx):
 @commands.is_owner()
 async def shutdown(ctx):
   print("Shutting down...")
-  await ctx.bot.logout()
+  await bot.close()
 
 
 
