@@ -3,8 +3,8 @@ import discord
 import aiosqlite
 import time
 import os
+import random
 from PIL import Image, ImageFont, ImageDraw
-from random import randint
 from discord.utils import get
 from asyncio import sleep
 
@@ -12,7 +12,7 @@ from asyncio import sleep
 async def get_pre(bot, message):
 	connection = await aiosqlite.connect('bot.db', timeout=10)
 	c = await connection.cursor()
-	await c.execute("SELECT prefix FROM servers WHERE server_id = ?", (message.guild.id, ))
+	await c.execute("SELECT guild_prefix FROM guilds WHERE guild_id = ?", (message.guild.id, ))
 	result = await c.fetchone()
 	await c.close()
 	await connection.close()
@@ -22,6 +22,7 @@ async def get_pre(bot, message):
 default_intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=get_pre, intents=default_intents)
 bot.remove_command('help')
+random.seed(time.time())
 
 
 async def missing_perms(ctx, command_name: str, perms: str = "Not renseigned"):
@@ -44,14 +45,14 @@ async def on_ready():
 async def setup(guild) :
 	connection = await aiosqlite.connect('bot.db', timeout=10)
 	cursor = await connection.cursor()
-	await cursor.execute("SELECT server_id FROM servers WHERE server_id = ?", (guild.id, ))
+	await cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id, ))
 	if await cursor.fetchone() == None:	
-		await cursor.execute("INSERT INTO servers(server_id, prefix) VALUES(?, '!')", (guild.id, ))
+		await cursor.execute("INSERT INTO guilds(guild_id, guild_prefix) VALUES(?, '!')", (guild.id, ))
 	for user in guild.members :
 		if not user.bot:
-			await cursor.execute("SELECT member_id FROM users WHERE member_id = ?", (user.id, ))
+			await cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user.id, ))
 			if await cursor.fetchone() == None:
-				await cursor.execute("INSERT INTO users(member_id) VALUES(?)", (user.id, ))
+				await cursor.execute("INSERT INTO users(user_id) VALUES(?)", (user.id, ))
 	await connection.commit()
 	await cursor.close()
 	await connection.close()
@@ -64,7 +65,7 @@ async def setup(guild) :
 async def on_member_join(member):
   connection = await aiosqlite.connect('bot.db', timeout=10)
   cursor = await connection.cursor()
-  await cursor.execute( "SELECT welcome_channel_id FROM servers WHERE server_id = ?", (member.guild.id,))
+  await cursor.execute( "SELECT guild_welcome_channel_id FROM guilds WHERE guild_id = ?", (member.guild.id,))
   channel_ID = await cursor.fetchone()
   channel_ID = channel_ID[0]
   if channel_ID != 0:
@@ -72,10 +73,10 @@ async def on_member_join(member):
     await welcome_channel.send("<@" + str(member.id) + "> joined the server! Yayy!!")
 
   if not member.bot:
-    await cursor.execute("SELECT member_id FROM users WHERE member_id = ?", (member.id, ))
+    await cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (member.id, ))
     member_id = await cursor.fetchone()
     if member_id == None:
-      await cursor.execute("INSERT INTO users(member_id) VALUES(?)", (int(member.id), ))
+      await cursor.execute("INSERT INTO users(user_id) VALUES(?)", (int(member.id), ))
       await connection.commit()
   await cursor.close()
   await connection.close()
@@ -86,7 +87,7 @@ async def on_member_remove(member):
 	if member.id != 765255086581612575:
 		connection = await aiosqlite.connect('bot.db', timeout=10)
 		cursor = await connection.cursor()
-		await cursor.execute("SELECT welcome_channel_ID FROM servers WHERE server_id = ?", (member.guild.id, ))
+		await cursor.execute("SELECT guild_welcome_channel_ID FROM guilds WHERE guild_id = ?", (member.guild.id, ))
 		channel_ID = await cursor.fetchone()
 		if channel_ID[0] != 0:
 			welcome_channel: discord.TextChannel = bot.get_channel(channel_ID[0])
@@ -108,23 +109,23 @@ async def on_message(message):
 			await message.channel.send("Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" + prefix + "`")	
 		connection = await aiosqlite.connect('bot.db', timeout=10)
 		cursor = await connection.cursor()
-		await cursor.execute("SELECT lengthlimit FROM servers WHERE server_id = ?", (message.guild.id, ))
+		await cursor.execute("SELECT guild_lengthlimit FROM guilds WHERE guild_id = ?", (message.guild.id, ))
 		limit = await cursor.fetchone()
 		if limit[0] != None and len(message.content) > limit[0] :
 			await message.author.send("Your message has been deleted since it's too long for the server, try to short it down to **" + str(limit[0]) + "** characters.\nHere is your message :\n\n" + str(message.content))
 			await message.delete()
-		await cursor.execute("SELECT xp, level FROM users WHERE member_id = ?", (message.author.id, ))
+		await cursor.execute("SELECT user_xp, user_level FROM users WHERE user_id = ?", (message.author.id, ))
 		user_leveling = await cursor.fetchone()
 		user_xp = user_leveling[0]
 		user_level = user_leveling[1]
-		user_xp += randint(30,50)
+		user_xp += random.randint(30,50)
 		if user_xp > 300*2**user_level:
 			user_xp -= 300*2**user_level
 			user_level +=1
-			await cursor.execute("UPDATE users SET xp = ?, level = ? WHERE member_id = ?", (user_xp, user_level, message.author.id))
+			await cursor.execute("UPDATE users SET user_xp = ?, user_level = ? WHERE user_id = ?", (user_xp, user_level, message.author.id))
 			await message.channel.send("Congratulations <@" + str(message.author.id) + ">, you are now level " + str(user_level) + "!")
 		else:
-			await cursor.execute("UPDATE users SET xp = ? WHERE member_id = ?", (user_xp, message.author.id))
+			await cursor.execute("UPDATE users SET user_xp = ? WHERE user_id = ?", (user_xp, message.author.id))
 		await connection.commit()
 		await cursor.close()
 		await connection.close()
@@ -213,7 +214,7 @@ async def prefix(ctx):
 			prefix = prefix[1]
 			connection = await aiosqlite.connect('bot.db', timeout=10)
 			cursor = await connection.cursor()
-			await cursor.execute("UPDATE servers SET prefix = ? WHERE server_id = ?", (prefix, ctx.guild.id))
+			await cursor.execute("UPDATE guilds SET guild_prefix = ? WHERE guild_id = ?", (prefix, ctx.guild.id))
 			await ctx.channel.send("My prefix for this server now is `" + str(prefix) + "` :)")
 			await connection.commit()
 			await cursor.close()
@@ -273,7 +274,7 @@ async def hug(ctx):
             e.set_image(url="https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif")
         else:
             e = discord.Embed(title=str(ctx.message.mentions[0].name) + ", you have been hugged by " + str(ctx.message.author.name) + " :heart:")
-            e.set_image(url=str(hugList[randint(0, len(hugList) - 1)]))
+            e.set_image(url=str(hugList[random.randint(0, len(hugList) - 1)]))
         await ctx.send(embed=e)
     else:
         prefix = str(await get_pre(bot, ctx))
@@ -374,13 +375,13 @@ async def welcome(ctx):
 		cursor = await connection.cursor()
 		if len(ctx.message.channel_mentions) > 0:
 			channel = ctx.message.channel_mentions[0].id
-			await cursor.execute("UPDATE servers SET welcome_channel_id = ? WHERE server_id=?", (channel, ctx.guild.id))
+			await cursor.execute("UPDATE guilds SET guild_welcome_channel_id = ? WHERE guild_id=?", (channel, ctx.guild.id))
 			await ctx.message.add_reaction("\u2705")
 			await connection.commit()
 			await cursor.close()
 			await connection.close()
 		else:
-			await cursor.execute("SELECT welcome_channel_id FROM servers WHERE server_id = ?", (ctx.guild.id, ))
+			await cursor.execute("SELECT guild_welcome_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id, ))
 			welcome = await cursor.fetchone()
 			await cursor.close()
 			await connection.close()
@@ -401,13 +402,13 @@ async def announcements(ctx):
 		cursor = await connection.cursor()
 		if len(ctx.message.channel_mentions) > 0:
 			channel = ctx.message.channel_mentions[0].id
-			await cursor.execute("UPDATE servers SET announcements_channel_ID = ? WHERE server_id=?",(channel, ctx.guild.id))
+			await cursor.execute("UPDATE guilds SET guild_announcements_channel_ID = ? WHERE guild_id=?",(channel, ctx.guild.id))
 			await ctx.message.add_reaction("\u2705")
 			await connection.commit()
 			await cursor.close()
 			await connection.close()
 		else:
-			await cursor.execute("SELECT announcements_channel_ID FROM servers WHERE server_id = ?", (ctx.guild.id,))
+			await cursor.execute("SELECT guild_announcements_channel_ID FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
 			announcements = await cursor.fetchone()
 			await cursor.close()
 			await connection.close()
@@ -430,7 +431,7 @@ async def lengthlimit(ctx):
 			if limit.isdecimal() and int(limit) > 299:
 				connection = await aiosqlite.connect('bot.db', timeout=10)
 				cursor = await connection.cursor()
-				await cursor.execute("UPDATE servers SET lengthlimit = ? WHERE server_id = ?",(limit, ctx.guild.id))
+				await cursor.execute("UPDATE guilds SET guild_lengthlimit = ? WHERE guild_id = ?",(limit, ctx.guild.id))
 				await ctx.channel.send("The message character limit for this server now is **" +str(limit) + "** characters :)")
 				await connection.commit()
 				await cursor.close()
@@ -449,7 +450,7 @@ async def dice(ctx):
     words = ctx.message.content.split(" ")
     if len(words) > 1 and words[1].isdecimal() and int(words[1]) > 0:
         i = ctx.message.content.split(" ")[1]
-        number = randint(1, int(i))
+        number = random.randint(1, int(i))
         await ctx.channel.send("Rolled **" + str(number) + "**!")
     else:
         prefix = str(await get_pre(bot, ctx))
@@ -463,7 +464,7 @@ async def servericon(ctx):
 
 
 def get_rarity():
-  aa = randint(1, 100)
+  aa = random.randint(1, 100)
   if aa == 100:
     return 5
   elif aa >= 95 and aa <= 99:
@@ -493,21 +494,21 @@ def get_rarity_name(rarity):
 async def poke(ctx):
 	connection = await aiosqlite.connect('bot.db', timeout = 10)
 	cursor = await connection.cursor()
-	await cursor.execute("SELECT last_roll_datetime FROM users WHERE member_id =?", (ctx.message.author.id, ))
+	await cursor.execute("SELECT user_last_roll_datetime FROM users WHERE user_id =?", (ctx.message.author.id, ))
 	last_roll = await cursor.fetchone()
 	now = time.time()
 	time_since = int(now - last_roll[0])
 	if time_since > 7200:
 		rarity = get_rarity()
 		rarity_name = get_rarity_name(rarity)
-		await cursor.execute("SELECT image_link, name, pokedex_id FROM pokedex WHERE rarity = ? ORDER BY RANDOM()", (rarity, ))
+		await cursor.execute("SELECT poke_image_link, poke_name, poke_id FROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM()", (rarity, ))
 		data = await cursor.fetchone()
-		await cursor.execute("UPDATE users SET last_roll_datetime = ? WHERE member_id = ?", (now, ctx.message.author.id))
+		await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
 		await connection.commit()
-		await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND pokedex_id = ?", (ctx.message.author.id, data[2]))
+		await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ?", (ctx.message.author.id, data[2]))
 		is_obtained = await cursor.fetchone()
 		if is_obtained == None:
-			await cursor.execute("INSERT INTO pokemon_obtained (user_ID, pokedex_id, date) VALUES (?, ?, ?)", (ctx.message.author.id, data[2], now))
+			await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, date) VALUES (?, ?, ?)", (ctx.message.author.id, data[2], now))
 			desc = "This is a **" + rarity_name + "** pokemon!"
 		else:
 			desc = "This is a **" + rarity_name + "** pokemon!\nYou already had that pokemon. :confused:"
@@ -532,7 +533,7 @@ async def poke(ctx):
 async def pokedex(ctx):
 	connection = await aiosqlite.connect('bot.db', timeout = 10)
 	cursor = await connection.cursor()
-	await cursor.execute("SELECT name FROM pokemon_obtained JOIN pokedex USING(pokedex_id) WHERE user_ID = ? ORDER BY pokedex_id;", (ctx.message.author.id, ))
+	await cursor.execute("SELECT poke_name FROM pokemon_obtained JOIN pokedex USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (ctx.message.author.id, ))
 	Pokemons = await cursor.fetchall()
 	if Pokemons == [] :
 		list_pokemons = "You don't have any pokemon right now."
@@ -553,7 +554,7 @@ async def pokedex(ctx):
 async def announce(ctx):
 	connection = await aiosqlite.connect('bot.db', timeout = 10)
 	cursor = await connection.cursor()
-	await cursor.execute("SELECT announcements_channel_ID FROM servers")
+	await cursor.execute("SELECT guild_announcements_channel_ID FROM guilds")
 	IDs = await cursor.fetchall()
 	await cursor.close()
 	await connection.close()
@@ -581,7 +582,7 @@ async def help(ctx):
 	message_list = ctx.message.content.split(" ")
 	if len(message_list) < 2:
 		categories = ["__Admin commands :__ \n\n", "\n\n__Moderation commands :__ \n\n", "\n\n__Utilities commands :__ \n\n", "\n\n__Miscellaneous/Fun commands :__ \n\n"]
-		await cursor.execute("SELECT name, short, category FROM commands ORDER BY category, name")
+		await cursor.execute("SELECT com_name, com_short, cat_category FROM commands ORDER BY cat_category, com_name")
 		commands = await cursor.fetchall()
 		await cursor.close()
 		await connection.close()
@@ -597,7 +598,7 @@ async def help(ctx):
 		embed.add_field(name="** **", value=content)
 		await ctx.send(embed=embed)
 	else:
-		await cursor.execute("SELECT name, description, use_example, user_perms, bot_perms FROM commands")
+		await cursor.execute("SELECT com_name, com_desc, com_use_example, com_user_perms, com_bot_perms FROM commands")
 		commands = await cursor.fetchall()
 		await cursor.close()
 		await connection.close()
@@ -622,7 +623,7 @@ async def help(ctx):
 async def level(ctx):
 	connection = await aiosqlite.connect('bot.db')
 	cursor = await connection.cursor()
-	await cursor.execute("SELECT level, xp FROM users WHERE member_id = ?", (ctx.message.author.id, ))
+	await cursor.execute("SELECT user_level, user_xp FROM users WHERE user_id = ?", (ctx.message.author.id, ))
 	stats = await cursor.fetchone()
 	image = Image.open("LevelCommand/Base.png")
 	font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
@@ -637,13 +638,34 @@ async def level(ctx):
 	await connection.close()
 
 
+@bot.command(name = 'stand')
+async def stand(ctx):
+	connection = await aiosqlite.connect('bot.db')
+	cursor = await connection.cursor()
+	await cursor.execute("SELECT stand_id FROM user_stand WHERE user_id = ?", (ctx.author.id, ))
+	stand_id = await cursor.fetchone()
+	if stand_id == None:
+		stand_id = random.randint(1, 32)
+		await cursor.execute("INSERT INTO user_stand(user_id, stand_id) VALUES(?, ?)", (ctx.author.id, stand_id))
+	else:
+		stand_id = stand_id[0]
+	await cursor.execute("SELECT stand_name, stand_link FROM stands WHERE stand_id = ?", (stand_id, ))
+	stand = await cursor.fetchone()
+	await connection.commit()
+	await cursor.close()
+	await connection.close()
+	e = discord.Embed(title = ctx.message.author.name + ", your stand is **" + stand[0] + "**.")
+	e.set_image(url=stand[1])
+	await ctx.send(embed = e)
+
+
+
 @bot.command(name = 'sql')
 @commands.is_owner()
 async def sql(ctx):
 	connection = await aiosqlite.connect('bot.db')
 	cursor = await connection.cursor()
 	query = ctx.message.content[5:]
-	await ctx.channel.send(query)
 	if(query[0].lower() == "s"):
 		await cursor.execute(query)
 		await ctx.channel.send("That went alright!")
