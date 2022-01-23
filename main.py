@@ -634,8 +634,8 @@ async def pokerank(ctx):
     for i in range(limit):
       user = bot.get_user(result_list[i][1])
       description += user.name + " - " + str(result_list[i][0]) + "\n"
-    embed=discord.Embed(title= ctx.guild.name + "'s Pokerank", colour=discord.Colour(0x635f))
-    embed.set_thumbnail(url=ctx.guild.icon_url)
+    embed=discord.Embed(title= "KannaSucre's Pokerank", colour=discord.Colour(0x635f))
+    embed.set_thumbnail(url=bot.user.avatar_url)
     embed.add_field(name="Ranking :", value=description)
     await ctx.send(embed=embed)
 
