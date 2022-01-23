@@ -611,23 +611,29 @@ async def sql(ctx):
     await connection.close()
 
 
+def sort_on_pokemon(e):
+	return e[0]
+
 @bot.command(name = 'pokerank')
 async def pokerank(ctx):
   if not ctx.message.author.bot :
     connection = await aiosqlite.connect('bot.db')
     cursor = await connection.cursor()
-    await cursor.execute("SELECT user_id, COUNT(poke_id) FROM pokemon_obtained GROUP BY user_id")
+    await cursor.execute("SELECT COUNT(poke_id), user_id FROM pokemon_obtained GROUP BY user_id")
     result = await cursor.fetchall()
     await cursor.close()
     await connection.close()
-    result
+    result_list = []
+    for i in range(len(result)):
+      result_list.append([result[i][0], result[i][1]])
+    result_list.sort(reverse=True, key=sort_on_pokemon)
+    print(result_list)
     description = ""
-    if len(result) < 10:
-      limit = len(result)
+    if len(result_list) < 10:
+      limit = len(result_list)
     for i in range(limit):
-      user = bot.get_user(result[i][0])
-      print(user)
-      description += user.name + " - " + str(result[i][1]) + "\n"
+      user = bot.get_user(result_list[i][1])
+      description += user.name + " - " + str(result_list[i][0]) + "\n"
     embed=discord.Embed(title= ctx.guild.name + "'s Pokerank", colour=discord.Colour(0x635f))
     embed.set_thumbnail(url=ctx.guild.icon_url)
     embed.add_field(name="Ranking :", value=description)
