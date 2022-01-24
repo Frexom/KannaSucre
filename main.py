@@ -345,8 +345,6 @@ async def lengthlimit(ctx):
   if not ctx.message.author.bot :
     if ctx.message.author.guild_permissions.manage_guild:
       limit = ctx.message.content.split(" ")
-      print(limit)
-      print(len(limit))
       if len(limit) > 1 and limit[1].isdecimal():
         limit = limit[1]
         if limit.isdecimal() and int(limit) > 299:
@@ -553,12 +551,16 @@ async def level(ctx):
     await cursor.execute("SELECT user_level, user_xp FROM users WHERE user_id = ?", (ctx.message.author.id, ))
     stats = await cursor.fetchone()
     image = Image.open("LevelCommand/Base.png")
+    mask = Image.open("LevelCommand/Mask.png")
     font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
     d = ImageDraw.Draw(image)
     location = (100, 50)
     text_color = (200, 200, 200)
     message = str(ctx.author.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(300*2**stats[0]) + "XP"  
     d.text(location, message, font=font, fill=text_color)
+    await ctx.author.avatar_url.save(fp="LevelCommand/Users/" + ctx.message.author.name)
+    im2 = Image.open("LevelCommand/Users/" + ctx.message.author.name)
+    image.paste(im2, (0, 0), mask)
     image.save("LevelCommand/stats" + str(ctx.author.name) + ".png")
     await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(ctx.author.name) + ".png"))
     await cursor.close()
@@ -627,13 +629,12 @@ async def pokerank(ctx):
     for i in range(len(result)):
       result_list.append([result[i][0], result[i][1]])
     result_list.sort(reverse=True, key=sort_on_pokemon)
-    print(result_list)
     description = ""
     if len(result_list) < 10:
       limit = len(result_list)
     for i in range(limit):
       user = bot.get_user(result_list[i][1])
-      description += user.name + " - " + str(result_list[i][0]) + "\n"
+      description += str(i+1) + "-" + user.name + " - " + str(result_list[i][0]) + "/151\n"
     embed=discord.Embed(title= "KannaSucre's Pokerank", colour=discord.Colour(0x635f))
     embed.set_thumbnail(url=bot.user.avatar_url)
     embed.add_field(name="Ranking :", value=description)
