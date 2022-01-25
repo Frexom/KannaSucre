@@ -4,6 +4,7 @@ import aiosqlite
 import time
 import os
 import random
+from asyncio import sleep
 from PIL import Image, ImageFont, ImageDraw
 
 
@@ -117,8 +118,8 @@ async def on_message(message):
     user_xp = user_leveling[0]
     user_level = user_leveling[1]
     user_xp += random.randint(30,50)
-    if user_xp > 500*user_level+500:
-      user_xp -= 500*user_level+500
+    if user_xp > 500*user_level:
+      user_xp -= 500*user_level
       user_level +=1
       await cursor.execute("UPDATE users SET user_xp = ?, user_level = ? WHERE user_id = ?", (user_xp, user_level, message.author.id))
       await message.channel.send("Congratulations <@" + str(message.author.id) + ">, you are now level " + str(user_level) + "!")
@@ -653,7 +654,7 @@ async def level(ctx):
 
     font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
     d = ImageDraw.Draw(image)
-    message = str(ctx.author.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(500*stats[0]+500) + "XP"  
+    message = str(ctx.author.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(500*stats[0]) + "XP"  
     d.text((100, 50), message, font=font, fill= (90,90,90))
     image.save("LevelCommand/stats" + str(ctx.author.id) + ".png")
     await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(ctx.author.id) + ".png"))
@@ -662,7 +663,14 @@ async def level(ctx):
 @bot.command(name = 'shutdown')
 @commands.is_owner()
 async def shutdown(ctx):
+  
+  channel = ctx.channel
+  def check(m):
+    return m.content == 'y' and m.channel == channel 
+  await ctx.channel.send("Do you really want to shut down the bot?")   
+  await bot.wait_for('message', check=check)
   print("Shutting down...")
+  await sleep(1)
   await bot.close()
 
 
