@@ -4,7 +4,7 @@ import aiosqlite
 import time
 import os
 import random
-from asyncio import sleep
+import asyncio
 from PIL import Image, ImageFont, ImageDraw
 
 
@@ -664,14 +664,19 @@ async def level(ctx):
 @commands.is_owner()
 async def shutdown(ctx):
   
+  author = ctx.message.author
   channel = ctx.channel
   def check(m):
-    return m.content == 'y' and m.channel == channel 
-  await ctx.channel.send("Do you really want to shut down the bot?")   
-  await bot.wait_for('message', check=check)
-  print("Shutting down...")
-  await sleep(1)
-  await bot.close()
+    return m.content == 'y' and m.channel == channel and m.author == author
 
+  await ctx.channel.send("Do you really want to shut down the bot?")   
+  try:
+    msg = await bot.wait_for('message',  check=check, timeout = 5)
+    if msg:
+      print("Shutting down...")
+      await asyncio.sleep(1)
+      await bot.close()
+  except asyncio.exceptions.TimeoutError:
+    await ctx.channel.send("The bot did not shut down.(timeout)")
 
 bot.run(os.environ['TOKEN'])
