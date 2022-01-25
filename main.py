@@ -117,8 +117,8 @@ async def on_message(message):
     user_xp = user_leveling[0]
     user_level = user_leveling[1]
     user_xp += random.randint(30,50)
-    if user_xp > 300*2**user_level:
-      user_xp -= 300*2**user_level
+    if user_xp > 500*user_level+500:
+      user_xp -= 500*user_level+500
       user_level +=1
       await cursor.execute("UPDATE users SET user_xp = ?, user_level = ? WHERE user_id = ?", (user_xp, user_level, message.author.id))
       await message.channel.send("Congratulations <@" + str(message.author.id) + ">, you are now level " + str(user_level) + "!")
@@ -637,9 +637,23 @@ async def level(ctx):
     draw.ellipse((0, 0, 190, 190), fill=255)
     image.paste(ProfilePic, (556, 30), mask_im)
     
+    if stats[0]>=20:
+      bronze = Image.open("LevelCommand/KannaBronze.png")
+      mask_im = Image.new("L", bronze.size, 0)
+      draw = ImageDraw.Draw(mask_im)
+      draw.ellipse((0, 0, 49, 49), fill=255)
+      image.paste(bronze, (350, 52), mask_im)
+
+      if stats[0]>=50:
+        silver = Image.open("LevelCommand/KannaSilver.png")
+        image.paste(silver, (405, 52), mask_im)
+        if stats[0]>=100:
+          gold = Image.open("LevelCommand/KannaGold.png")
+          image.paste(gold, (460, 52), mask_im)
+
     font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
     d = ImageDraw.Draw(image)
-    message = str(ctx.author.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(300*2**stats[0]) + "XP"  
+    message = str(ctx.author.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(500*stats[0]+500) + "XP"  
     d.text((100, 50), message, font=font, fill= (90,90,90))
     image.save("LevelCommand/stats" + str(ctx.author.id) + ".png")
     await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(ctx.author.id) + ".png"))
