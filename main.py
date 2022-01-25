@@ -543,30 +543,6 @@ async def help(ctx):
         await ctx.send("No command named `" + parameter +"` found.")
 
 
-@bot.command(name = 'level')
-async def level(ctx):
-  if not ctx.message.author.bot :
-    connection = await aiosqlite.connect('bot.db')
-    cursor = await connection.cursor()
-    await cursor.execute("SELECT user_level, user_xp FROM users WHERE user_id = ?", (ctx.message.author.id, ))
-    stats = await cursor.fetchone()
-    image = Image.open("LevelCommand/Base.png")
-    mask = Image.open("LevelCommand/Mask.png")
-    font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
-    d = ImageDraw.Draw(image)
-    location = (100, 50)
-    text_color = (200, 200, 200)
-    message = str(ctx.author.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(300*2**stats[0]) + "XP"  
-    d.text(location, message, font=font, fill=text_color)
-    await ctx.author.avatar_url.save(fp="LevelCommand/Users/" + ctx.message.author.name)
-    im2 = Image.open("LevelCommand/Users/" + ctx.message.author.name)
-    image.paste(im2, (0, 0), mask)
-    image.save("LevelCommand/stats" + str(ctx.author.name) + ".png")
-    await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(ctx.author.name) + ".png"))
-    await cursor.close()
-    await connection.close()
-
-
 @bot.command(name = 'stand')
 async def stand(ctx):
   if not ctx.message.author.bot :
@@ -641,6 +617,32 @@ async def pokerank(ctx):
     await ctx.send(embed=embed)
 
 
+@bot.command(name = 'level')
+async def level(ctx):
+  if not ctx.message.author.bot :
+    await ctx.author.avatar_url_as(format="png").save(fp="LevelCommand/Users/" + str(ctx.author.id) + ".png")
+    
+    connection = await aiosqlite.connect('bot.db')
+    cursor = await connection.cursor()
+    await cursor.execute("SELECT user_level, user_xp FROM users WHERE user_id = ?", (ctx.message.author.id, ))
+    stats = await cursor.fetchone()
+    await cursor.close()
+    await connection.close()
+    
+    image = Image.open("LevelCommand/Base.png")
+    ProfilePic = Image.open("LevelCommand/Users/" + str(ctx.author.id) + ".png")
+    ProfilePic = ProfilePic.resize((190, 190))
+    mask_im = Image.new("L", ProfilePic.size, 0)
+    draw = ImageDraw.Draw(mask_im)
+    draw.ellipse((0, 0, 190, 190), fill=255)
+    image.paste(ProfilePic, (556, 30), mask_im)
+    
+    font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
+    d = ImageDraw.Draw(image)
+    message = str(ctx.author.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(300*2**stats[0]) + "XP"  
+    d.text((100, 50), message, font=font, fill= (90,90,90))
+    image.save("LevelCommand/stats" + str(ctx.author.id) + ".png")
+    await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(ctx.author.id) + ".png"))
 
 
 @bot.command(name = 'shutdown')
