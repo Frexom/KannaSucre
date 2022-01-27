@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-import aiosqlite
+import aiosqlite3
 import time
 import os
 import random
@@ -8,13 +8,18 @@ import asyncio
 from PIL import Image, ImageFont, ImageDraw
 
 async def get_conn():
-  conn = await aiosqlite.connect("bot.db", timeout = 10)
+  conn = await aiosqlite3.connect("bot.db", timeout = 10)
   c = await conn.cursor()
   return conn, c
 
 async def close_conn(connection, cursor):
   await cursor.close()
   await connection.close()
+
+def get_target(ctx):
+  if len(ctx.message.mentions) > 0:
+    return ctx.message.mentions[0]
+  return ctx.message.author
 
 
 async def get_pre(bot, message):
@@ -32,23 +37,23 @@ random.seed(time.time())
 
 
 async def missing_perms(ctx, command_name: str, perms: str = "Not renseigned"):
-  await ctx.channel.send("I'm sorry but you don't meet the requirements to run that command : `" + command_name + "`.\nThis command requires the following permission : `" + perms + "`.")
+  await ctx.send("I'm sorry but you don't meet the requirements to run that command : `" + command_name + "`.\nThis command requires the following permission : `" + perms + "`.")
 
 
 async def lack_perms(ctx, command_name: str):
-  await ctx.channel.send("I'm sorry but the command target has more permissions than you. You can't target them with the following command : `" + command_name + "`.")
+  await ctx.send("I'm sorry but the command target has more permissions than you. You can't target them with the following command : `" + command_name + "`.")
 
 
 @bot.event
 async def on_ready():
   for i in range(len(bot.guilds)):
-    await setup(bot.guilds[i])
+    await setup_func(bot.guilds[i])
   game = discord.Game('send "ping" to see prefix')
   await bot.change_presence(status=discord.Status.online, activity=game)
   print("Bot is ready")
 
 
-async def setup(guild) :
+async def setup_func(guild) :
   connection, cursor = await get_conn()
   await cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id, ))
   if await cursor.fetchone() == None:  
@@ -97,7 +102,7 @@ async def on_member_remove(member):
 
 @bot.event
 async def on_guild_join(guild):
-  await setup(guild)
+  await setup_func(guild)
 
 
 @bot.event
@@ -142,12 +147,12 @@ async def clear(ctx):
           for each in messages:
             await each.delete()
             count += 1
-          await ctx.channel.send(str(count) + " messages were deleted :D", delete_after=5)
+          await ctx.send(str(count) + " messages were deleted :D", delete_after=5)
         else:
-          await ctx.channel.send("You can't clear more than 50 messages at the same time.")
+          await ctx.send("You can't clear more than 50 messages at the same time.")
       else:
         prefix = str(await get_pre(bot, ctx))
-        await ctx.channel.send("```" + str(prefix) + "clear *number of messages*```")
+        await ctx.send("```" + str(prefix) + "clear *number of messages*```")
     else:
       await missing_perms(ctx, "clear", "manage messages")
 
@@ -174,7 +179,7 @@ async def kick(ctx):
          await lack_perms(ctx, "kick")
       else:
         prefix = str(await get_pre(bot, ctx))
-        await ctx.channel.send("```" + str(prefix) + "kick *mention target/target ID*```")
+        await ctx.send("```" + str(prefix) + "kick *mention target/target ID*```")
     else:
       await missing_perms(ctx, "kick", "kick members")
   
@@ -201,7 +206,7 @@ async def ban(ctx):
           await lack_perms(ctx, "ban")
       else:
         prefix = str(await get_pre(bot, ctx))
-        await ctx.channel.send("```" + str(prefix) + "ban *mention target/target ID* *reason(optional)*```")
+        await ctx.send("```" + str(prefix) + "ban *mention target/target ID* *reason(optional)*```")
     else:
         await missing_perms(ctx, "ban", "ban members")
 
@@ -215,12 +220,12 @@ async def prefix(ctx):
         prefix = prefix[1]
         connection, cursor = await get_conn()
         await cursor.execute("UPDATE guilds SET guild_prefix = ? WHERE guild_id = ?", (prefix, ctx.guild.id))
-        await ctx.channel.send("My prefix for this server now is `" + str(prefix) + "` :)")
+        await ctx.send("My prefix for this server now is `" + str(prefix) + "` :)")
         await connection.commit()
         await close_conn(connection, cursor)
       else:
         prefix = str(await get_pre(bot, ctx))
-        await ctx.channel.send("```" + str(prefix) + "prefix *new prefix*```")
+        await ctx.send("```" + str(prefix) + "prefix *new prefix*```")
     else:
       await missing_perms(ctx, "prefix", "manage guild")
 
@@ -278,7 +283,7 @@ async def hug(ctx):
       await ctx.send(embed=e)
     else:
       prefix = str(await get_pre(bot, ctx))
-      await ctx.channel.send("```" + str(prefix) + "hug *mention user*```")
+      await ctx.send("```" + str(prefix) + "hug *mention user*```")
 
 
 @bot.command(name='welcome')
@@ -299,9 +304,9 @@ async def welcome(ctx):
         welcome = welcome[0]
         prefix = str(await get_pre(bot, ctx))
         if welcome != 0 :
-          await ctx.channel.send("The current welcome channel is <#" + str(welcome) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) + "welcome   *mention new welcome channel*```")
+          await ctx.send("The current welcome channel is <#" + str(welcome) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) + "welcome   *mention new welcome channel*```")
         else :
-          await ctx.channel.send("There is not defined welcome channel defined for this server right now. If you want to set up one to see who enters and leaves your server, please use this command :\n" + "```" + str(prefix) + "welcome *mention new welcome channel*```")
+          await ctx.send("There is not defined welcome channel defined for this server right now. If you want to set up one to see who enters and leaves your server, please use this command :\n" + "```" + str(prefix) + "welcome *mention new welcome channel*```")
     else:
       await missing_perms(ctx, "welcome", "manage guild")
 
@@ -324,9 +329,9 @@ async def announcements(ctx):
         announcements = announcements[0]
         prefix = str(await get_pre(bot, ctx))
         if announcements != 0 :
-          await ctx.channel.send("The current announcements channel is <#" + str(announcements) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) +   "announcements *mention new announcements channel*```")
+          await ctx.send("The current announcements channel is <#" + str(announcements) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) +   "announcements *mention new announcements channel*```")
         else :
-          await ctx.channel.send("There is not defined announcements channel defined for this server right now. If you want to set up one to stay tuned with the latest KannaSucre News, please use this command :\n" + "```" + str(prefix) + "announcements *mention new announcements channel*```")
+          await ctx.send("There is not defined announcements channel defined for this server right now. If you want to set up one to stay tuned with the latest KannaSucre News, please use this command :\n" + "```" + str(prefix) + "announcements *mention new announcements channel*```")
     else:
       await missing_perms(ctx, "announcements", "manage guild")
 
@@ -341,14 +346,14 @@ async def lengthlimit(ctx):
         if limit.isdecimal() and int(limit) > 299:
           connection, cursor = await get_conn()
           await cursor.execute("UPDATE guilds SET guild_lengthlimit = ? WHERE guild_id = ?",(limit, ctx.guild.id))
-          await ctx.channel.send("The message character limit for this server now is **" +str(limit) + "** characters :)")
+          await ctx.send("The message character limit for this server now is **" +str(limit) + "** characters :)")
           await connection.commit()
           await close_conn(connection, cursor)
         else:
-          await ctx.channel.send("I'm sorry but the character limit must be at least 300 characters.")
+          await ctx.send("I'm sorry but the character limit must be at least 300 characters.")
       else:
         prefix = str(await get_pre(bot, ctx))
-        await ctx.channel.send("```" + str(prefix) +"lengthlimit *characters limit*```")
+        await ctx.send("```" + str(prefix) +"lengthlimit *characters limit*```")
     else:
       await missing_perms(ctx, "lengthlimit", "manage guild")
 
@@ -360,17 +365,23 @@ async def dice(ctx):
     if len(words) > 1 and words[1].isdecimal() and int(words[1]) > 0:
       i = ctx.message.content.split(" ")[1]
       number = random.randint(1, int(i))
-      await ctx.channel.send("Rolled **" + str(number) + "**!")
+      await ctx.send("Rolled **" + str(number) + "**!")
     else:
       prefix = str(await get_pre(bot, ctx))
-      await ctx.channel.send("```" + str(prefix) + "dice *number>0*```")
+      await ctx.send("```" + str(prefix) + "dice *number>0*```")
 
 
 @bot.command(name="servericon")
 async def servericon(ctx):
+  if not ctx.message.author.bot:
+    await ctx.send(ctx.guild.icon_url or "This server does not have an icon.")
+
+
+@bot.command(name="usericon")
+async def usericon(ctx):
   if not ctx.message.author.bot :
-    message = ctx.guild.icon_url
-    await ctx.channel.send(message or "This server does not have an icon.")
+    user = get_target(ctx)
+    await ctx.send(user.avatar_url or "This user does not have an icon.")
 
 
 def get_rarity():
@@ -431,33 +442,37 @@ async def poke(ctx):
       if time_left > 3600:
         time_left -= 3600
         time_left = int(time_left/60)
-        await ctx.channel.send(str(ctx.message.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.")
+        await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.")
       else:
         time_left = int(time_left/60)
-        await ctx.channel.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.")
+        await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.")
     await close_conn(connection, cursor)
 
 
 @bot.command(name = "pokedex")
 async def pokedex(ctx):
   if not ctx.message.author.bot :
-    connection, cursor = await get_conn()
-    await cursor.execute("SELECT poke_name FROM pokemon_obtained JOIN pokedex USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (ctx.message.author.id, ))
-    Pokemons = await cursor.fetchall()
-    if Pokemons == [] :
-      list_pokemons = "You don't have any pokemon right now."
+    user = get_target(ctx)
+    if not user.bot:
+      connection, cursor = await get_conn()
+      await cursor.execute("SELECT poke_name FROM pokemon_obtained JOIN pokedex USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
+      Pokemons = await cursor.fetchall()
+      if Pokemons == [] :
+        list_pokemons = "No pokemons."
+      else:
+        list_pokemons = ""
+        for elem in Pokemons:
+          list_pokemons += str(elem[0]) + "\n"
+      embed=discord.Embed(title= str(user.name) + "'s Pokedex")
+      embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
+      embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
+      await ctx.send(embed=embed)
+      await close_conn(connection, cursor)
     else:
-      list_pokemons = ""
-      for elem in Pokemons:
-        list_pokemons += str(elem[0]) + "\n"
-    embed=discord.Embed(title= str(ctx.message.author.name) + "'s Pokedex")
-    embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
-    embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
-    await ctx.send(embed=embed)
-    await close_conn(connection, cursor)
+      await ctx.send("This command isn't supported for bots.")
 
 
-@bot.command(name = "announce")
+@bot.command(name = 'announce')
 @commands.is_owner()
 async def announce(ctx):
   connection, cursor = await get_conn()
@@ -478,7 +493,7 @@ async def announce(ctx):
 async def preview(ctx):
   message_list = ctx.message.content.split(" ")[1:]
   message = " ".join(message_list)
-  await ctx.channel.send(message)
+  await ctx.send(message)
 
 
 @bot.command(name = "help")
@@ -552,15 +567,15 @@ async def sql(ctx):
     query = ctx.message.content[5:]
     if(query[0].lower() == "s"):
       await cursor.execute(query)
-      await ctx.channel.send("That went alright!")
+      await ctx.send("That went alright!")
       result = await cursor.fetchall()
       if result == None:
-        await ctx.channel.send("None")
+        await ctx.send("None")
       else:
-        await ctx.channel.send(result)
+        await ctx.send(result)
     else:
       await cursor.execute(query)
-      await ctx.channel.send("That went alright!")
+      await ctx.send("That went alright!")
     await connection.commit()
     await close_conn(connection, cursor)
 
@@ -594,41 +609,45 @@ async def pokerank(ctx):
 @bot.command(name = 'level')
 async def level(ctx):
   if not ctx.message.author.bot :
-    await ctx.author.avatar_url_as(format="png").save(fp="LevelCommand/Users/" + str(ctx.author.id) + ".png")
+    user = get_target(ctx)
+    if not user.bot:
+      await user.avatar_url_as(format="png").save(fp="LevelCommand/Users/" + str(user.id) + ".png")
     
-    connection, cursor = await get_conn()
-    await cursor.execute("SELECT user_level, user_xp FROM users WHERE user_id = ?", (ctx.message.author.id, ))
-    stats = await cursor.fetchone()
-    await close_conn(connection, cursor)
-    
-    image = Image.open("LevelCommand/Base.png")
-    ProfilePic = Image.open("LevelCommand/Users/" + str(ctx.author.id) + ".png")
-    ProfilePic = ProfilePic.resize((190, 190))
-    mask_im = Image.new("L", ProfilePic.size, 0)
-    draw = ImageDraw.Draw(mask_im)
-    draw.ellipse((0, 0, 190, 190), fill=255)
-    image.paste(ProfilePic, (556, 30), mask_im)
-    
-    if stats[0]>=20:
-      bronze = Image.open("LevelCommand/KannaBronze.png")
-      mask_im = Image.new("L", bronze.size, 0)
+      connection, cursor = await get_conn()
+      await cursor.execute("SELECT user_level, user_xp FROM users WHERE user_id = ?", (user.id, ))
+      stats = await cursor.fetchone()
+      await close_conn(connection, cursor)
+      
+      image = Image.open("LevelCommand/Base.png")
+      ProfilePic = Image.open("LevelCommand/Users/" + str(user.id) + ".png")
+      ProfilePic = ProfilePic.resize((190, 190))
+      mask_im = Image.new("L", ProfilePic.size, 0)
       draw = ImageDraw.Draw(mask_im)
-      draw.ellipse((0, 0, 49, 49), fill=255)
-      image.paste(bronze, (350, 52), mask_im)
+      draw.ellipse((0, 0, 190, 190), fill=255)
+      image.paste(ProfilePic, (556, 30), mask_im)
+    
+      if stats[0]>=20:
+        bronze = Image.open("LevelCommand/KannaBronze.png")
+        mask_im = Image.new("L", bronze.size, 0)
+        draw = ImageDraw.Draw(mask_im)
+        draw.ellipse((0, 0, 49, 49), fill=255)
+        image.paste(bronze, (350, 52), mask_im)
 
-      if stats[0]>=50:
-        silver = Image.open("LevelCommand/KannaSilver.png")
-        image.paste(silver, (405, 52), mask_im)
-        if stats[0]>=100:
-          gold = Image.open("LevelCommand/KannaGold.png")
-          image.paste(gold, (460, 52), mask_im)
+        if stats[0]>=50:
+          silver = Image.open("LevelCommand/KannaSilver.png")
+          image.paste(silver, (405, 52), mask_im)
+          if stats[0]>=100:
+            gold = Image.open("LevelCommand/KannaGold.png")
+            image.paste(gold, (460, 52), mask_im)
 
-    font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
-    d = ImageDraw.Draw(image)
-    message = str(ctx.author.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(500*stats[0]) + "XP"  
-    d.text((100, 50), message, font=font, fill= (90,90,90))
-    image.save("LevelCommand/stats" + str(ctx.author.id) + ".png")
-    await ctx.channel.send(file = discord.File("LevelCommand/stats" + str(ctx.author.id) + ".png"))
+      font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
+      d = ImageDraw.Draw(image)
+      message = str(user.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(500*stats[0]) + "XP"  
+      d.text((100, 50), message, font=font, fill= (90,90,90))
+      image.save("LevelCommand/stats" + str(user.id) + ".png")
+      await ctx.send(file = discord.File("LevelCommand/stats" + str(user.id) + ".png"))
+    else:
+      await ctx.send("This command isn't supported for bots.")
 
 
 @bot.command(name = 'shutdown')
@@ -640,15 +659,132 @@ async def shutdown(ctx):
   def check(m):
     return m.content == 'y' and m.channel == channel and m.author == author
 
-  await ctx.channel.send("Do you really want to shut down the bot?")   
+  await ctx.send("Do you really want to shut down the bot?")   
   try:
     msg = await bot.wait_for('message',  check=check, timeout = 5)
     if msg:
+      await ctx.send("Shutting down...")
       print("Shutting down...")
       await asyncio.sleep(1)
       await bot.close()
 
   except asyncio.exceptions.TimeoutError:
-    await ctx.channel.send("The bot did not shut down.(timeout)")
+    await ctx.send("The bot did not shut down.(timeout)")
+
+
+async def welcome_channel_setup(ctx):
+  author = ctx.message.author
+  channel = ctx.channel
+
+  def check(m):
+    return m.channel == channel and m.author == author
+
+
+  await ctx.send("Please mention the welcome channel, where you want new members to be greeted! (input 0 if you want to disable it)")
+  success = 0
+  fail_counter = 0
+  while success == 0 and fail_counter < 3:
+    try:
+      msg = await bot.wait_for('message',  check=check, timeout = 15)
+      connection, cursor = await get_conn()
+      if len(msg.channel_mentions) > 0: 
+        channel = msg.channel_mentions[0].id
+        await cursor.execute("UPDATE guilds SET guild_welcome_channel_ID = ? WHERE guild_id=?",(channel, ctx.guild.id))
+        success = 1
+      elif str(msg.content) == str(0):
+        await cursor.execute("UPDATE guilds SET guild_welcome_channel_ID = ? WHERE guild_id=?",(0, ctx.guild.id))
+        success = 1
+      else:
+        await ctx.send("Incorrect answer, please try again.")
+        fail_counter += 1;
+      await connection.commit()
+      await close_conn(connection, cursor)
+    except asyncio.exceptions.TimeoutError:
+      success = 1
+      fail_counter += 10
+      await ctx.send("Command timed out, please try again.")
+  if success == 1:
+    await msg.add_reaction("\u2705")
+  else:
+    ctx.send("Command closed.")
+
+
+async def announcement_channel_setup(ctx):
+  author = ctx.message.author
+  channel = ctx.channel
+
+  def check(m):
+    return m.channel == channel and m.author == author
+
+
+  await ctx.send("Please mention the announcements channel, where you want to receive the latest KannaSucre's news! (input 0 if you want to disable it)")
+  success = 0
+  fail_counter = 0
+  while success == 0 and fail_counter < 3:
+    try:
+      msg = await bot.wait_for('message',  check=check, timeout = 15)
+      print(msg.content)
+      connection, cursor = await get_conn()
+      if len(msg.channel_mentions) > 0: 
+        channel = msg.channel_mentions[0].id
+        await cursor.execute("UPDATE guilds SET guild_announcements_channel_ID = ? WHERE guild_id=?",(channel, ctx.guild.id))
+        success = 1
+      elif str(msg.content) == str(0):
+        await cursor.execute("UPDATE guilds SET guild_announcements_channel_ID = ? WHERE guild_id=?",(0, ctx.guild.id))
+        success = 1
+      else:
+        await ctx.send("Incorrect answer, please try again.")
+        fail_counter += 1;
+      await connection.commit()
+      await close_conn(connection, cursor)
+
+    except asyncio.exceptions.TimeoutError:
+      fail_counter += 10
+      await ctx.send("Command timed out, please try again.")
+  if success == 1:
+    await msg.add_reaction("\u2705")
+  else:
+    ctx.send("Command closed.")
+
+
+async def prefix_setup(ctx):
+  author = ctx.message.author
+  channel = ctx.channel
+
+  def check(m):
+    return m.channel == channel and m.author == author
+
+
+  await ctx.send("Please input the bot's prefix you wish to use on this server. (default is `!`)")
+  success = 0
+  
+  try:
+    msg = await bot.wait_for('message',  check=check, timeout = 15)
+    prefix = ctx.message.content.split(" ")[0]
+    connection, cursor = await get_conn()
+    await cursor.execute("UPDATE guilds SET guild_prefix = ? WHERE guild_id=?",(prefix, ctx.guild.id))
+    success = 1
+    await connection.commit()
+    await close_conn(connection, cursor)
+
+  except asyncio.exceptions.TimeoutError:
+    await ctx.send("Command timed out, please try again.")
+  if success == 1:
+   await msg.add_reaction("\u2705")
+  else:
+    ctx.send("Command closed.")
+
+
+@bot.command(name = 'setup')
+async def setup(ctx):
+  await ctx.send("Welcome to the KannaSucre's server setup!")
+  await asyncio.sleep(2)
+  await prefix_setup(ctx)
+  await welcome_channel_setup(ctx)
+  await announcement_channel_setup(ctx)
+  await asyncio.sleep(2)
+  await ctx.send("Thanks! This server is now set up!")
+
+
 
 bot.run(os.environ['TOKEN'])
