@@ -53,6 +53,13 @@ async def on_ready():
   print("Bot is ready")
 
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        return
+    raise error
+
+
 async def setup_func(guild) :
   connection, cursor = await get_conn()
   await cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id, ))
@@ -415,16 +422,20 @@ def get_rarity_name(rarity):
 async def poke(ctx):
   if not ctx.message.author.bot :
     connection, cursor = await get_conn()
-    await cursor.execute("SELECT user_last_roll_datetime FROM users WHERE user_id =?", (ctx.message.author.id, ))
-    last_roll = await cursor.fetchone()
+    await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (ctx.message.author.id, ))
+    data = await cursor.fetchone()
+    last_roll = data[0]
+    pity = data[1]
     now = time.time()
-    time_since = int(now - last_roll[0])
-    if time_since > 7200:
+    time_since = int(now - last_roll)
+    if time_since > 7200 or pity > 1:
+      if time_since < 7200:
+        await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity-1, ctx.author.id))  
       rarity = get_rarity()
       rarity_name = get_rarity_name(rarity)
       await cursor.execute("SELECT poke_image_link, poke_name, poke_id FROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM()", (rarity, ))
       data = await cursor.fetchone()
-      await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
+      #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
       await connection.commit()
       await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ?", (ctx.message.author.id, data[2]))
       is_obtained = await cursor.fetchone()
@@ -432,20 +443,21 @@ async def poke(ctx):
         await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, date) VALUES (?, ?, ?)", (ctx.message.author.id, data[2], now))
         desc = "This is a **" + rarity_name + "** pokemon!"
       else:
-        desc = "This is a **" + rarity_name + "** pokemon!\nYou already had that pokemon. :confused:"
+        desc = "This is a **" + rarity_name + "** pokemon!\nYou already had that pokemon.:confused:\nRolls +0.25"
+        await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25, ctx.author.id))
       await connection.commit()
       e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got **" + str(data[1]) + "**!",  description = desc)
       e.set_image(url=str(data[0]))
       await ctx.send(embed = e)
+
+    time_left = int(7200 - time_since)
+    if time_left > 3600:
+      time_left -= 3600
+      time_left = int(time_left/60)
+      await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
     else:
-      time_left = int(7200 - time_since)
-      if time_left > 3600:
-        time_left -= 3600
-        time_left = int(time_left/60)
-        await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.")
-      else:
-        time_left = int(time_left/60)
-        await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.")
+      time_left = int(time_left/60)
+      await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
     await close_conn(connection, cursor)
 
 
@@ -650,27 +662,6 @@ async def level(ctx):
       await ctx.send("This command isn't supported for bots.")
 
 
-@bot.command(name = 'shutdown')
-@commands.is_owner()
-async def shutdown(ctx):
-  
-  author = ctx.message.author
-  channel = ctx.channel
-  def check(m):
-    return m.content == 'y' and m.channel == channel and m.author == author
-
-  await ctx.send("Do you really want to shut down the bot?")   
-  try:
-    msg = await bot.wait_for('message',  check=check, timeout = 5)
-    if msg:
-      await ctx.send("Shutting down...")
-      print("Shutting down...")
-      await asyncio.sleep(1)
-      await bot.close()
-
-  except asyncio.exceptions.TimeoutError:
-    await ctx.send("The bot did not shut down.(timeout)")
-
 
 async def welcome_channel_setup(ctx):
   author = ctx.message.author
@@ -723,7 +714,6 @@ async def announcement_channel_setup(ctx):
   while success == 0 and fail_counter < 3:
     try:
       msg = await bot.wait_for('message',  check=check, timeout = 15)
-      print(msg.content)
       connection, cursor = await get_conn()
       if len(msg.channel_mentions) > 0: 
         channel = msg.channel_mentions[0].id
@@ -785,6 +775,29 @@ async def setup(ctx):
   await asyncio.sleep(2)
   await ctx.send("Thanks! This server is now set up!")
 
+
+@bot.command(name = 'shutdown')
+@commands.is_owner()
+async def shutdown(ctx):
+  
+  author = ctx.message.author
+  channel = ctx.channel
+  def check(m):
+    return m.content == 'y' and m.channel == channel and m.author == author
+
+  await ctx.send("Do you really want to shut down the bot?")   
+  try:
+    msg = await bot.wait_for('message',  check=check, timeout = 5)
+    if msg:
+      await ctx.send("Shutting down...")
+      print("Shutting down...")
+      await asyncio.sleep(1)
+      await bot.close()
+
+  except asyncio.exceptions.TimeoutError:
+    await ctx.send("The bot did not shut down.(timeout)")
+
+    
 
 
 bot.run(os.environ['TOKEN'])
