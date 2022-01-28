@@ -21,6 +21,10 @@ def get_target(ctx):
     return ctx.message.mentions[0]
   return ctx.message.author
 
+def get_mention(ctx):
+  if len(ctx.message.mentions) > 0:
+    return ctx.message.mentions[0]
+  return None
 
 async def get_pre(bot, message):
   connection, cursor = await get_conn()
@@ -41,7 +45,7 @@ async def missing_perms(ctx, command_name: str, perms: str = "Not renseigned"):
 
 
 async def lack_perms(ctx, command_name: str):
-  await ctx.send("I'm sorry but the command target has more permissions than you. You can't target them with the following command : `" + command_name + "`.")
+  await ctx.send("I'm sorry but the command target has as much as or more permissions than you. You can't target them with the following command : `" + command_name + "`.")
 
 
 @bot.event
@@ -149,12 +153,8 @@ async def clear(ctx):
       if len(number) > 1 and number[1].isdecimal():
         number = int(number[1])
         if number < 51:
-          messages = await ctx.channel.history(limit=number + 1).flatten()
-          count = -1
-          for each in messages:
-            await each.delete()
-            count += 1
-          await ctx.send(str(count) + " messages were deleted :D", delete_after=5)
+          mess_count = len(await ctx.channel.purge(limit = number))
+          await ctx.send(str(mess_count-1) + " messages were deleted :D", delete_after=5)
         else:
           await ctx.send("You can't clear more than 50 messages at the same time.")
       else:
@@ -162,6 +162,35 @@ async def clear(ctx):
         await ctx.send("```" + str(prefix) + "clear *number of messages*```")
     else:
       await missing_perms(ctx, "clear", "manage messages")
+
+
+@bot.command(name='prune')
+async def prune(ctx):
+  if not ctx.message.author.bot :
+    print("made it")
+    if ctx.message.author.guild_permissions.manage_messages:
+      print("made it")
+      user = get_mention(ctx)
+      if user is not None:
+        if user.guild_permissions.is_strict_subset(ctx.author.guild_permissions):
+          def checkUser(m):
+            return m.author == user
+          print("made it")
+          mess_count = 0
+          for channel in ctx.guild.text_channels:
+            mess_count += len(await channel.purge(limit = 200, check = checkUser))
+            print(mess_count)
+          print("b")
+          message = str(mess_count) + " messages from `" + user.name + "` were deleted on `" + ctx.guild.name + "`."
+          await ctx.send(message, delete_after=5)
+          await ctx.author.send(message)
+        else:
+          await lack_perms(ctx, "prune")
+      else:
+        prefix = str(await get_pre(bot, ctx))
+        await ctx.send("```" + str(prefix) + "prune *mention targeted user*```")
+    else:
+      await missing_perms(ctx, "prune", "manage messages")
 
 
 @bot.command(name="kick")
@@ -775,6 +804,11 @@ async def setup(ctx):
   await asyncio.sleep(2)
   await ctx.send("Thanks! This server is now set up!")
 
+
+@bot.command(name = 'database')
+@commands.is_owner()
+async def database(ctx):
+  await ctx.send(file=discord.File('bot.db'), delete_after=2)
 
 @bot.command(name = 'shutdown')
 @commands.is_owner()
