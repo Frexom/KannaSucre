@@ -167,20 +167,15 @@ async def clear(ctx):
 @bot.command(name='prune')
 async def prune(ctx):
   if not ctx.message.author.bot :
-    print("made it")
     if ctx.message.author.guild_permissions.manage_messages:
-      print("made it")
       user = get_mention(ctx)
       if user is not None:
         if user.guild_permissions.is_strict_subset(ctx.author.guild_permissions):
           def checkUser(m):
             return m.author == user
-          print("made it")
           mess_count = 0
           for channel in ctx.guild.text_channels:
             mess_count += len(await channel.purge(limit = 200, check = checkUser))
-            print(mess_count)
-          print("b")
           message = str(mess_count) + " messages from `" + user.name + "` were deleted on `" + ctx.guild.name + "`."
           await ctx.send(message, delete_after=5)
           await ctx.author.send(message)
@@ -559,7 +554,7 @@ async def help(ctx):
       embed.add_field(name="** **", value=content)
       await ctx.send(embed=embed)
     else:
-      await cursor.execute("SELECT com_name, com_desc, com_use_example, com_user_perms, com_bot_perms FROM commands")
+      await cursor.execute("SELECT com_name, com_desc, com_use_example, com_user_perms, com_bot_perms, com_more_perms_than_target FROM commands")
       commands = await cursor.fetchall()
       await close_conn(connection, cursor)
       parameter = message_list[1]
@@ -572,6 +567,11 @@ async def help(ctx):
           embed.set_author(name="KannaSucre help,")
           embed.add_field(name="User's perms :      ", value="`" + commands[i][3] + "`", inline = True)
           embed.add_field(name="Kanna's perms :      ", value="`" + commands[i][4] + "`", inline = True)
+          if commands[5] is not None:
+            answer = 'no'
+            if int(commands[i][5]) == 1:
+              answer = 'yes'
+            embed.add_field(name="Does the bot need more perms than target to run that command?", value= "```" + answer + "```", inline = False)
           embed.add_field(name="Example : ", value= "```" + prefix + commands[i][2] + "```", inline = False)
           await ctx.send(embed=embed)
           successful = True
