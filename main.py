@@ -454,10 +454,14 @@ async def poke(ctx):
     pity = data[1]
     now = time.time()
     time_since = int(now - last_roll)
-    if time_since > 7200 or pity > 1:
+    print(time_since)
+    if time_since > 7200 or pity >= 1:
       if time_since < 7200:
-        await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity-1, ctx.author.id))  
+        pity -= 1
+        await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, ctx.author.id))  
         await connection.commit()
+      else:
+        await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
       rarity = get_rarity()
       rarity_name = get_rarity_name(rarity)
       await cursor.execute("SELECT poke_image_link, poke_name, poke_id FROM pokedex WHERE poke_rarity = ? ORDER BY poke_id", (rarity, ))
@@ -465,7 +469,6 @@ async def poke(ctx):
       index = random.randint(0, len(data)-1)
       print(index)
       data = data[index]
-      await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
       await connection.commit()
       await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ?", (ctx.message.author.id, data[2]))
       is_obtained = await cursor.fetchone()
