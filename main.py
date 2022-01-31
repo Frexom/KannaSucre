@@ -37,7 +37,6 @@ async def get_pre(bot, message):
 default_intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=get_pre, intents=default_intents)
 bot.remove_command('help')
-random.seed(time.time())
 
 
 async def missing_perms(ctx, command_name: str, perms: str = "Not renseigned"):
@@ -54,6 +53,7 @@ async def on_ready():
     await setup_func(bot.guilds[i])
   game = discord.Game('send "ping" to see prefix')
   await bot.change_presence(status=discord.Status.online, activity=game)
+  random.seed(time.time())
   print("Bot is ready")
 
 
@@ -170,7 +170,7 @@ async def prune(ctx):
     if ctx.message.author.guild_permissions.manage_messages:
       user = get_mention(ctx)
       if user is not None:
-        if user.guild_permissions.is_strict_subset(ctx.author.guild_permissions):
+        if user.guild_permissions.is_superset(ctx.author.guild_permissions):
           def checkUser(m):
             return m.author == user
           mess_count = 0
@@ -199,7 +199,7 @@ async def kick(ctx):
         else:
           member = ctx.message.mentions[0]
         reason = ' '.join(reason[2:])
-        if member.guild_permissions.is_strict_subset(ctx.message.author.guild_permissions):
+        if member.guild_permissions.is_superset(ctx.message.author.guild_permissions):
           if reason != "":
             await member.send("you have been kicked from **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
           else:
@@ -225,7 +225,7 @@ async def ban(ctx):
           member = ctx.guild.get_member(int(reason[1]))
         else:
           member = ctx.message.mentions[0]
-        if member.guild_permissions.is_strict_subset(ctx.message.author.guild_permissions):
+        if member.guild_permissions.is_superset(ctx.message.author.guild_permissions):
           reason = ' '.join(reason[2:])
           if reason != "":
             await member.send("you have been banned from **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
@@ -457,9 +457,12 @@ async def poke(ctx):
         await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity-1, ctx.author.id))  
       rarity = get_rarity()
       rarity_name = get_rarity_name(rarity)
-      await cursor.execute("SELECT poke_image_link, poke_name, poke_id FROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM()", (rarity, ))
-      data = await cursor.fetchone()
-      #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
+      await cursor.execute("SELECT poke_image_link, poke_name, poke_id FROM pokedex WHERE poke_rarity = ? ORDER BY poke_id", (rarity, ))
+      data = await cursor.fetchall()
+      index = random.randint(0, len(data)-1)
+      print(index)
+      data = data[index]
+      await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
       await connection.commit()
       await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ?", (ctx.message.author.id, data[2]))
       is_obtained = await cursor.fetchone()
@@ -467,21 +470,21 @@ async def poke(ctx):
         await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, date) VALUES (?, ?, ?)", (ctx.message.author.id, data[2], now))
         desc = "This is a **" + rarity_name + "** pokemon!"
       else:
-        desc = "This is a **" + rarity_name + "** pokemon!\nYou already had that pokemon.:confused:\nRolls +0.25"
-        await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25, ctx.author.id))
+        desc = "This is a **" + rarity_name + "** pokemon!\nYou already had that pokemon.:confused:\nRolls +" + str(0.25*rarity) + "."
+        await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25*rarity, ctx.author.id))
       await connection.commit()
       e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got **" + str(data[1]) + "**!",  description = desc)
       e.set_image(url=str(data[0]))
       await ctx.send(embed = e)
-
-    time_left = int(7200 - time_since)
-    if time_left > 3600:
-      time_left -= 3600
-      time_left = int(time_left/60)
-      await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
     else:
-      time_left = int(time_left/60)
-      await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+      time_left = int(7200 - time_since)
+      if time_left > 3600:
+        time_left -= 3600
+        time_left = int(time_left/60)
+        await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+      else:
+        time_left = int(time_left/60)
+        await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
     await close_conn(connection, cursor)
 
 
@@ -518,10 +521,13 @@ async def announce(ctx):
   message_list = ctx.message.content.split(" ")[1:]
   message = ""
   message = " ".join(message_list)
+  counter = 0
   for i in range(len(IDs)):
     if IDs[i][0] != 0 and IDs[i][0] != None :
+      counter += 1
       channel = bot.get_channel(IDs[i][0])
       await channel.send(message)
+  await ctx.send("Announcement made on " + str(counter) + " guilds.")
 
 
 @bot.command(name = "preview")
@@ -705,7 +711,7 @@ async def welcome_channel_setup(ctx):
   fail_counter = 0
   while success == 0 and fail_counter < 3:
     try:
-      msg = await bot.wait_for('message',  check=check, timeout = 15)
+      msg = await bot.wait_for('message',  check=check, timeout = 3)
       connection, cursor = await get_conn()
       if len(msg.channel_mentions) > 0: 
         channel = msg.channel_mentions[0].id
@@ -720,13 +726,12 @@ async def welcome_channel_setup(ctx):
       await connection.commit()
       await close_conn(connection, cursor)
     except asyncio.exceptions.TimeoutError:
-      success = 1
       fail_counter += 10
       await ctx.send("Command timed out, please try again.")
   if success == 1:
-    await msg.add_reaction("\u2705")
-  else:
-    ctx.send("Command closed.")
+   await msg.add_reaction("\u2705")
+   return 1
+  return 0
 
 
 async def announcement_channel_setup(ctx):
@@ -742,7 +747,7 @@ async def announcement_channel_setup(ctx):
   fail_counter = 0
   while success == 0 and fail_counter < 3:
     try:
-      msg = await bot.wait_for('message',  check=check, timeout = 15)
+      msg = await bot.wait_for('message',  check=check, timeout = 3)
       connection, cursor = await get_conn()
       if len(msg.channel_mentions) > 0: 
         channel = msg.channel_mentions[0].id
@@ -761,9 +766,9 @@ async def announcement_channel_setup(ctx):
       fail_counter += 10
       await ctx.send("Command timed out, please try again.")
   if success == 1:
-    await msg.add_reaction("\u2705")
-  else:
-    ctx.send("Command closed.")
+   await msg.add_reaction("\u2705")
+   return 1
+  return 0
 
 
 async def prefix_setup(ctx):
@@ -778,8 +783,8 @@ async def prefix_setup(ctx):
   success = 0
   
   try:
-    msg = await bot.wait_for('message',  check=check, timeout = 15)
-    prefix = ctx.message.content.split(" ")[0]
+    msg = await bot.wait_for('message',  check=check, timeout = 3)
+    prefix = msg.content.split(" ")[0]
     connection, cursor = await get_conn()
     await cursor.execute("UPDATE guilds SET guild_prefix = ? WHERE guild_id=?",(prefix, ctx.guild.id))
     success = 1
@@ -790,19 +795,22 @@ async def prefix_setup(ctx):
     await ctx.send("Command timed out, please try again.")
   if success == 1:
    await msg.add_reaction("\u2705")
-  else:
-    ctx.send("Command closed.")
+   return 1
+  return 0
 
 
 @bot.command(name = 'setup')
 async def setup(ctx):
   await ctx.send("Welcome to the KannaSucre's server setup!")
   await asyncio.sleep(2)
-  await prefix_setup(ctx)
-  await welcome_channel_setup(ctx)
-  await announcement_channel_setup(ctx)
-  await asyncio.sleep(2)
-  await ctx.send("Thanks! This server is now set up!")
+  last_func = await prefix_setup(ctx)
+  if last_func == 1:
+    last_func = await welcome_channel_setup(ctx)
+  if last_func == 1:
+    last_func = await announcement_channel_setup(ctx)
+  if last_func == 1:
+    await asyncio.sleep(2)
+    await ctx.send("Thanks! This server is now set up!")
 
 
 @bot.command(name = 'database')
@@ -832,6 +840,5 @@ async def shutdown(ctx):
     await ctx.send("The bot did not shut down.(timeout)")
 
     
-
 
 bot.run(os.environ['TOKEN'])
