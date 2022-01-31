@@ -813,16 +813,19 @@ async def prefix_setup(ctx):
 
 @bot.command(name = 'setup')
 async def setup(ctx):
-  await ctx.send("Welcome to the KannaSucre's server setup!")
-  await asyncio.sleep(2)
-  last_func = await prefix_setup(ctx)
-  if last_func == 1:
-    last_func = await welcome_channel_setup(ctx)
-  if last_func == 1:
-    last_func = await announcement_channel_setup(ctx)
-  if last_func == 1:
+  if not ctx.author.bot and ctx.author.guild_permissions.manage_guild:
+    await ctx.send("Welcome to the KannaSucre's server setup!")
     await asyncio.sleep(2)
-    await ctx.send("Thanks! This server is now set up!")
+    last_func = await prefix_setup(ctx)
+    if last_func == 1:
+      last_func = await welcome_channel_setup(ctx)
+    if last_func == 1:
+      last_func = await announcement_channel_setup(ctx)
+    if last_func == 1:
+      await asyncio.sleep(2)
+      await ctx.send("Thanks! This server is now set up!")
+  else :
+    await missing_perms(ctx, "setup", "manage_server")
 
 
 @bot.command(name = 'database')
