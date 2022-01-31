@@ -457,6 +457,7 @@ async def poke(ctx):
     if time_since > 7200 or pity > 1:
       if time_since < 7200:
         await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity-1, ctx.author.id))  
+        await connection.commit()
       rarity = get_rarity()
       rarity_name = get_rarity_name(rarity)
       await cursor.execute("SELECT poke_image_link, poke_name, poke_id FROM pokedex WHERE poke_rarity = ? ORDER BY poke_id", (rarity, ))
