@@ -170,7 +170,7 @@ async def prune(ctx):
     if ctx.message.author.guild_permissions.manage_messages:
       user = get_mention(ctx)
       if user is not None:
-        if user.guild_permissions.is_superset(ctx.author.guild_permissions):
+        if not user.guild_permissions.manage_messages or user.bot:
           def checkUser(m):
             return m.author == user
           mess_count = 0
@@ -199,7 +199,7 @@ async def kick(ctx):
         else:
           member = ctx.message.mentions[0]
         reason = ' '.join(reason[2:])
-        if member.guild_permissions.is_superset(ctx.message.author.guild_permissions):
+        if not member.guild_permissions.kick_members:
           if not member.bot:
             if reason != "":
               await member.send("you have been kicked from **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
@@ -226,7 +226,7 @@ async def ban(ctx):
           member = ctx.guild.get_member(int(reason[1]))
         else:
           member = ctx.message.mentions[0]
-        if member.guild_permissions.is_superset(ctx.message.author.guild_permissions):
+        if not member.guild_permissions.ban_members:
           reason = ' '.join(reason[2:])
           if not member.bot:
             if reason != "":
@@ -324,8 +324,12 @@ async def welcome(ctx):
   if not ctx.message.author.bot :
     if ctx.message.author.guild_permissions.manage_guild:
       connection, cursor = await get_conn()
-      if len(ctx.message.channel_mentions) > 0:
-        channel = ctx.message.channel_mentions[0].id
+      message = ctx.message.content.split(" ")
+      if len(ctx.message.channel_mentions) > 0 or len(message) > 1 and message[1] == str(0):
+        if len(ctx.message.channel_mentions) > 0:
+          channel = ctx.message.channel_mentions[0].id
+        else:
+          channel = 0
         await cursor.execute("UPDATE guilds SET guild_welcome_channel_id = ? WHERE guild_id=?", (channel, ctx.guild.id))
         await ctx.message.add_reaction("\u2705")
         await connection.commit()
@@ -337,7 +341,7 @@ async def welcome(ctx):
         welcome = welcome[0]
         prefix = str(await get_pre(bot, ctx))
         if welcome != 0 :
-          await ctx.send("The current welcome channel is <#" + str(welcome) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) + "welcome   *mention new welcome channel*```")
+          await ctx.send("The current welcome channel is <#" + str(welcome) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) + "welcome   *mention new welcome channel or 0 to disable*```")
         else :
           await ctx.send("There is not defined welcome channel defined for this server right now. If you want to set up one to see who enters and leaves your server, please use this command :\n" + "```" + str(prefix) + "welcome *mention new welcome channel*```")
     else:
@@ -349,8 +353,12 @@ async def announcements(ctx):
   if not ctx.message.author.bot :
     if ctx.message.author.guild_permissions.manage_guild:
       connection, cursor = await get_conn()
-      if len(ctx.message.channel_mentions) > 0:
-        channel = ctx.message.channel_mentions[0].id
+      message = ctx.message.content.split(" ")
+      if len(ctx.message.channel_mentions) > 0 or len(message) > 1 and message[1] == str(0):
+        if len(ctx.message.channel_mentions) > 0:
+          channel = ctx.message.channel_mentions[0].id
+        else:
+          channel = 0
         await cursor.execute("UPDATE guilds SET guild_announcements_channel_ID = ? WHERE guild_id=?",(channel, ctx.guild.id))
         await ctx.message.add_reaction("\u2705")
         await connection.commit()
@@ -362,14 +370,14 @@ async def announcements(ctx):
         announcements = announcements[0]
         prefix = str(await get_pre(bot, ctx))
         if announcements != 0 :
-          await ctx.send("The current announcements channel is <#" + str(announcements) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) +   "announcements *mention new announcements channel*```")
+          await ctx.send("The current announcements channel is <#" + str(announcements) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) +   "announcements *mention new announcements channel or 0 to disable*```")
         else :
           await ctx.send("There is not defined announcements channel defined for this server right now. If you want to set up one to stay tuned with the latest KannaSucre News, please use this command :\n" + "```" + str(prefix) + "announcements *mention new announcements channel*```")
     else:
       await missing_perms(ctx, "announcements", "manage guild")
 
 
-@bot.command(name='lengthlimit')
+@bot.command(name="lengthlimit")
 async def lengthlimit(ctx):
   if not ctx.message.author.bot :
     if ctx.message.author.guild_permissions.manage_guild:
@@ -454,7 +462,6 @@ async def poke(ctx):
     pity = data[1]
     now = time.time()
     time_since = int(now - last_roll)
-    print(time_since)
     if time_since > 7200 or pity >= 1:
       if time_since < 7200:
         pity -= 1
@@ -467,7 +474,6 @@ async def poke(ctx):
       await cursor.execute("SELECT poke_image_link, poke_name, poke_id FROM pokedex WHERE poke_rarity = ? ORDER BY poke_id", (rarity, ))
       data = await cursor.fetchall()
       index = random.randint(0, len(data)-1)
-      print(index)
       data = data[index]
       await connection.commit()
       await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ?", (ctx.message.author.id, data[2]))
