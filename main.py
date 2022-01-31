@@ -200,10 +200,11 @@ async def kick(ctx):
           member = ctx.message.mentions[0]
         reason = ' '.join(reason[2:])
         if member.guild_permissions.is_superset(ctx.message.author.guild_permissions):
-          if reason != "":
-            await member.send("you have been kicked from **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
-          else:
-            await member.send("You have been kicked from **" + str(ctx.guild.name) + "**.\nNo reason given.")
+          if not member.bot:
+            if reason != "":
+              await member.send("you have been kicked from **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
+            else:
+              await member.send("You have been kicked from **" + str(ctx.guild.name) + "**.\nNo reason given.")
           await member.kick()
           await ctx.message.add_reaction("\u2705")
         else:
@@ -227,10 +228,11 @@ async def ban(ctx):
           member = ctx.message.mentions[0]
         if member.guild_permissions.is_superset(ctx.message.author.guild_permissions):
           reason = ' '.join(reason[2:])
-          if reason != "":
-            await member.send("you have been banned from **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
-          else:
-            await member.send("You have been banned from **" + str(ctx.guild.name) + "**.\nNo reason given.")
+          if not member.bot:
+            if reason != "":
+              await member.send("you have been banned from **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
+            else:
+              await member.send("You have been banned from **" + str(ctx.guild.name) + "**.\nNo reason given.")
           await member.ban()
           await ctx.message.add_reaction("\u2705")
         else:
