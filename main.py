@@ -512,11 +512,13 @@ async def get_pokedex_embed(user, page):
       list_index += 1
    
     for i in range(page*20, page*20+20):
-      if Pokemons[list_index][0] == i+1:
-        list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + "\n"
-        list_index += 1
-      else:
-        list_pokemons += str(i+1) + " - --------\n"
+      if i < 151:
+        if Pokemons[list_index][0] == i+1:
+          list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + "\n"
+          if list_index < len(Pokemons)-1:
+            list_index += 1
+        else:
+          list_pokemons += str(i+1) + " - --------\n"
 
     embed=discord.Embed(title= str(user.name) + "'s Pokedex")
     embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
@@ -541,7 +543,25 @@ async def pokedex(ctx):
       msg = await ctx.send(embed=await get_pokedex_embed(user, page))
       await msg.add_reaction(emoji = "\u25C0")
       await msg.add_reaction(emoji = "\u25B6")
-      
+      await asyncio.sleep(1)
+
+      def check(r, a):
+        return r.message == msg
+
+
+      active = 1
+      while(active == 1):
+        try:
+          a = await bot.wait_for("reaction_add", check = check, timeout = 15)
+          if a[0].emoji == '▶' and page < 8:
+            page += 1
+          elif a[0].emoji == '◀' and page > 0:
+            page -= 1
+          await msg.edit(embed=await get_pokedex_embed(user, page))
+        except asyncio.exceptions.TimeoutError:
+          active = 0
+
+
     else:
       await ctx.send("This command isn't supported for bots.")
 
