@@ -426,14 +426,14 @@ async def usericon(ctx):
 
 
 def get_rarity():
-  aa = random.randint(1, 100)
-  if aa == 100:
+  rand = random.randint(1, 100)
+  if rand == 100:
     return 5
-  elif aa >= 95 and aa <= 99:
+  elif rand >= 95 and rand <= 99:
     return 4
-  elif aa >= 80 and aa <=94:
+  elif rand >= 80 and rand <=94:
     return 3
-  elif aa >= 55 and aa <=79:
+  elif rand >= 55 and rand <=79:
     return 2
   else:
     return 1
