@@ -499,26 +499,49 @@ async def poke(ctx):
         await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
     await close_conn(connection, cursor)
 
+async def get_pokedex_embed(user, page):
+  connection, cursor = await get_conn()
+  await cursor.execute("SELECT poke_id, poke_name FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
+  Pokemons = await cursor.fetchall()
+  if Pokemons == [] :
+    list_pokemons = "No pokemons."
+  else:
+    list_pokemons = ""
+    list_index = 0
+    while(Pokemons[list_index][0] < page*20) :
+      list_index += 1
+   
+    for i in range(page*20, page*20+20):
+      if Pokemons[list_index][0] == i+1:
+        list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + "\n"
+        list_index += 1
+      else:
+        list_pokemons += str(i+1) + " - --------\n"
+
+    embed=discord.Embed(title= str(user.name) + "'s Pokedex")
+    embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
+    embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
+    embed.set_footer(text = "page " + str(page+1) + "/8")
+    await close_conn(connection, cursor)
+    return embed
 
 @bot.command(name = "pokedex")
 async def pokedex(ctx):
   if not ctx.message.author.bot :
     user = get_target(ctx)
     if not user.bot:
-      connection, cursor = await get_conn()
-      await cursor.execute("SELECT poke_name FROM pokemon_obtained JOIN pokedex USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
-      Pokemons = await cursor.fetchall()
-      if Pokemons == [] :
-        list_pokemons = "No pokemons."
-      else:
-        list_pokemons = ""
-        for elem in Pokemons:
-          list_pokemons += str(elem[0]) + "\n"
-      embed=discord.Embed(title= str(user.name) + "'s Pokedex")
-      embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
-      embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
-      await ctx.send(embed=embed)
-      await close_conn(connection, cursor)
+      message = ctx.message.content.split(" ")
+      page = 0
+      if len(message) > 1 and message[1].isdecimal() :
+        page = int(message[1])
+        page -= 1
+        if page < 1 or page > 8:
+          page = 0
+
+      msg = await ctx.send(embed=await get_pokedex_embed(user, page))
+      await msg.add_reaction(emoji = "\u25C0")
+      await msg.add_reaction(emoji = "\u25B6")
+      
     else:
       await ctx.send("This command isn't supported for bots.")
 
