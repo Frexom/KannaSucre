@@ -151,7 +151,7 @@ async def clear(ctx):
     if ctx.message.author.guild_permissions.manage_messages:
       number = ctx.message.content.split(" ")
       if len(number) > 1 and number[1].isdecimal():
-        number = int(number[1])
+        number = int(number[1]) +1
         if number < 51:
           mess_count = len(await ctx.channel.purge(limit = number))
           await ctx.send(str(mess_count-1) + " messages were deleted :D", delete_after=5)
