@@ -167,6 +167,7 @@ async def clear(ctx):
 @bot.command(name='prune')
 async def prune(ctx):
   if not ctx.message.author.bot :
+    await ctx.channel.trigger_typing()
     if ctx.message.author.guild_permissions.manage_messages:
       user = get_mention(ctx)
       if user is not None:
@@ -455,6 +456,7 @@ def get_rarity_name(rarity):
 @bot.command(name = "poke")
 async def poke(ctx):
   if not ctx.message.author.bot :
+    await ctx.channel.trigger_typing()
     connection, cursor = await get_conn()
     await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (ctx.message.author.id, ))
     data = await cursor.fetchone()
