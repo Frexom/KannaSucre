@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-import aiosqlite3
+import aiosqlite
 import time
 import os
 import random
@@ -8,7 +8,7 @@ import asyncio
 from PIL import Image, ImageFont, ImageDraw
 
 async def get_conn():
-  conn = await aiosqlite3.connect("bot.db", timeout = 10)
+  conn = await aiosqlite.connect("bot.db", timeout = 10)
   c = await conn.cursor()
   return conn, c
 
