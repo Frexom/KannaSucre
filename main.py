@@ -489,16 +489,38 @@ async def poke(ctx):
       e.set_image(url=str(data[0]))
       await ctx.send(embed = e)
     else:
-      time_left += 60
       time_left = int(7200 - time_since)
       if time_left > 3600:
         time_left -= 3600
         time_left = int(time_left/60)
         await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
       else:
+        time_left += 60
         time_left = int(time_left/60)
         await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
     await close_conn(connection, cursor)
+
+@bot.command(name='rolls')
+async def rolls(ctx):
+  connection, cursor = await get_conn()
+  await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (ctx.message.author.id, ))
+  data = await cursor.fetchone()
+  last_roll = data[0]
+  pity = data[1]
+  now = time.time()
+  time_since = int(now - last_roll)
+  time_left = int(7200 - time_since)
+  if time_left <= 0:
+    await ctx.send(str(ctx.message.author.name) + ", your poke roll is available.\nRolls : `" + str(pity)+ "`.")
+  elif time_left > 3600:
+    time_left -= 3600
+    time_left = int(time_left/60)
+    await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+  else:
+    time_left += 60
+    time_left = int(time_left/60)
+    await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+  await close_conn(connection, cursor)
 
 async def get_pokedex_embed(user, page):
   connection, cursor = await get_conn()
