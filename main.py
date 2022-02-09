@@ -489,6 +489,7 @@ async def poke(ctx):
       e.set_image(url=str(data[0]))
       await ctx.send(embed = e)
     else:
+      time_left += 60
       time_left = int(7200 - time_since)
       if time_left > 3600:
         time_left -= 3600
