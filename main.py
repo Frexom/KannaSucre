@@ -533,7 +533,7 @@ async def get_pokedex_embed(user, page):
   else:
     list_pokemons = ""
     list_index = 0
-    while(Pokemons[list_index][0] < page*20) :
+    while(Pokemons[list_index][0] < page*20 and list_index != len(Pokemons)-1) :
       list_index += 1
    
     for i in range(page*20, page*20+20):
@@ -578,10 +578,10 @@ async def pokedex(ctx):
       while(active == 1):
         try:
           a = await bot.wait_for("reaction_add", check = check, timeout = 15)
-          if a[0].emoji == '▶' and page < 8:
-            page += 1
-          elif a[0].emoji == '◀' and page > 0:
-            page -= 1
+          if a[0].emoji == '▶':
+            page = (page + 1) % 8
+          elif a[0].emoji == '◀':
+            page = (page - 1) % 8
           await msg.edit(embed=await get_pokedex_embed(user, page))
         except asyncio.exceptions.TimeoutError:
           active = 0
