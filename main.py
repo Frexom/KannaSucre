@@ -701,9 +701,23 @@ async def sql(ctx):
       else:
         await ctx.send(result)
     else:
-      await cursor.execute(query)
-      await ctx.send("That went alright!")
-    await connection.commit()
+      channel = ctx.channel
+      author = ctx.author
+
+      def check(m):
+        return m.content == 'y' and m.channel == channel and m.author == author
+
+      try: 
+        await ctx.send("Are you sure you want to execute that query?")
+        msg = await bot.wait_for('message',  check=check, timeout = 10)
+        if msg:
+          await cursor.execute(query)
+          await ctx.send("That went alright!")
+          await connection.commit()
+        
+      except asyncio.exceptions.TimeoutError:
+        await ctx.send("Command timed out.")
+
     await close_conn(connection, cursor)
 
 
