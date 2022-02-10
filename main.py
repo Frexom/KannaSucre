@@ -545,12 +545,12 @@ async def get_pokedex_embed(user, page):
         else:
           list_pokemons += str(i+1) + " - --------\n"
 
-    embed=discord.Embed(title= str(user.name) + "'s Pokedex")
-    embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
-    embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
-    embed.set_footer(text = "page " + str(page+1) + "/8")
-    await close_conn(connection, cursor)
-    return embed
+  embed=discord.Embed(title= str(user.name) + "'s Pokedex")
+  embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
+  embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
+  embed.set_footer(text = "page " + str(page+1) + "/8")
+  await close_conn(connection, cursor)
+  return embed
 
 @bot.command(name = "pokedex")
 async def pokedex(ctx):
