@@ -533,9 +533,8 @@ async def get_pokedex_embed(user, page):
   else:
     list_pokemons = ""
     list_index = 0
-    while(Pokemons[list_index][0] < page*20 and list_index != len(Pokemons)-1) :
+    while(Pokemons[list_index][0] <= page*20 and list_index != len(Pokemons)-1) :
       list_index += 1
-   
     for i in range(page*20, page*20+20):
       if i < 151:
         if Pokemons[list_index][0] == i+1:
