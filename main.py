@@ -487,7 +487,6 @@ async def get_pokemon_details():
     await cursor.execute("SELECT pokelink_normal FROM pokelink WHERE poke_id = ? and pokelink_alt = ? and pokelink_sex = ?", (poke_id[0], poke_alt, poke_sex))
   link = await cursor.fetchone()
   await close_conn(connection, cursor)
-  print(poke_id, rarity, link)
   return [poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link[0]]
   
 
@@ -514,15 +513,12 @@ async def poke(ctx):
       pokemon_details = await get_pokemon_details()
       
       await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (ctx.message.author.id, pokemon_details[0], pokemon_details[4] ))
-      print((ctx.message.author.id, pokemon_details[0], pokemon_details[4] ))
       is_obtained = await cursor.fetchone()
-      print(is_obtained)
       shiny_string = ""
       is_shiny = pokemon_details[5]
       if is_shiny:
         shiny_string = "\nWait!! Is it shiny??? :sparkles:"
       if is_obtained == None:
-        print((ctx.message.author.id, pokemon_details[0], pokemon_details[4]))
         await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, pokelink_alt, is_shiny, date) VALUES (?, ?, ?, ?, ?)", (ctx.message.author.id, pokemon_details[0], pokemon_details[4], int(is_shiny), now))
         desc = "This is a **" + pokemon_details[3] + "** pokemon!" + shiny_string
       elif (is_obtained[3] == 0 and is_shiny):
