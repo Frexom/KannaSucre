@@ -440,7 +440,7 @@ def get_rarity():
     return [1, "Common"]
 
 def get_shiny():
-  rand = random.randint(1, 2)
+  rand = random.randint(1, 256)
   if rand == 1:
     return True 
   return False
