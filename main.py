@@ -152,7 +152,7 @@ async def clear(ctx):
       number = ctx.message.content.split(" ")
       if len(number) > 1 and number[1].isdecimal():
         number = int(number[1]) +1
-        if number < 51:
+        if number < 52:
           mess_count = len(await ctx.channel.purge(limit = number))
           await ctx.send(str(mess_count-1) + " messages were deleted :D", delete_after=5)
         else:
@@ -429,29 +429,67 @@ async def usericon(ctx):
 def get_rarity():
   rand = random.randint(1, 100)
   if rand == 100:
-    return 5
+    return [5, "legendary"]
   elif rand >= 95 and rand <= 99:
-    return 4
+    return [4, "Super Rare"]
   elif rand >= 80 and rand <=94:
-    return 3
+    return [3, "Rare"]
   elif rand >= 55 and rand <=79:
-    return 2
+    return [2, "Uncommon"]
   else:
-    return 1
+    return [1, "Common"]
 
+def get_shiny():
+  rand = random.randint(1, 2)
+  if rand == 1:
+    return True 
+  return False
 
-def get_rarity_name(rarity):
-  if rarity == 2:
-    return "Uncommon"
-  elif rarity == 3:
-    return "Rare"
-  elif rarity == 4:
-    return "Super Rare"
-  if rarity == 5:
-    return "Legendary"
+async def get_pokemon_sex(poke_id):
+  connection, cursor = await get_conn()
+  await cursor.execute("SELECT DISTINCT pokelink_sex FROM pokelink WHERE poke_id = ?", (poke_id, ))
+  data = await cursor.fetchall()
+  await close_conn(connection, cursor)
+  if len(data) == 1:
+    return data[0][0]
   else:
-    return "Common"
+    return data[random.randint(0,len(data)-1)][0]
 
+async def get_alt(poke_id, poke_sex):
+  connection, cursor = await get_conn()
+  await cursor.execute("SELECT COUNT(*) FROM pokelink WHERE poke_id = ? and pokelink_sex = ?", (poke_id, poke_sex))
+  alt = await cursor.fetchone()
+  await close_conn(connection, cursor)
+  if alt[0] == 1:
+    return 0
+  else:
+    return random.randint(0, alt[0]-1)
+
+async def get_pokemon_id(rarity):
+  connection, cursor = await get_conn()
+  await cursor.execute("SELECT poke_id, poke_name FROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
+  temp =  await cursor.fetchone()
+  await close_conn(connection, cursor)
+  return temp
+
+  
+async def get_pokemon_details():
+  rarity = get_rarity()
+  poke_id = await get_pokemon_id(rarity[0])
+  shiny = get_shiny()
+  poke_sex = await get_pokemon_sex(poke_id[0])
+  poke_alt = await get_alt(poke_id[0], poke_sex)
+  connection, cursor = await get_conn()
+
+  if shiny:
+    await cursor.execute("SELECT pokelink_shiny FROM pokelink WHERE poke_id = ? and pokelink_alt = ? and pokelink_sex = ?", (poke_id[0], poke_alt, poke_sex))
+  else:
+    await cursor.execute("SELECT pokelink_normal FROM pokelink WHERE poke_id = ? and pokelink_alt = ? and pokelink_sex = ?", (poke_id[0], poke_alt, poke_sex))
+  link = await cursor.fetchone()
+  await close_conn(connection, cursor)
+  print(poke_id, rarity, link)
+  return [poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link[0]]
+  
 
 @bot.command(name = "poke")
 async def poke(ctx):
@@ -468,27 +506,34 @@ async def poke(ctx):
       if time_since < 7200:
         pity -= 1
         await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, ctx.author.id))  
-        await connection.commit()
       else:
-        await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
-      rarity = get_rarity()
-      rarity_name = get_rarity_name(rarity)
-      await cursor.execute("SELECT poke_image_link, poke_name, poke_id FROM pokedex WHERE poke_rarity = ? ORDER BY poke_id", (rarity, ))
-      data = await cursor.fetchall()
-      index = random.randint(0, len(data)-1)
-      data = data[index]
+        pass
+        #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
       await connection.commit()
-      await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ?", (ctx.message.author.id, data[2]))
+      
+      pokemon_details = await get_pokemon_details()
+      
+      await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (ctx.message.author.id, pokemon_details[0], pokemon_details[4] ))
+      print((ctx.message.author.id, pokemon_details[0], pokemon_details[4] ))
       is_obtained = await cursor.fetchone()
+      print(is_obtained)
+      shiny_string = ""
+      is_shiny = pokemon_details[5]
+      if is_shiny:
+        shiny_string = "\nWait!! Is it shiny??? :sparkles:"
       if is_obtained == None:
-        await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, date) VALUES (?, ?, ?)", (ctx.message.author.id, data[2], now))
-        desc = "This is a **" + rarity_name + "** pokemon!"
+        print((ctx.message.author.id, pokemon_details[0], pokemon_details[4]))
+        await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, pokelink_alt, is_shiny, date) VALUES (?, ?, ?, ?, ?)", (ctx.message.author.id, pokemon_details[0], pokemon_details[4], int(is_shiny), now))
+        desc = "This is a **" + pokemon_details[3] + "** pokemon!" + shiny_string
+      elif (is_obtained[3] == 0 and is_shiny):
+        await cursor.execute("UPDATE pokemon_obtained SET is_shiny = 1 WHERE user_id = ? and poke_id = ?", (ctx.message.author.id, pokemon_details[0]))
+        desc = "This is a **" + pokemon_details[3] + "** pokemon!" + shiny_string
       else:
-        desc = "This is a **" + rarity_name + "** pokemon!\nYou already had that pokemon.:confused:\nRolls +" + str(0.25*rarity) + "."
-        await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25*rarity, ctx.author.id))
+        desc = "This is a **" + pokemon_details[3] + "** pokemon!" + shiny_string + "\nYou already had that pokemon.:confused:\nRolls +" + str(0.25*pokemon_details[2]) + "."
+        await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon_details[2], ctx.author.id))
       await connection.commit()
-      e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got **" + str(data[1]) + "**!",  description = desc)
-      e.set_image(url=str(data[0]))
+      e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got **" + pokemon_details[1] + "**!",  description = desc)
+      e.set_image(url=pokemon_details[-1])
       await ctx.send(embed = e)
     else:
       time_left = int(7200 - time_since)
@@ -526,7 +571,7 @@ async def rolls(ctx):
 
 async def get_pokedex_embed(user, page):
   connection, cursor = await get_conn()
-  await cursor.execute("SELECT poke_id, poke_name FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
+  await cursor.execute("SELECT poke_id, poke_name, is_shiny FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
   Pokemons = await cursor.fetchall()
   if Pokemons == [] :
     list_pokemons = "No pokemons."
@@ -538,7 +583,10 @@ async def get_pokedex_embed(user, page):
     for i in range(page*20, page*20+20):
       if i < 151:
         if Pokemons[list_index][0] == i+1:
-          list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + "\n"
+          if Pokemons[list_index][2]:
+            list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + ":sparkles:\n"
+          else:
+            list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + "\n"
           if list_index < len(Pokemons)-1:
             list_index += 1
         else:
