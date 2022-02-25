@@ -506,8 +506,7 @@ async def poke(ctx):
         pity -= 1
         await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, ctx.author.id))  
       else:
-        pass
-        #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
+        await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
       await connection.commit()
       
       pokemon_details = await get_pokemon_details()
@@ -755,6 +754,8 @@ async def sql(ctx):
         msg = await bot.wait_for('message',  check=check, timeout = 10)
         if msg:
           await cursor.execute(query)
+          await ctx.send(str(cursor.rowcount) + " rows affected.")
+          await cursor.fetchall()
           await ctx.send("That went alright!")
           await connection.commit()
         
