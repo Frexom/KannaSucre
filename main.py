@@ -749,15 +749,15 @@ async def sql(ctx):
       def check(m):
         return m.content == 'y' and m.channel == channel and m.author == author
 
+      await cursor.execute(query)
+      await ctx.send(str(cursor.rowcount) + " rows affected.")
+      
       try: 
-        await ctx.send("Are you sure you want to execute that query?")
+        await ctx.send("Do you want to commit?")
         msg = await bot.wait_for('message',  check=check, timeout = 10)
         if msg:
-          await cursor.execute(query)
-          await ctx.send(str(cursor.rowcount) + " rows affected.")
-          await cursor.fetchall()
-          await ctx.send("That went alright!")
           await connection.commit()
+          await ctx.channel.send("Commited.")
         
       except asyncio.exceptions.TimeoutError:
         await ctx.send("Command timed out.")
