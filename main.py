@@ -695,7 +695,7 @@ async def help(ctx):
           embed.set_author(name="KannaSucre help,")
           embed.add_field(name="User's perms :      ", value="`" + commands[i][3] + "`", inline = True)
           embed.add_field(name="Kanna's perms :      ", value="`" + commands[i][4] + "`", inline = True)
-          if commands[5] is not None:
+          if commands[i][5] is not None:
             answer = 'no'
             if int(commands[i][5]) == 1:
               answer = 'yes'
