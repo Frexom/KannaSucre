@@ -625,7 +625,7 @@ async def pokedex(ctx):
           elif a[0].emoji == '◀':
             page = (page - 1) % 8
           await msg.edit(embed=await get_pokedex_embed(user, page))
-        except asyncio.exceptions.TimeoutError:
+        except asyncio.TimeoutError:
           active = 0
 
 
@@ -759,7 +759,7 @@ async def sql(ctx):
           await connection.commit()
           await ctx.channel.send("Commited.")
         
-      except asyncio.exceptions.TimeoutError:
+      except asyncio.TimeoutError:
         await ctx.send("Command timed out.")
 
     await close_conn(connection, cursor)
@@ -863,7 +863,7 @@ async def welcome_channel_setup(ctx):
         fail_counter += 1;
       await connection.commit()
       await close_conn(connection, cursor)
-    except asyncio.exceptions.TimeoutError:
+    except asyncio.TimeoutError:
       fail_counter += 10
       await ctx.send("Command timed out, please try again.")
   if success == 1:
@@ -900,7 +900,7 @@ async def announcement_channel_setup(ctx):
       await connection.commit()
       await close_conn(connection, cursor)
 
-    except asyncio.exceptions.TimeoutError:
+    except asyncio.TimeoutError:
       fail_counter += 10
       await ctx.send("Command timed out, please try again.")
   if success == 1:
@@ -929,7 +929,7 @@ async def prefix_setup(ctx):
     await connection.commit()
     await close_conn(connection, cursor)
 
-  except asyncio.exceptions.TimeoutError:
+  except asyncio.TimeoutError:
     await ctx.send("Command timed out, please try again.")
   if success == 1:
    await msg.add_reaction("\u2705")
@@ -977,7 +977,7 @@ async def shutdown(ctx):
       await asyncio.sleep(1)
       await bot.close()
 
-  except asyncio.exceptions.TimeoutError:
+  except asyncio.TimeoutError:
     await ctx.send("The bot did not shut down.(timeout)")
 
     
