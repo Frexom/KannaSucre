@@ -849,7 +849,7 @@ async def welcome_channel_setup(ctx):
   fail_counter = 0
   while success == 0 and fail_counter < 3:
     try:
-      msg = await bot.wait_for('message',  check=check, timeout = 3)
+      msg = await bot.wait_for('message',  check=check, timeout = 10)
       connection, cursor = await get_conn()
       if len(msg.channel_mentions) > 0: 
         channel = msg.channel_mentions[0].id
@@ -885,7 +885,7 @@ async def announcement_channel_setup(ctx):
   fail_counter = 0
   while success == 0 and fail_counter < 3:
     try:
-      msg = await bot.wait_for('message',  check=check, timeout = 3)
+      msg = await bot.wait_for('message',  check=check, timeout = 10)
       connection, cursor = await get_conn()
       if len(msg.channel_mentions) > 0: 
         channel = msg.channel_mentions[0].id
@@ -921,7 +921,7 @@ async def prefix_setup(ctx):
   success = 0
   
   try:
-    msg = await bot.wait_for('message',  check=check, timeout = 3)
+    msg = await bot.wait_for('message',  check=check, timeout = 10)
     prefix = msg.content.split(" ")[0]
     connection, cursor = await get_conn()
     await cursor.execute("UPDATE guilds SET guild_prefix = ? WHERE guild_id=?",(prefix, ctx.guild.id))
