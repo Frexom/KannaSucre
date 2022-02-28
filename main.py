@@ -6,6 +6,9 @@ import os
 import random
 import asyncio
 from PIL import Image, ImageFont, ImageDraw
+from dotenv import load_dotenv
+
+load_dotenv()
 
 async def get_conn():
   conn = await aiosqlite.connect("bot.db", timeout = 10)
