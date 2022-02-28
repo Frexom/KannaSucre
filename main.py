@@ -653,7 +653,7 @@ async def get_pokedex_embed(user, page):
         else:
           list_pokemons += str(i+1) + " - --------\n"
 
-  embed=discord.Embed(title = str(user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count))
+  embed=discord.Embed(title = str(user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count) + " pokemons")
   embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
   embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
   embed.set_footer(text = "page " + str(page+1) + "/8")
