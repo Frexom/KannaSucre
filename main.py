@@ -8,7 +8,38 @@ import asyncio
 from PIL import Image, ImageFont, ImageDraw
 from dotenv import load_dotenv
 
+
+
+
+async def get_pre(bot, message):
+  connection, cursor = await get_conn()
+  await cursor.execute("SELECT guild_prefix FROM guilds WHERE guild_id = ?", (message.guild.id, ))
+  result = await cursor.fetchone()
+  await close_conn(connection, cursor)
+  return result[0]
+
+
+
+default_intents = discord.Intents.all()
+bot = commands.Bot(command_prefix=get_pre, intents=default_intents)
+bot.remove_command('help')
+
 load_dotenv()
+
+
+
+
+async def get_conn():
+  conn = await aiosqlite.connect("bot.db", timeout = 10)
+  c = await conn.cursor()
+  return conn, c
+
+
+async def close_conn(connection, cursor):
+  await cursor.close()
+  await connection.close()
+
+
 
 async def create_global_pokecount():
   connection, cursor = await get_conn()
@@ -19,44 +50,26 @@ async def create_global_pokecount():
   await close_conn(connection, cursor)
 
 
-async def get_conn():
-  conn = await aiosqlite.connect("bot.db", timeout = 10)
-  c = await conn.cursor()
-  return conn, c
-
-async def close_conn(connection, cursor):
-  await cursor.close()
-  await connection.close()
-
-def get_target(ctx):
-  if len(ctx.message.mentions) > 0:
-    return ctx.message.mentions[0]
-  return ctx.message.author
-
-def get_mention(ctx):
-  if len(ctx.message.mentions) > 0:
-    return ctx.message.mentions[0]
-  return None
-
-async def get_pre(bot, message):
-  connection, cursor = await get_conn()
-  await cursor.execute("SELECT guild_prefix FROM guilds WHERE guild_id = ?", (message.guild.id, ))
-  result = await cursor.fetchone()
-  await close_conn(connection, cursor)
-  return result[0]
-
-
-default_intents = discord.Intents.all()
-bot = commands.Bot(command_prefix=get_pre, intents=default_intents)
-bot.remove_command('help')
-
-
 async def missing_perms(ctx, command_name: str, perms: str = "Not renseigned"):
   await ctx.send("I'm sorry but you don't meet the requirements to run that command : `" + command_name + "`.\nThis command requires the following permission : `" + perms + "`.")
 
 
 async def lack_perms(ctx, command_name: str):
   await ctx.send("I'm sorry but the command target has as much as or more permissions than you. You can't target them with the following command : `" + command_name + "`.")
+
+
+def get_target(ctx):
+  if len(ctx.message.mentions) > 0:
+    return ctx.message.mentions[0]
+  return ctx.message.author
+
+
+def get_mention(ctx):
+  if len(ctx.message.mentions) > 0:
+    return ctx.message.mentions[0]
+  return None
+
+
 
 
 @bot.event
@@ -70,6 +83,7 @@ async def on_ready():
   print("Bot is ready")
 
 
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
@@ -77,10 +91,11 @@ async def on_command_error(ctx, error):
     raise error
 
 
+
 async def setup_func(guild) :
   connection, cursor = await get_conn()
   await cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id, ))
-  if await cursor.fetchone() == None:  
+  if await cursor.fetchone() == None:
     await cursor.execute("INSERT INTO guilds(guild_id, guild_prefix) VALUES(?, '!')", (guild.id, ))
   for user in guild.members :
     if not user.bot:
@@ -91,8 +106,6 @@ async def setup_func(guild) :
   await close_conn(connection, cursor)
 
 
-
-  
 
 @bot.event
 async def on_member_join(member):
@@ -113,6 +126,7 @@ async def on_member_join(member):
   await close_conn(connection, cursor)
 
 
+
 @bot.event
 async def on_member_remove(member):
   connection, cursor = await get_conn()
@@ -124,9 +138,11 @@ async def on_member_remove(member):
   await close_conn(connection, cursor)
 
 
+
 @bot.event
 async def on_guild_join(guild):
   await setup_func(guild)
+
 
 
 @bot.event
@@ -134,7 +150,7 @@ async def on_message(message):
   if not message.author.bot :
     prefix = await get_pre(bot, message)
     if message.content.lower() == "ping":
-      await message.channel.send("Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" + prefix + "`")  
+      await message.channel.send("Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" + prefix + "`")
     connection, cursor = await get_conn()
     await cursor.execute("SELECT guild_lengthlimit FROM guilds WHERE guild_id = ?", (message.guild.id, ))
     limit = await cursor.fetchone()
@@ -158,6 +174,7 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
+
 @bot.command(name='clear')
 async def clear(ctx):
   if not ctx.message.author.bot :
@@ -175,6 +192,7 @@ async def clear(ctx):
         await ctx.send("```" + str(prefix) + "clear *number of messages*```")
     else:
       await missing_perms(ctx, "clear", "manage messages")
+
 
 
 @bot.command(name='prune')
@@ -200,6 +218,7 @@ async def prune(ctx):
         await ctx.send("```" + str(prefix) + "prune *mention targeted user*```")
     else:
       await missing_perms(ctx, "prune", "manage messages")
+
 
 
 @bot.command(name="kick")
@@ -228,7 +247,8 @@ async def kick(ctx):
         await ctx.send("```" + str(prefix) + "kick *mention target/target ID*```")
     else:
       await missing_perms(ctx, "kick", "kick members")
-  
+
+
 
 @bot.command(name='ban')
 async def ban(ctx):
@@ -258,6 +278,7 @@ async def ban(ctx):
         await missing_perms(ctx, "ban", "ban members")
 
 
+
 @bot.command(name='prefix')
 async def prefix(ctx):
   if not ctx.message.author.bot :
@@ -275,6 +296,7 @@ async def prefix(ctx):
         await ctx.send("```" + str(prefix) + "prefix *new prefix*```")
     else:
       await missing_perms(ctx, "prefix", "manage guild")
+
 
 
 @bot.command(name='hug')
@@ -333,6 +355,7 @@ async def hug(ctx):
       await ctx.send("```" + str(prefix) + "hug *mention user*```")
 
 
+
 @bot.command(name='welcome')
 async def welcome(ctx):
   if not ctx.message.author.bot :
@@ -360,6 +383,7 @@ async def welcome(ctx):
           await ctx.send("There is not defined welcome channel defined for this server right now. If you want to set up one to see who enters and leaves your server, please use this command :\n" + "```" + str(prefix) + "welcome *mention new welcome channel*```")
     else:
       await missing_perms(ctx, "welcome", "manage guild")
+
 
 
 @bot.command(name='announcements')
@@ -391,6 +415,7 @@ async def announcements(ctx):
       await missing_perms(ctx, "announcements", "manage guild")
 
 
+
 @bot.command(name="lengthlimit")
 async def lengthlimit(ctx):
   if not ctx.message.author.bot :
@@ -413,6 +438,7 @@ async def lengthlimit(ctx):
       await missing_perms(ctx, "lengthlimit", "manage guild")
 
 
+
 @bot.command(name="dice")
 async def dice(ctx):
   if not ctx.message.author.bot :
@@ -426,10 +452,12 @@ async def dice(ctx):
       await ctx.send("```" + str(prefix) + "dice *number>0*```")
 
 
+
 @bot.command(name="servericon")
 async def servericon(ctx):
   if not ctx.message.author.bot:
     await ctx.send(ctx.guild.icon_url or "This server does not have an icon.")
+
 
 
 @bot.command(name="usericon")
@@ -437,6 +465,9 @@ async def usericon(ctx):
   if not ctx.message.author.bot :
     user = get_target(ctx)
     await ctx.send(user.avatar_url or "This user does not have an icon.")
+
+
+
 
 
 def get_rarity():
@@ -452,11 +483,15 @@ def get_rarity():
   else:
     return [1, "Common"]
 
+
+
 def get_shiny():
   rand = random.randint(1, 256)
   if rand == 1:
-    return True 
+    return True
   return False
+
+
 
 async def get_pokemon_sex(poke_id):
   connection, cursor = await get_conn()
@@ -468,6 +503,8 @@ async def get_pokemon_sex(poke_id):
   else:
     return data[random.randint(0,len(data)-1)][0]
 
+
+
 async def get_alt(poke_id, poke_sex):
   connection, cursor = await get_conn()
   await cursor.execute("SELECT COUNT(*) FROM pokelink WHERE poke_id = ? and pokelink_sex = ?", (poke_id, poke_sex))
@@ -478,6 +515,8 @@ async def get_alt(poke_id, poke_sex):
   else:
     return random.randint(0, alt[0]-1)
 
+
+
 async def get_pokemon_id(rarity):
   connection, cursor = await get_conn()
   await cursor.execute("SELECT poke_id, poke_name FROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
@@ -485,7 +524,8 @@ async def get_pokemon_id(rarity):
   await close_conn(connection, cursor)
   return temp
 
-  
+
+
 async def get_pokemon_details():
   rarity = get_rarity()
   poke_id = await get_pokemon_id(rarity[0])
@@ -501,7 +541,9 @@ async def get_pokemon_details():
   link = await cursor.fetchone()
   await close_conn(connection, cursor)
   return [poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link[0]]
-  
+
+
+
 
 @bot.command(name = "poke")
 async def poke(ctx):
@@ -517,13 +559,13 @@ async def poke(ctx):
     if time_since > 7200 or pity >= 1:
       if time_since < 7200:
         pity -= 1
-        await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, ctx.author.id))  
+        await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, ctx.author.id))
       else:
         await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
       await connection.commit()
-      
+
       pokemon_details = await get_pokemon_details()
-      
+
       await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (ctx.message.author.id, pokemon_details[0], pokemon_details[4] ))
       is_obtained = await cursor.fetchone()
       shiny_string = ""
@@ -555,6 +597,9 @@ async def poke(ctx):
         await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
     await close_conn(connection, cursor)
 
+
+
+
 @bot.command(name='rolls')
 async def rolls(ctx):
   connection, cursor = await get_conn()
@@ -576,6 +621,11 @@ async def rolls(ctx):
     time_left = int(time_left/60)
     await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
   await close_conn(connection, cursor)
+
+
+
+
+
 
 async def get_pokedex_embed(user, page):
   connection, cursor = await get_conn()
@@ -609,6 +659,8 @@ async def get_pokedex_embed(user, page):
   embed.set_footer(text = "page " + str(page+1) + "/8")
   await close_conn(connection, cursor)
   return embed
+
+
 
 @bot.command(name = "pokedex")
 async def pokedex(ctx):
@@ -649,6 +701,9 @@ async def pokedex(ctx):
       await ctx.send("This command isn't supported for bots.")
 
 
+
+
+
 @bot.command(name = 'announce')
 @commands.is_owner()
 async def announce(ctx):
@@ -668,6 +723,7 @@ async def announce(ctx):
   await ctx.send("Announcement made on " + str(counter) + " guilds.")
 
 
+
 @bot.command(name = "preview")
 @commands.is_owner()
 async def preview(ctx):
@@ -676,9 +732,10 @@ async def preview(ctx):
   await ctx.send(message)
 
 
+
 @bot.command(name = "help")
 async def help(ctx):
-  if not ctx.message.author.bot:	
+  if not ctx.message.author.bot:
     connection, cursor = await get_conn()
     message_list = ctx.message.content.split(" ")
     if len(message_list) < 2:
@@ -723,6 +780,7 @@ async def help(ctx):
         await ctx.send("No command named `" + parameter +"` found.")
 
 
+
 @bot.command(name = 'stand')
 async def stand(ctx):
   if not ctx.message.author.bot :
@@ -741,6 +799,7 @@ async def stand(ctx):
     e = discord.Embed(title = ctx.message.author.name + ", your stand is **" + stand[0] + "**.", colour=discord.Colour(0x635f))
     e.set_image(url=stand[1])
     await ctx.send(embed = e)
+
 
 
 
@@ -767,26 +826,30 @@ async def sql(ctx):
 
       await cursor.execute(query)
       await ctx.send(str(cursor.rowcount) + " rows affected.")
-      
-      try: 
+
+      try:
         await ctx.send("Do you want to commit?")
         msg = await bot.wait_for('message',  check=check, timeout = 10)
         if msg:
           await connection.commit()
           await ctx.channel.send("Commited.")
-        
+
       except asyncio.TimeoutError:
         await ctx.send("Command timed out.")
 
     await close_conn(connection, cursor)
 
 
-def sort_on_pokemon(e):
-	return e[0]
 
 @bot.command(name = 'pokerank')
 async def pokerank(ctx):
   if not ctx.message.author.bot :
+
+
+    def sort_on_pokemon(e):
+      return e[0]
+
+
     connection, cursor = await get_conn()
     await cursor.execute("SELECT COUNT(DISTINCT poke_id), user_id FROM pokemon_obtained GROUP BY user_id")
     result = await cursor.fetchall()
@@ -807,18 +870,19 @@ async def pokerank(ctx):
     await ctx.send(embed=embed)
 
 
+
 @bot.command(name = 'level')
 async def level(ctx):
   if not ctx.message.author.bot :
     user = get_target(ctx)
     if not user.bot:
       await user.avatar_url_as(format="png").save(fp="LevelCommand/Users/" + str(user.id) + ".png")
-    
+
       connection, cursor = await get_conn()
       await cursor.execute("SELECT user_level, user_xp FROM users WHERE user_id = ?", (user.id, ))
       stats = await cursor.fetchone()
       await close_conn(connection, cursor)
-      
+
       image = Image.open("LevelCommand/Base.png")
       ProfilePic = Image.open("LevelCommand/Users/" + str(user.id) + ".png")
       ProfilePic = ProfilePic.resize((190, 190))
@@ -826,7 +890,7 @@ async def level(ctx):
       draw = ImageDraw.Draw(mask_im)
       draw.ellipse((0, 0, 190, 190), fill=255)
       image.paste(ProfilePic, (556, 30), mask_im)
-    
+
       if stats[0]>=20:
         bronze = Image.open("LevelCommand/KannaBronze.png")
         mask_im = Image.new("L", bronze.size, 0)
@@ -843,12 +907,14 @@ async def level(ctx):
 
       font = ImageFont.truetype("LevelCommand/coolvetica.ttf", size=40)
       d = ImageDraw.Draw(image)
-      message = str(user.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(500*stats[0]) + "XP"  
+      message = str(user.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(500*stats[0]) + "XP"
       d.text((100, 50), message, font=font, fill= (90,90,90))
       image.save("LevelCommand/stats" + str(user.id) + ".png")
       await ctx.send(file = discord.File("LevelCommand/stats" + str(user.id) + ".png"))
     else:
       await ctx.send("This command isn't supported for bots.")
+
+
 
 
 
@@ -867,7 +933,7 @@ async def welcome_channel_setup(ctx):
     try:
       msg = await bot.wait_for('message',  check=check, timeout = 10)
       connection, cursor = await get_conn()
-      if len(msg.channel_mentions) > 0: 
+      if len(msg.channel_mentions) > 0:
         channel = msg.channel_mentions[0].id
         await cursor.execute("UPDATE guilds SET guild_welcome_channel_ID = ? WHERE guild_id=?",(channel, ctx.guild.id))
         success = 1
@@ -888,6 +954,7 @@ async def welcome_channel_setup(ctx):
   return 0
 
 
+
 async def announcement_channel_setup(ctx):
   author = ctx.message.author
   channel = ctx.channel
@@ -903,7 +970,7 @@ async def announcement_channel_setup(ctx):
     try:
       msg = await bot.wait_for('message',  check=check, timeout = 10)
       connection, cursor = await get_conn()
-      if len(msg.channel_mentions) > 0: 
+      if len(msg.channel_mentions) > 0:
         channel = msg.channel_mentions[0].id
         await cursor.execute("UPDATE guilds SET guild_announcements_channel_ID = ? WHERE guild_id=?",(channel, ctx.guild.id))
         success = 1
@@ -925,6 +992,7 @@ async def announcement_channel_setup(ctx):
   return 0
 
 
+
 async def prefix_setup(ctx):
   author = ctx.message.author
   channel = ctx.channel
@@ -935,7 +1003,7 @@ async def prefix_setup(ctx):
 
   await ctx.send("Please input the bot's prefix you wish to use on this server. (default is `!`)")
   success = 0
-  
+
   try:
     msg = await bot.wait_for('message',  check=check, timeout = 10)
     prefix = msg.content.split(" ")[0]
@@ -951,6 +1019,7 @@ async def prefix_setup(ctx):
    await msg.add_reaction("\u2705")
    return 1
   return 0
+
 
 
 @bot.command(name = 'setup')
@@ -970,21 +1039,26 @@ async def setup(ctx):
     await missing_perms(ctx, "setup", "manage_server")
 
 
+
+
+
 @bot.command(name = 'database')
 @commands.is_owner()
 async def database(ctx):
   await ctx.send(file=discord.File('bot.db'), delete_after=2)
 
+
+
 @bot.command(name = 'shutdown')
 @commands.is_owner()
 async def shutdown(ctx):
-  
+
   author = ctx.message.author
   channel = ctx.channel
   def check(m):
     return m.content == 'y' and m.channel == channel and m.author == author
 
-  await ctx.send("Do you really want to shut down the bot?")   
+  await ctx.send("Do you really want to shut down the bot?")
   try:
     msg = await bot.wait_for('message',  check=check, timeout = 5)
     if msg:
@@ -996,6 +1070,8 @@ async def shutdown(ctx):
   except asyncio.TimeoutError:
     await ctx.send("The bot did not shut down.(timeout)")
 
-    
+
+
+
 
 bot.run(os.environ['TOKEN'])
