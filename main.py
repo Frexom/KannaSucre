@@ -788,7 +788,7 @@ def sort_on_pokemon(e):
 async def pokerank(ctx):
   if not ctx.message.author.bot :
     connection, cursor = await get_conn()
-    await cursor.execute("SELECT COUNT(poke_id), user_id FROM pokemon_obtained GROUP BY user_id")
+    await cursor.execute("SELECT COUNT(DISTINCT poke_id), user_id FROM pokemon_obtained GROUP BY user_id")
     result = await cursor.fetchall()
     await close_conn(connection, cursor)
     result_list = []
