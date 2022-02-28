@@ -690,10 +690,8 @@ async def pokedex(ctx):
           a = await bot.wait_for("reaction_add", check = check, timeout = 15)
           if a[0].emoji == '▶':
             page = (page + 1) % (int(poke_count/20)+1)
-            print("up : " + str(page))
           elif a[0].emoji == '◀':
             page = (page - 1) % (int(poke_count/20)+1)
-            print("down : " + str(page))
           await msg.edit(embed=await get_pokedex_embed(user, page))
         except asyncio.TimeoutError:
           active = 0
