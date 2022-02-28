@@ -656,7 +656,7 @@ async def get_pokedex_embed(user, page):
   embed=discord.Embed(title = str(user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count) + " pokemons")
   embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
   embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
-  embed.set_footer(text = "page " + str(page+1) + "/8")
+  embed.set_footer(text = "page " + str(page+1) + "/" + str(int(poke_count/20)+1))
   await close_conn(connection, cursor)
   return embed
 
@@ -672,7 +672,7 @@ async def pokedex(ctx):
       if len(message) > 1 and message[1].isdecimal() :
         page = int(message[1])
         page -= 1
-        if page < 1 or page > 8:
+        if page < 1 or page > int(poke_count/20)+1:
           page = 0
 
       msg = await ctx.send(embed=await get_pokedex_embed(user, page))
@@ -689,9 +689,11 @@ async def pokedex(ctx):
         try:
           a = await bot.wait_for("reaction_add", check = check, timeout = 15)
           if a[0].emoji == '▶':
-            page = (page + 1) % 8
+            page = (page + 1) % (int(poke_count/20)+1)
+            print("up : " + str(page))
           elif a[0].emoji == '◀':
-            page = (page - 1) % 8
+            page = (page - 1) % (int(poke_count/20)+1)
+            print("down : " + str(page))
           await msg.edit(embed=await get_pokedex_embed(user, page))
         except asyncio.TimeoutError:
           active = 0
