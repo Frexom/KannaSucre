@@ -10,6 +10,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+async def create_global_pokecount():
+  connection, cursor = await get_conn()
+  await cursor.execute("SELECT COUNT(*) FROM pokedex")
+  global poke_count
+  temp = await cursor.fetchone()
+  poke_count = temp[0]
+  await close_conn(connection, cursor)
+
+
 async def get_conn():
   conn = await aiosqlite.connect("bot.db", timeout = 10)
   c = await conn.cursor()
@@ -52,6 +61,7 @@ async def lack_perms(ctx, command_name: str):
 
 @bot.event
 async def on_ready():
+  await create_global_pokecount()
   for i in range(len(bot.guilds)):
     await setup_func(bot.guilds[i])
   game = discord.Game('send "ping" to see prefix')
@@ -571,6 +581,9 @@ async def get_pokedex_embed(user, page):
   connection, cursor = await get_conn()
   await cursor.execute("SELECT poke_id, poke_name, is_shiny FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
   Pokemons = await cursor.fetchall()
+  await cursor.execute("SELECT COUNT(DISTINCT poke_id) FROM pokemon_obtained WHERE user_id = ?;", (user.id, ))
+  number_of_pokemons = await cursor.fetchone()
+  number_of_pokemons = number_of_pokemons[0]
   if Pokemons == [] :
     list_pokemons = "No pokemons."
   else:
@@ -579,7 +592,7 @@ async def get_pokedex_embed(user, page):
     while(Pokemons[list_index][0] <= page*20 and list_index != len(Pokemons)-1) :
       list_index += 1
     for i in range(page*20, page*20+20):
-      if i < 151:
+      if i < poke_count:
         if Pokemons[list_index][0] == i+1:
           if Pokemons[list_index][2]:
             list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + ":sparkles:\n"
@@ -590,7 +603,7 @@ async def get_pokedex_embed(user, page):
         else:
           list_pokemons += str(i+1) + " - --------\n"
 
-  embed=discord.Embed(title= str(user.name) + "'s Pokedex")
+  embed=discord.Embed(title = str(user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count))
   embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
   embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
   embed.set_footer(text = "page " + str(page+1) + "/8")
@@ -787,7 +800,7 @@ async def pokerank(ctx):
       limit = len(result_list)
     for i in range(limit):
       user = bot.get_user(result_list[i][1])
-      description += str(i+1) + "-" + user.name + " - " + str(result_list[i][0]) + "/151\n"
+      description += str(i+1) + "-" + user.name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
     embed=discord.Embed(title= "KannaSucre's Pokerank", colour=discord.Colour(0x635f))
     embed.set_thumbnail(url=bot.user.avatar_url)
     embed.add_field(name="Ranking :", value=description)
