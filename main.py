@@ -599,8 +599,79 @@ async def poke(ctx):
 
 
 
+async def get_pokeinfo_embed(poke_id, page, shiny):
+  connection, cursor = await get_conn()
+  await cursor.execute("SELECT poke_id, poke_name, pokelink_sex, pokelink_normal, pokelink_shiny, poke_desc FROM pokelink JOIN pokedex USING(poke_id) WHERE poke_id = ?;", (poke_id, ))
+  pokedetails = await cursor.fetchall()
+  page = page % len(pokedetails)
+  poke_sex = ""
+  if(pokedetails[page][2] == "f"):
+    poke_sex = "\u2640"
+  if(pokedetails[page][2] == "m"):
+    poke_sex = "\u2642"
+  e = discord.Embed(title = pokedetails[page][1] + poke_sex, description = pokedetails[page][5])
+  e.set_footer(text = "page " + str(page+1) + "/" + str(len(pokedetails)))
+  if(shiny):
+    e.set_image(url=pokedetails[page][4])
+  else:
+    e.set_image(url=pokedetails[page][3])
+  return e
+  
+  
 
-@bot.command(name='rolls')
+
+@bot.command(name = "pokeinfo")
+async def pokeinfo(ctx):
+  if not ctx.author.bot:
+    message = ctx.message.content.split(" ")
+    if len(message) > 1:
+      connection, cursor = await get_conn()
+      pokemon = message[1]
+      try:
+        if not pokemon.isdecimal():
+          await cursor.execute("SELECT poke_id FROM pokedex WHERE lower(poke_name) = lower(?)", (pokemon, ))
+          poke_id = await cursor.fetchone()
+          poke_id = poke_id[0]
+        else:
+          poke_id = int(message[1])
+        msg = await ctx.send(embed=await get_pokeinfo_embed(poke_id, 0, False))
+        await msg.add_reaction(emoji = "\u25C0")
+        await msg.add_reaction(emoji = "\u2728")
+        await msg.add_reaction(emoji = "\u25B6")
+        await asyncio.sleep(1)
+
+        def check(r, a):
+          return r.message == msg
+
+
+        page = 0
+        shiny = False
+        active = True
+        while(active):
+          try:
+            a = await bot.wait_for("reaction_add", check = check, timeout = 15)
+            if a[0].emoji == '▶':
+              page = (page + 1)
+            elif a[0].emoji == '◀':
+              page = (page - 1)
+            elif a[0].emoji == '✨':
+              shiny = not shiny
+                
+            await msg.edit(embed=await get_pokeinfo_embed(poke_id, page, shiny))
+          except asyncio.TimeoutError:
+            active = False
+      except asyncio.TimeoutError:
+        await ctx.channel.send("There is no such pokemon :(")    
+
+    else:
+      await ctx.channel.send("```" + await get_pre(bot, ctx.message) + "pokeinfo *number/name of pokemon*```")
+
+  else:
+    await ctx.send("This command isn't supported for bots.")
+
+
+
+@bot.command(name = "rolls")
 async def rolls(ctx):
   connection, cursor = await get_conn()
   await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (ctx.message.author.id, ))
