@@ -493,27 +493,27 @@ def get_shiny():
 
 
 
-async def get_pokemon_sex(poke_id):
+
+async def get_alt(poke_id):
   connection, cursor = await get_conn()
-  await cursor.execute("SELECT DISTINCT pokelink_sex FROM pokelink WHERE poke_id = ?", (poke_id, ))
+  await cursor.execute("SELECT DISTINCT pokelink_alt FROM pokelink WHERE poke_id = ?", (poke_id, ))
+  alt = await cursor.fetchall()
+  await close_conn(connection, cursor)
+  if len(alt) == 1:
+    return alt[0][0]
+  else:
+    return alt[random.randint(0, len(alt)-1)][0]
+
+
+async def get_pokemon_sex(poke_id, poke_alt):
+  connection, cursor = await get_conn()
+  await cursor.execute("SELECT pokelink_sex FROM pokelink WHERE poke_id = ? AND pokelink_alt = ?", (poke_id, poke_alt))
   data = await cursor.fetchall()
   await close_conn(connection, cursor)
   if len(data) == 1:
     return data[0][0]
   else:
     return data[random.randint(0,len(data)-1)][0]
-
-
-
-async def get_alt(poke_id, poke_sex):
-  connection, cursor = await get_conn()
-  await cursor.execute("SELECT COUNT(*) FROM pokelink WHERE poke_id = ? and pokelink_sex = ?", (poke_id, poke_sex))
-  alt = await cursor.fetchone()
-  await close_conn(connection, cursor)
-  if alt[0] == 1:
-    return 0
-  else:
-    return random.randint(0, alt[0]-1)
 
 
 
@@ -530,17 +530,21 @@ async def get_pokemon_details():
   rarity = get_rarity()
   poke_id = await get_pokemon_id(rarity[0])
   shiny = get_shiny()
-  poke_sex = await get_pokemon_sex(poke_id[0])
-  poke_alt = await get_alt(poke_id[0], poke_sex)
+  poke_alt = await get_alt(poke_id[0])
+  poke_sex = await get_pokemon_sex(poke_id[0], poke_alt)
   connection, cursor = await get_conn()
-
   if shiny:
     await cursor.execute("SELECT pokelink_shiny FROM pokelink WHERE poke_id = ? and pokelink_alt = ? and pokelink_sex = ?", (poke_id[0], poke_alt, poke_sex))
   else:
     await cursor.execute("SELECT pokelink_normal FROM pokelink WHERE poke_id = ? and pokelink_alt = ? and pokelink_sex = ?", (poke_id[0], poke_alt, poke_sex))
   link = await cursor.fetchone()
   await close_conn(connection, cursor)
-  return [poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link[0]]
+  try:
+    return [poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link[0]]
+  except TypeError:
+    owner = bot.get_user(307556664091869185)
+    await owner.send(str([poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link]))
+    
 
 
 
@@ -561,7 +565,8 @@ async def poke(ctx):
         pity -= 1
         await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, ctx.author.id))
       else:
-        await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
+        pass
+        #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
       await connection.commit()
 
       pokemon_details = await get_pokemon_details()
@@ -601,7 +606,7 @@ async def poke(ctx):
 
 async def get_pokeinfo_embed(poke_id, page, shiny):
   connection, cursor = await get_conn()
-  await cursor.execute("SELECT poke_id, poke_name, pokelink_sex, pokelink_normal, pokelink_shiny, poke_desc FROM pokelink JOIN pokedex USING(poke_id) WHERE poke_id = ?;", (poke_id, ))
+  await cursor.execute("SELECT poke_id, poke_name, pokelink_sex, pokelink_normal, pokelink_shiny, poke_desc, pokelink_label FROM pokelink JOIN pokedex USING(poke_id) WHERE poke_id = ?;", (poke_id, ))
   pokedetails = await cursor.fetchall()
   page = page % len(pokedetails)
   poke_sex = ""
@@ -609,7 +614,8 @@ async def get_pokeinfo_embed(poke_id, page, shiny):
     poke_sex = "\u2640"
   if(pokedetails[page][2] == "m"):
     poke_sex = "\u2642"
-  e = discord.Embed(title = pokedetails[page][1] + poke_sex, description = pokedetails[page][5])
+  e = discord.Embed(title = "N°" + str(poke_id) + " : " + pokedetails[page][1] + poke_sex, description = pokedetails[page][6] + " form")
+  e.add_field(name = "Description : ", value=pokedetails[page][5])
   e.set_footer(text = "page " + str(page+1) + "/" + str(len(pokedetails)))
   if(shiny):
     e.set_image(url=pokedetails[page][4])
