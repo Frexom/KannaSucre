@@ -565,8 +565,7 @@ async def poke(ctx):
         pity -= 1
         await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, ctx.author.id))
       else:
-        pass
-        #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
+        await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
       await connection.commit()
 
       pokemon_details = await get_pokemon_details()
@@ -608,22 +607,27 @@ async def get_pokeinfo_embed(poke_id, page, shiny):
   connection, cursor = await get_conn()
   await cursor.execute("SELECT poke_id, poke_name, pokelink_sex, pokelink_normal, pokelink_shiny, poke_desc, pokelink_label FROM pokelink JOIN pokedex USING(poke_id) WHERE poke_id = ?;", (poke_id, ))
   pokedetails = await cursor.fetchall()
+
   page = page % len(pokedetails)
   poke_sex = ""
   if(pokedetails[page][2] == "f"):
     poke_sex = "\u2640"
   if(pokedetails[page][2] == "m"):
     poke_sex = "\u2642"
-  e = discord.Embed(title = "N°" + str(poke_id) + " : " + pokedetails[page][1] + poke_sex, description = pokedetails[page][6] + " form")
-  e.add_field(name = "Description : ", value=pokedetails[page][5])
-  e.set_footer(text = "page " + str(page+1) + "/" + str(len(pokedetails)))
+  
+
   if(shiny):
+    e = discord.Embed(title = "N°" + str(poke_id) + " : " + pokedetails[page][1] + ":sparkles: " + poke_sex, description = pokedetails[page][6] + " form")
     e.set_image(url=pokedetails[page][4])
   else:
+    e = discord.Embed(title = "N°" + str(poke_id) + " : " + pokedetails[page][1] + poke_sex, description = pokedetails[page][6] + " form")
     e.set_image(url=pokedetails[page][3])
+
+  e.add_field(name = "Description : ", value=pokedetails[page][5])
+  e.set_footer(text = "page " + str(page+1) + "/" + str(len(pokedetails)))
   return e
-  
-  
+    
+ 
 
 
 @bot.command(name = "pokeinfo")
@@ -640,6 +644,8 @@ async def pokeinfo(ctx):
           poke_id = poke_id[0]
         else:
           poke_id = int(message[1])
+        if poke_id > poke_count or poke_id < 0 :
+          raise TypeError
         msg = await ctx.send(embed=await get_pokeinfo_embed(poke_id, 0, False))
         await msg.add_reaction(emoji = "\u25C0")
         await msg.add_reaction(emoji = "\u2728")
@@ -666,8 +672,9 @@ async def pokeinfo(ctx):
             await msg.edit(embed=await get_pokeinfo_embed(poke_id, page, shiny))
           except asyncio.TimeoutError:
             active = False
-      except asyncio.TimeoutError:
-        await ctx.channel.send("There is no such pokemon :(")    
+      except TypeError:
+        e = discord.Embed(title = "Not found :(", description = "No such pokemon")
+        await ctx.send(embed = e)
 
     else:
       await ctx.channel.send("```" + await get_pre(bot, ctx.message) + "pokeinfo *number/name of pokemon*```")
