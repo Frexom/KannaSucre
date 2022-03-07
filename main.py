@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-import aiosqlite
+import aiosqlite3
 import time
 import os
 import random
@@ -30,7 +30,7 @@ load_dotenv()
 
 
 async def get_conn():
-  conn = await aiosqlite.connect("bot.db", timeout = 10)
+  conn = await aiosqlite3.connect("bot.db", timeout = 10)
   c = await conn.cursor()
   return conn, c
 
@@ -644,7 +644,7 @@ async def pokeinfo(ctx):
           poke_id = poke_id[0]
         else:
           poke_id = int(message[1])
-        if poke_id > poke_count or poke_id < 0 :
+        if poke_id > poke_count or poke_id <= 0 :
           raise TypeError
         msg = await ctx.send(embed=await get_pokeinfo_embed(poke_id, 0, False))
         await msg.add_reaction(emoji = "\u25C0")
