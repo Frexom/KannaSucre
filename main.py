@@ -935,7 +935,7 @@ async def pokerank(ctx):
 
 
     connection, cursor = await get_conn()
-    await cursor.execute("SELECT COUNT(DISTINCT poke_id), user_id FROM pokemon_obtained GROUP BY user_id")
+    await cursor.execute("SELECT COUNT(DISTINCT poke_id), user_id FROM pokemon_obtained GROUP BY user_id LIMIT 50")
     result = await cursor.fetchall()
     await close_conn(connection, cursor)
     result_list = []
@@ -943,11 +943,15 @@ async def pokerank(ctx):
       result_list.append([result[i][0], result[i][1]])
     result_list.sort(reverse=True, key=sort_on_pokemon)
     description = ""
+    limit = 10
+    i = 0
     if len(result_list) < 10:
       limit = len(result_list)
-    for i in range(limit):
+    while i < limit or i != len(result_list):
       user = bot.get_user(result_list[i][1])
-      description += str(i+1) + "-" + user.name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
+      if user != None:
+        description += str(i+1) + "-" + user.name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
+      i += 1
     embed=discord.Embed(title= "KannaSucre's Pokerank", colour=discord.Colour(0x635f))
     embed.set_thumbnail(url=bot.user.avatar_url)
     embed.add_field(name="Ranking :", value=description)
