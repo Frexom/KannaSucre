@@ -19,7 +19,7 @@ async def get_pre(bot, message):
 
 
 
-default_intents = discord.Intents.all()
+default_intents = discord.Intents.default()
 bot = commands.Bot(command_prefix=get_pre, intents=default_intents)
 bot.remove_command('help')
 
