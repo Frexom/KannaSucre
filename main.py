@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 
 
 
-
 async def get_pre(bot, message):
   connection, cursor = await get_conn()
   await cursor.execute("SELECT guild_prefix FROM guilds WHERE guild_id = ?", (message.guild.id, ))
@@ -544,7 +543,7 @@ async def get_pokemon_details():
   except TypeError:
     owner = bot.get_user(307556664091869185)
     await owner.send(str([poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link]))
-    
+
 
 
 
@@ -614,7 +613,7 @@ async def get_pokeinfo_embed(poke_id, page, shiny):
     poke_sex = "\u2640"
   if(pokedetails[page][2] == "m"):
     poke_sex = "\u2642"
-  
+
 
   if(shiny):
     e = discord.Embed(title = "N°" + str(poke_id) + " : " + pokedetails[page][1] + ":sparkles: " + poke_sex, description = pokedetails[page][6] + " form")
@@ -626,8 +625,8 @@ async def get_pokeinfo_embed(poke_id, page, shiny):
   e.add_field(name = "Description : ", value=pokedetails[page][5])
   e.set_footer(text = "page " + str(page+1) + "/" + str(len(pokedetails)))
   return e
-    
- 
+
+
 
 
 @bot.command(name = "pokeinfo")
@@ -668,7 +667,7 @@ async def pokeinfo(ctx):
               page = (page - 1)
             elif a[0].emoji == '✨':
               shiny = not shiny
-                
+
             await msg.edit(embed=await get_pokeinfo_embed(poke_id, page, shiny))
           except asyncio.TimeoutError:
             active = False
@@ -945,12 +944,12 @@ async def pokerank(ctx):
     description = ""
     limit = 10
     i = 0
-    if len(result_list) < 10:
-      limit = len(result_list)
-    while i < limit or i != len(result_list):
+    ranking = 0
+    while i != len(result_list) and ranking < 10:
       user = bot.get_user(result_list[i][1])
       if user != None:
-        description += str(i+1) + "-" + user.name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
+        ranking += 1;
+        description += str(ranking) + "-" + user.name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
       i += 1
     embed=discord.Embed(title= "KannaSucre's Pokerank", colour=discord.Colour(0x635f))
     embed.set_thumbnail(url=bot.user.avatar_url)
