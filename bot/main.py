@@ -2,6 +2,9 @@ import discord
 import aiosqlite3
 import os
 import random
+import sys
+sys.path.append("./files")
+sys.path.append("./files/ressources")
 
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -47,7 +50,7 @@ async def on_command_error(ctx, error):
 
 
 async def setup_func(guild) :
-  connection, cursor = await get_conn()
+  connection, cursor = await get_conn("./files/ressources/bot.db")
   await cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id, ))
   if await cursor.fetchone() == None:
     await cursor.execute("INSERT INTO guilds(guild_id, guild_prefix) VALUES(?, '!')", (guild.id, ))
@@ -63,7 +66,7 @@ async def setup_func(guild) :
 
 @bot.event
 async def on_member_join(member):
-  connection, cursor = await get_conn()
+  connection, cursor = await get_conn("./files/ressources/bot.db")
   await cursor.execute( "SELECT guild_welcome_channel_id FROM guilds WHERE guild_id = ?", (member.guild.id,))
   channel_ID = await cursor.fetchone()
   channel_ID = channel_ID[0]
@@ -83,7 +86,7 @@ async def on_member_join(member):
 
 @bot.event
 async def on_member_remove(member):
-  connection, cursor = await get_conn()
+  connection, cursor = await get_conn("./files/ressources/bot.db")
   await cursor.execute("SELECT guild_welcome_channel_ID FROM guilds WHERE guild_id = ?", (member.guild.id, ))
   channel_ID = await cursor.fetchone()
   if channel_ID[0] != 0:
@@ -105,7 +108,7 @@ async def on_message(message):
     prefix = await get_pre(message)
     if message.content.lower() == "ping":
       await message.channel.send("Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" + prefix + "`")
-    connection, cursor = await get_conn()
+    connection, cursor = await get_conn("./files/ressources/bot.db")
     await cursor.execute("SELECT guild_lengthlimit FROM guilds WHERE guild_id = ?", (message.guild.id, ))
     limit = await cursor.fetchone()
     if limit[0] != None and len(message.content) > limit[0] :
