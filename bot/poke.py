@@ -327,14 +327,14 @@ async def pokedex(bot, ctx):
 
 async def pokerank(bot, ctx):
   if not ctx.message.author.bot :
-
+    await ctx.channel.trigger_typing()
 
     def sort_on_pokemon(e):
       return e[0]
 
 
     connection, cursor = await get_conn()
-    await cursor.execute("SELECT COUNT(DISTINCT poke_id), user_id FROM pokemon_obtained GROUP BY user_id LIMIT 50")
+    await cursor.execute("SELECT COUNT(DISTINCT poke_id), user_id FROM pokemon_obtained GROUP BY user_id LIMIT 10")
     result = await cursor.fetchall()
     await close_conn(connection, cursor)
     result_list = []
