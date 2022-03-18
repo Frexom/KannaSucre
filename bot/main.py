@@ -40,12 +40,19 @@ async def on_ready():
   print("Bot is ready")
 
 
-
 @bot.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
+  if isinstance(error, commands.CommandNotFound):
+    return
+  elif "50013" in str(error):
+    try:
+        await ctx.channel.send("I don't have enough permissions to do that!")
         return
-    raise error
+    except Exception as e:
+        return
+
+  raise error
+
 
 
 
@@ -105,30 +112,34 @@ async def on_guild_join(guild):
 @bot.event
 async def on_message(message):
   if not message.author.bot :
-    prefix = await get_pre(message)
-    if message.content.lower() == "ping":
-      await message.channel.send("Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" + prefix + "`")
-    connection, cursor = await get_conn("./files/ressources/bot.db")
-    await cursor.execute("SELECT guild_lengthlimit FROM guilds WHERE guild_id = ?", (message.guild.id, ))
-    limit = await cursor.fetchone()
-    if limit[0] != None and len(message.content) > limit[0] :
-      await message.author.send("Your message has been deleted since it's too long for the server, try to short it down to **" + str(limit[0]) + "** characters.\nHere is your message :\n\n" + str(message.content))
-      await message.delete()
-    await cursor.execute("SELECT user_xp, user_level FROM users WHERE user_id = ?", (message.author.id, ))
-    user_leveling = await cursor.fetchone()
-    user_xp = user_leveling[0]
-    user_level = user_leveling[1]
-    user_xp += random.randint(30,50)
-    if user_xp > 500*user_level:
-      user_xp -= 500*user_level
-      user_level +=1
-      await cursor.execute("UPDATE users SET user_xp = ?, user_level = ? WHERE user_id = ?", (user_xp, user_level, message.author.id))
-      await message.channel.send("Congratulations <@" + str(message.author.id) + ">, you are now level " + str(user_level) + "!")
-    else:
-      await cursor.execute("UPDATE users SET user_xp = ? WHERE user_id = ?", (user_xp, message.author.id))
-    await connection.commit()
-    await close_conn(connection, cursor)
-    await bot.process_commands(message)
+    try:
+      prefix = await get_pre(message)
+      if message.content.lower() == "ping":
+        await message.channel.send("Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" + prefix + "`")
+      connection, cursor = await get_conn("./files/ressources/bot.db")
+      await cursor.execute("SELECT guild_lengthlimit FROM guilds WHERE guild_id = ?", (message.guild.id, ))
+      limit = await cursor.fetchone()
+      if limit[0] != None and len(message.content) > limit[0] :
+        await message.author.send("Your message has been deleted since it's too long for the server, try to short it down to **" + str(limit[0]) + "** characters.\nHere is your message :\n\n" + str(message.content))
+        await message.delete()
+      await cursor.execute("SELECT user_xp, user_level FROM users WHERE user_id = ?", (message.author.id, ))
+      user_leveling = await cursor.fetchone()
+      user_xp = user_leveling[0]
+      user_level = user_leveling[1]
+      user_xp += random.randint(30,50)
+      if user_xp > 500*user_level:
+        user_xp -= 500*user_level
+        user_level +=1
+        await cursor.execute("UPDATE users SET user_xp = ?, user_level = ? WHERE user_id = ?", (user_xp, user_level, message.author.id))
+        await message.channel.send("Congratulations <@" + str(message.author.id) + ">, you are now level " + str(user_level) + "!")
+      else:
+        await cursor.execute("UPDATE users SET user_xp = ? WHERE user_id = ?", (user_xp, message.author.id))
+      await connection.commit()
+      await close_conn(connection, cursor)
+      await bot.process_commands(message)
+    except Exception as e:
+      if "50013" not in str(e):
+        raise e
 
 
 @bot.command(name = "preview")
