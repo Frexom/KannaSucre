@@ -42,17 +42,20 @@ async def on_ready():
 
 @bot.event
 async def on_command_error(ctx, error):
+  if isinstance(error, commands.CommandInvokeError):
+    error = error.original
   if isinstance(error, commands.CommandNotFound):
     return
-  elif "50013" in str(error):
+  elif isinstance(error, discord.errors.Forbidden):
     try:
         await ctx.channel.send("I don't have enough permissions to do that!")
         return
     except Exception as e:
         return
-
+  print(os.environ['OWNER_ID'])
+  me = await bot.fetch_user(os.environ['OWNER_ID'])
+  await me.send(error)
   raise error
-
 
 
 
