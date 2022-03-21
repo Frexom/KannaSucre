@@ -1,6 +1,9 @@
 import random
 import discord
 import time
+import os
+
+from dotenv import load_dotenv
 
 from prefix import *
 from connection import *
@@ -9,7 +12,10 @@ from discord.ext import commands
 import sys
 sys.path.append("./ressources")
 
+load_dotenv("../.env")
 
+
+##############################Event
 async def on_ready_event(bot):
   for i in range(len(bot.guilds)):
     await setup_func(bot.guilds[i])
@@ -19,6 +25,7 @@ async def on_ready_event(bot):
   print("Bot is ready")
 
 
+##############################Event
 async def on_command_error_event(ctx, error, bot):
   if isinstance(error, commands.CommandInvokeError):
     error = error.original
@@ -30,7 +37,6 @@ async def on_command_error_event(ctx, error, bot):
         return
     except Exception as e:
         return
-  print(os.environ['OWNER_ID'])
   me = await bot.fetch_user(os.environ['OWNER_ID'])
   await me.send(error)
   raise error
@@ -51,7 +57,7 @@ async def setup_func(guild) :
   await close_conn(connection, cursor)
 
 
-
+##############################Event
 async def on_member_join_event(member, bot):
   connection, cursor = await get_conn("./files/ressources/bot.db")
   await cursor.execute( "SELECT guild_welcome_channel_id FROM guilds WHERE guild_id = ?", (member.guild.id,))
@@ -70,7 +76,7 @@ async def on_member_join_event(member, bot):
   await close_conn(connection, cursor)
 
 
-
+##############################Event
 async def on_member_remove_event(member, bot):
   connection, cursor = await get_conn("./files/ressources/bot.db")
   await cursor.execute("SELECT guild_welcome_channel_ID FROM guilds WHERE guild_id = ?", (member.guild.id, ))
@@ -81,12 +87,12 @@ async def on_member_remove_event(member, bot):
   await close_conn(connection, cursor)
 
 
-
+##############################Event
 async def on_guild_join_event(guild):
   await setup_func(guild)
 
 
-
+##############################Event
 async def on_message_event(message, bot):
   if not message.author.bot :
     try:
