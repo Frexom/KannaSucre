@@ -256,7 +256,6 @@ async def get_pokedex_embed(user, page):
   connection, cursor = await get_conn("./files/ressources/bot.db")
   await cursor.execute("SELECT DISTINCT poke_id, poke_name, is_shiny FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
   Pokemons = await cursor.fetchall()
-  print(Pokemons)
   await cursor.execute("SELECT COUNT(DISTINCT poke_id) FROM pokemon_obtained WHERE user_id = ?;", (user.id, ))
   number_of_pokemons = await cursor.fetchone()
   number_of_pokemons = number_of_pokemons[0]
@@ -278,7 +277,6 @@ async def get_pokedex_embed(user, page):
             list_index += 1
         else:
           list_pokemons += str(i+1) + " - --------\n"
-  print(list_pokemons)
   embed=discord.Embed(title = str(user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count) + " pokemons")
   embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
   embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
