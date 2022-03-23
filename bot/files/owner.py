@@ -8,14 +8,14 @@ import sys
 sys.path.append("./ressources")
 
 
-
+##############################Command
 async def preview(ctx):
   message_list = ctx.message.content.split(" ")[1:]
   message = " ".join(message_list)
   await ctx.send(message)
 
 
-
+##############################Command
 async def announce(bot, ctx):
   connection, cursor = await get_conn("./files/ressources/bot.db")
   await cursor.execute("SELECT guild_announcements_channel_ID FROM guilds")
@@ -33,6 +33,7 @@ async def announce(bot, ctx):
   await ctx.send("Announcement made on " + str(counter) + " guilds.")
 
 
+##############################Command
 async def sql(bot, ctx):
   if not ctx.message.author.bot :
     connection, cursor = await get_conn("./files/ressources/bot.db")
@@ -68,12 +69,12 @@ async def sql(bot, ctx):
     await close_conn(connection, cursor)
 
 
-
+##############################Command
 async def database(ctx):
-  await ctx.send(file=discord.File('bot.db'), delete_after=2)
+  await ctx.send(file=discord.File('files/ressources/bot.db'), delete_after=2)
 
 
-
+##############################Command
 async def shutdown(bot, ctx):
 
   author = ctx.message.author
