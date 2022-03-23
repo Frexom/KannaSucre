@@ -87,21 +87,17 @@ async def get_pokemon_details(bot):
     await cursor.execute("SELECT pokelink_normal FROM pokelink WHERE poke_id = ? and pokelink_alt = ? and pokelink_sex = ?", (poke_id[0], poke_alt, poke_sex))
   link = await cursor.fetchone()
   await close_conn(connection, cursor)
-  try:
-    return [poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link[0]]
-  except TypeError:
-    owner = bot.get_user(307556664091869185)
-    await owner.send(str([poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link]))
+  return [poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link[0]]
 
 
 
 
-
+##############################Command
 async def poke(bot, ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     await ctx.channel.trigger_typing()
     connection, cursor = await get_conn("./files/ressources/bot.db")
-    await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (ctx.message.author.id, ))
+    await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (ctx.author.id, ))
     data = await cursor.fetchone()
     last_roll = data[0]
     pity = data[1]
@@ -112,19 +108,19 @@ async def poke(bot, ctx):
         pity -= 1
         await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, ctx.author.id))
       else:
-        await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.message.author.id))
+        await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.author.id))
       await connection.commit()
 
       pokemon_details = await get_pokemon_details(bot)
 
-      await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (ctx.message.author.id, pokemon_details[0], pokemon_details[4] ))
+      await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (ctx.author.id, pokemon_details[0], pokemon_details[4] ))
       is_obtained = await cursor.fetchone()
       shiny_string = ""
       is_shiny = pokemon_details[5]
       if is_shiny:
         shiny_string = "\nWait!! Is it shiny??? :sparkles:"
       if is_obtained == None:
-        await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, pokelink_alt, is_shiny, date) VALUES (?, ?, ?, ?, ?)", (ctx.message.author.id, pokemon_details[0], pokemon_details[4], int(is_shiny), now))
+        await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, pokelink_alt, is_shiny, date) VALUES (?, ?, ?, ?, ?)", (ctx.author.id, pokemon_details[0], pokemon_details[4], int(is_shiny), now))
         desc = "This is a **" + pokemon_details[3] + "** pokemon!" + shiny_string
       elif (is_obtained[3] == 0 and is_shiny):
         await cursor.execute("UPDATE pokemon_obtained SET is_shiny = 1 WHERE user_id = ? and poke_id = ?", (ctx.message.author.id, pokemon_details[0]))
@@ -133,7 +129,7 @@ async def poke(bot, ctx):
         desc = "This is a **" + pokemon_details[3] + "** pokemon!" + shiny_string + "\nYou already had that pokemon.:confused:\nRolls +" + str(0.25*pokemon_details[2]) + "."
         await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon_details[2], ctx.author.id))
       await connection.commit()
-      e = discord.Embed(title = "Congratulation **" + str(ctx.message.author.name) + "**, you got **" + pokemon_details[1] + "**!",  description = desc)
+      e = discord.Embed(title = "Congratulation **" + str(ctx.author.name) + "**, you got **" + pokemon_details[1] + "**!",  description = desc)
       e.set_image(url=pokemon_details[-1])
       await ctx.send(embed = e)
     else:
@@ -141,11 +137,11 @@ async def poke(bot, ctx):
       if time_left > 3600:
         time_left -= 3600
         time_left = int(time_left/60)
-        await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+        await ctx.send(str(ctx.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
       else:
         time_left += 60
         time_left = int(time_left/60)
-        await ctx.send(str(ctx.message.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+        await ctx.send(str(ctx.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
     await close_conn(connection, cursor)
 
 
@@ -176,7 +172,7 @@ async def get_pokeinfo_embed(poke_id, page, shiny):
 
 
 
-
+##############################Command
 async def pokeinfo(bot, ctx):
   if not ctx.author.bot:
     message = ctx.message.content.split(" ")
@@ -229,7 +225,7 @@ async def pokeinfo(bot, ctx):
     await ctx.send("This command isn't supported for bots.")
 
 
-
+##############################Command
 async def rolls(ctx):
   connection, cursor = await get_conn("./files/ressources/bot.db")
   await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (ctx.message.author.id, ))
@@ -258,8 +254,9 @@ async def rolls(ctx):
 
 async def get_pokedex_embed(user, page):
   connection, cursor = await get_conn("./files/ressources/bot.db")
-  await cursor.execute("SELECT poke_id, poke_name, is_shiny FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
+  await cursor.execute("SELECT DISTINCT poke_id, poke_name, is_shiny FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
   Pokemons = await cursor.fetchall()
+  print(Pokemons)
   await cursor.execute("SELECT COUNT(DISTINCT poke_id) FROM pokemon_obtained WHERE user_id = ?;", (user.id, ))
   number_of_pokemons = await cursor.fetchone()
   number_of_pokemons = number_of_pokemons[0]
@@ -281,7 +278,7 @@ async def get_pokedex_embed(user, page):
             list_index += 1
         else:
           list_pokemons += str(i+1) + " - --------\n"
-
+  print(list_pokemons)
   embed=discord.Embed(title = str(user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count) + " pokemons")
   embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
   embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
@@ -290,7 +287,7 @@ async def get_pokedex_embed(user, page):
   return embed
 
 
-
+##############################Command
 async def pokedex(bot, ctx):
   if not ctx.message.author.bot :
     user = get_target(ctx)
@@ -329,6 +326,7 @@ async def pokedex(bot, ctx):
       await ctx.send("This command isn't supported for bots.")
 
 
+##############################Command
 async def pokerank(bot, ctx):
   if not ctx.message.author.bot :
     await ctx.channel.trigger_typing()
