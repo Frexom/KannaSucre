@@ -173,10 +173,5 @@ async def pokedexCommand(ctx):
 async def pokerankCommand(ctx):
     await pokerank(bot, ctx)
 
-hehe test
-
-
-
-
 
 bot.run(os.environ['TOKEN'])
