@@ -6,11 +6,14 @@ import sys
 sys.path.append("./files")
 sys.path.append("./files/ressources")
 
+
 from discord.ext import commands
 from dotenv import load_dotenv
 
+
 from connection import *
 from prefix import *
+
 
 from events import *
 from owner import *
