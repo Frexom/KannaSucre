@@ -1,7 +1,3 @@
-import discord
-import aiosqlite3
-import os
-import random
 import sys
 sys.path.append("./files")
 sys.path.append("./files/ressources")
