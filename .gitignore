@@ -1,6 +1,6 @@
 #mine
 *.db
-files/LevelCommand/Users/ 
+bot/files/LevelCommand/Users/*.png
 
 
 
