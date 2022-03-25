@@ -1,9 +1,6 @@
 #mine
-.env
 *.db
-*.png
-*.ttf
-files/LevelCommand
+files/LevelCommand/Users/*.png
 
 
 
