@@ -23,7 +23,6 @@ from poke import *
 
 
 
-
 default_intents = discord.Intents.default()
 default_intents.members = True
 bot = commands.Bot(command_prefix=get_pre, intents=default_intents)
@@ -60,6 +59,7 @@ async def on_guild_join(guild):
 @bot.event
 async def on_message(message):
   await on_message_event(message, bot)
+
 
 
 
