@@ -47,7 +47,7 @@ async def level(ctx):
       d = ImageDraw.Draw(image)
       message = str(user.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(500*stats[0]) + "XP"
       d.text((100, 50), message, font=font, fill= (90,90,90))
-      image.save("./files/LevelCommand/stats" + str(user.id) + ".png")
-      await ctx.send(file = discord.File("./files/LevelCommand/stats" + str(user.id) + ".png"))
+      image.save("./files/LevelCommand/Users/stats" + str(user.id) + ".png")
+      await ctx.send(file = discord.File("./files/LevelCommand/Users/stats" + str(user.id) + ".png"))
     else:
       await ctx.send("This command isn't supported for bots.")
