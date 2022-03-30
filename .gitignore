@@ -1,8 +1,6 @@
-#mine
+#Mine
+bot/files/LevelCommand/Users
 *.db
-bot/files/LevelCommand/Users/*.png
-
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
