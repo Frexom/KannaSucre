@@ -71,7 +71,7 @@ async def previewCommand(ctx):
 @bot.command(name = "announce")
 @commands.is_owner()
 async def announceCommand(ctx):
-    await annnounce(bot, ctx)
+    await announce(bot, ctx)
 
 @bot.command(name = "sql")
 @commands.is_owner()
