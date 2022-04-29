@@ -108,13 +108,26 @@ async def poke(bot, ctx):
         pity -= 1
         await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, ctx.author.id))
       else:
-        await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.author.id))
+        pass
+        #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, ctx.author.id))
       await connection.commit()
 
       pokemon_details = await get_pokemon_details(bot)
 
       await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (ctx.author.id, pokemon_details[0], pokemon_details[4] ))
       is_obtained = await cursor.fetchone()
+      print(pokemon_details)
+
+      #Second chance
+      if(is_obtained):
+          pokemon_details = await get_pokemon_details(bot)
+
+      await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (ctx.author.id, pokemon_details[0], pokemon_details[4] ))
+      is_obtained = await cursor.fetchone()
+      print(pokemon_details)
+
+
+
       shiny_string = ""
       is_shiny = pokemon_details[5]
       if is_shiny:
