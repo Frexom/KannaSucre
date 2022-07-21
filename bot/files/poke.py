@@ -14,7 +14,7 @@ import sys
 sys.path.append("./ressources")
 
 
-poke_count = 386
+poke_count = 494
 
 
 
@@ -115,7 +115,6 @@ async def poke(bot, ctx):
 
       await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (ctx.author.id, pokemon_details[0], pokemon_details[4] ))
       is_obtained = await cursor.fetchone()
-      print(pokemon_details)
 
       #Second chance
       if(is_obtained):
@@ -123,7 +122,6 @@ async def poke(bot, ctx):
 
       await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (ctx.author.id, pokemon_details[0], pokemon_details[4] ))
       is_obtained = await cursor.fetchone()
-      print(pokemon_details)
 
 
 
