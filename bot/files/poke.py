@@ -14,7 +14,7 @@ import sys
 sys.path.append("./ressources")
 
 
-poke_count = 494
+poke_count = 649
 
 
 
