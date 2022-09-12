@@ -1,32 +1,33 @@
 import random
-import discord
 import time
-import os
-
-from dotenv import load_dotenv
 
 from prefix import *
 from connection import *
 from discord.ext import commands
+from bot import *
+
 
 import sys
-sys.path.append("./ressources")
-
-load_dotenv("../.env")
+sys.path.append("../ressources")
 
 
-##############################Event
-async def on_ready_event(bot):
-	for i in range(len(bot.guilds)):
-		await setup_func(bot.guilds[i])
-	game = discord.Game('send "ping" to see prefix')
-	await bot.change_presence(status=discord.Status.online, activity=game)
-	random.seed(time.time())
-	print("Bot is ready")
+
+async def setup_func(guild):
+	connection, cursor = await get_conn("./files/ressources/bot.db")
+	await cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id, ))
+	if await cursor.fetchone() == None:
+		await cursor.execute("INSERT INTO guilds(guild_id, guild_prefix) VALUES(?, '!')", (guild.id, ))
+		for user in guild.members :
+			if not user.bot:
+				await cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user.id, ))
+				if await cursor.fetchone() == None:
+					await cursor.execute("INSERT INTO users(user_id) VALUES(?)", (user.id, ))
+					await connection.commit()
+					await close_conn(connection, cursor)
 
 
-##############################Event
-async def on_command_error_event(ctx, error, bot):
+@bot.event
+async def on_command_error(ctx, error):
 	if isinstance(error, commands.CommandInvokeError):
 		error = error.original
 	if isinstance(error, commands.CommandNotFound):
@@ -42,43 +43,27 @@ async def on_command_error_event(ctx, error, bot):
 	raise error
 
 
-
-async def setup_func(guild) :
-	connection, cursor = await get_conn("./files/ressources/bot.db")
-	await cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id, ))
-	if await cursor.fetchone() == None:
-		await cursor.execute("INSERT INTO guilds(guild_id, guild_prefix) VALUES(?, '!')", (guild.id, ))
-	for user in guild.members :
-		if not user.bot:
-			await cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user.id, ))
-			if await cursor.fetchone() == None:
-				await cursor.execute("INSERT INTO users(user_id) VALUES(?)", (user.id, ))
-	await connection.commit()
-	await close_conn(connection, cursor)
-
-
-##############################Event
-async def on_member_join_event(member, bot):
+@bot.event
+async def on_member_join(member):
 	connection, cursor = await get_conn("./files/ressources/bot.db")
 	await cursor.execute( "SELECT guild_welcome_channel_id FROM guilds WHERE guild_id = ?", (member.guild.id,))
 	channel_ID = await cursor.fetchone()
-	if channel_ID is None:
-			channel_ID = channel_ID[0]
-			if channel_ID != 0:
-				welcome_channel: discord.TextChannel = bot.get_channel(channel_ID)
-				await welcome_channel.send("<@" + str(member.id) + "> joined the server! Yayy!!")
+	channel_ID = channel_ID[0]
+	if channel_ID != 0:
+		welcome_channel: discord.TextChannel = bot.get_channel(channel_ID)
+		await welcome_channel.send("<@" + str(member.id) + "> joined the server! Yayy!!")
 
-			if not member.bot:
-				await cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (member.id, ))
-				member_id = await cursor.fetchone()
-				if member_id == None:
-					await cursor.execute("INSERT INTO users(user_id) VALUES(?)", (int(member.id), ))
-					await connection.commit()
-		await close_conn(connection, cursor)
+	if not member.bot:
+		await cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (member.id, ))
+		member_id = await cursor.fetchone()
+		if member_id == None:
+			await cursor.execute("INSERT INTO users(user_id) VALUES(?)", (int(member.id), ))
+			await connection.commit()
+	await close_conn(connection, cursor)
 
 
-##############################Event
-async def on_member_remove_event(member, bot):
+@bot.event
+async def on_member_remove(member):
 	connection, cursor = await get_conn("./files/ressources/bot.db")
 	await cursor.execute("SELECT guild_welcome_channel_ID FROM guilds WHERE guild_id = ?", (member.guild.id, ))
 	channel_ID = await cursor.fetchone()
@@ -88,13 +73,13 @@ async def on_member_remove_event(member, bot):
 	await close_conn(connection, cursor)
 
 
-##############################Event
-async def on_guild_join_event(guild):
+@bot.event
+async def on_guild_join(guild):
 	await setup_func(guild)
 
 
-##############################Event
-async def on_message_event(message, bot):
+@bot.event
+async def on_message(message):
 	if not message.author.bot :
 		try:
 			prefix = await get_pre(message)

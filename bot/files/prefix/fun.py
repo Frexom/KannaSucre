@@ -5,12 +5,13 @@ from connection import *
 from prefix import *
 
 import sys
-sys.path.append("./ressources")
+sys.path.append("../ressources")
 
 
+@bot.command(name="hug")
 async def hug(ctx):
-  if not ctx.message.author.bot :
-    if len(ctx.message.mentions) > 0:
+  if not ctx.author.bot :
+    if len(ctx.mentions) > 0:
       hugList = [
             "https://media1.tenor.com/images/89272929c73eefcca4b5f0ec8fe30316/tenor.gif",
             "https://media1.tenor.com/images/1f44c379b43bc4efb6d227a2e20b6b50/tenor.gif",
@@ -51,11 +52,11 @@ async def hug(ctx):
             "https://images-ext-1.discordapp.net/external/q5s6oHF9R6FwOHPrUxly-Oi0nO-YUmO7BQrtXl-8CNI/%3Fitemid%3D7552087/https/media1.tenor.com/images/03ff67460b3e97cf13aac5d45a072d22/tenor.gif",
             "https://images-ext-1.discordapp.net/external/2TAL2AoHlWYA2U4lStmtWb8CCo0S417XnedHFaz9uaw/%3Fitemid%3D19674705/https/media1.tenor.com/images/f7b6be96e8ebb23319b43304da0e1118/tenor.gif"
       ]
-      if ctx.message.author == ctx.message.mentions[0]:
-        e = discord.Embed(title=str(ctx.message.author.name) + ", I see you're lonely, take my hug! :heart:")
+      if ctx.author == ctx.mentions[0]:
+        e = discord.Embed(title=str(ctx.author.name) + ", I see you're lonely, take my hug! :heart:")
         e.set_image(url="https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif")
       else:
-        e = discord.Embed(title=str(ctx.message.mentions[0].name) + ", you have been hugged by " + str(ctx.message.author.name) + " :heart:")
+        e = discord.Embed(title=str(ctx.mentions[0].name) + ", you have been hugged by " + str(ctx.author.name) + " :heart:")
         e.set_image(url=str(hugList[random.randint(0, len(hugList) - 1)]))
       await ctx.send(embed=e)
     else:
@@ -63,9 +64,9 @@ async def hug(ctx):
       await ctx.send("```" + str(prefix) + "hug *mention user*```")
 
 
-
+@bot.command(name="stand")
 async def stand(ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     connection, cursor = await get_conn("./files/ressources/bot.db")
     await cursor.execute("SELECT stand_id FROM user_stand WHERE user_id = ?", (ctx.author.id, ))
     stand_id = await cursor.fetchone()
@@ -78,6 +79,6 @@ async def stand(ctx):
     stand = await cursor.fetchone()
     await connection.commit()
     await close_conn(connection, cursor)
-    e = discord.Embed(title = ctx.message.author.name + ", your stand is **" + stand[0] + "**.", colour=discord.Colour(0x635f))
+    e = discord.Embed(title = ctx.author.name + ", your stand is **" + stand[0] + "**.", colour=discord.Colour(0x635f))
     e.set_image(url=stand[1])
     await ctx.send(embed = e)

@@ -5,17 +5,17 @@ from PIL import Image, ImageFont, ImageDraw
 from prefix import *
 from mentions import *
 
+import os
+
 
 import sys
-sys.path.append("./ressources")
+sys.path.append("../ressources")
 
-
-async def level(ctx):
-  if not ctx.message.author.bot :
-    user = get_target(ctx)
-    if not user.bot:
+@bot.command(name="level")
+async def level(ctx, user):
+    if not user.bot and not ctx.author.bot:
+      print(os.getcwd())
       await user.avatar_url_as(format="png").save(fp="./files/LevelCommand/Users/" + str(user.id) + ".png")
-
       connection, cursor = await get_conn("./files/ressources/bot.db")
       await cursor.execute("SELECT user_level, user_xp FROM users WHERE user_id = ?", (user.id, ))
       stats = await cursor.fetchone()
@@ -47,7 +47,7 @@ async def level(ctx):
       d = ImageDraw.Draw(image)
       message = str(user.name) + "\nLevel " + str(stats[0]) + "\n" + str(stats[1]) + "/" +str(500*stats[0]) + "XP"
       d.text((100, 50), message, font=font, fill= (90,90,90))
-      image.save("./files/LevelCommand/Users/stats" + str(user.id) + ".png")
-      await ctx.send(file = discord.File("./files/LevelCommand/Users/stats" + str(user.id) + ".png"))
+      image.save("./files/LevelCommand/stats" + str(user.id) + ".png")
+      await ctx.send(file = discord.File("./files/LevelCommand/stats" + str(user.id) + ".png"))
     else:
       await ctx.send("This command isn't supported for bots.")

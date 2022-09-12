@@ -1,16 +1,17 @@
 import discord
 from discord.ext import commands
+
 from connection import *
 from perms import *
 from prefix import *
 
 import sys
-sys.path.append("./ressources")
+sys.path.append("../ressources")
 
 
-
+@bot.command(name="prefix")
 async def prefix(ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     if ctx.message.author.guild_permissions.manage_guild:
       prefix = ctx.message.content.split(" ")
       if len(prefix) > 1:
@@ -26,8 +27,10 @@ async def prefix(ctx):
     else:
       await missing_perms(ctx, "prefix", "manage guild")
 
+
+@bot.command(name="ban")
 async def ban(ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     if ctx.message.author.guild_permissions.ban_members:
       reason = ctx.message.content.split(" ")
       if len(ctx.message.mentions) > 0 or (len(reason) > 1 and reason[1].isdecimal() and len(reason[1]) > 15):
@@ -53,8 +56,9 @@ async def ban(ctx):
         await missing_perms(ctx, "ban", "ban members")
 
 
+@bot.command(name="welcome")
 async def welcome(ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     if ctx.message.author.guild_permissions.manage_guild:
       connection, cursor = await get_conn("./files/ressources/bot.db")
       message = ctx.message.content.split(" ")
@@ -81,9 +85,9 @@ async def welcome(ctx):
       await missing_perms(ctx, "welcome", "manage guild")
 
 
-
+@bot.command(name="announcements")
 async def announcements(ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     if ctx.message.author.guild_permissions.manage_guild:
       connection, cursor = await get_conn("./files/ressources/bot.db")
       message = ctx.message.content.split(" ")
@@ -109,9 +113,9 @@ async def announcements(ctx):
     else:
       await missing_perms(ctx, "announcements", "manage guild")
 
-
+@bot.command(name="lengthlimit")
 async def lengthlimit(ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     if ctx.message.author.guild_permissions.manage_guild:
       limit = ctx.message.content.split(" ")
       if len(limit) > 1 and limit[1].isdecimal():

@@ -6,11 +6,11 @@ from prefix import *
 
 
 import sys
-sys.path.append("./ressources")
+sys.path.append("../ressources")
 
-
+@bot.command(name="clear")
 async def clear(ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     if ctx.message.author.guild_permissions.manage_messages:
       number = ctx.message.content.split(" ")
       if len(number) > 1 and number[1].isdecimal():
@@ -27,9 +27,9 @@ async def clear(ctx):
       await missing_perms(ctx, "clear", "manage messages")
 
 
-
+@bot.command(name="prune")
 async def prune(ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     await ctx.channel.trigger_typing()
     if ctx.message.author.guild_permissions.manage_messages:
       user = get_mention(ctx)
@@ -52,9 +52,9 @@ async def prune(ctx):
       await missing_perms(ctx, "prune", "manage messages")
 
 
-
+@bot.command(name="kick")
 async def kick(ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     if ctx.message.author.guild_permissions.kick_members:
       reason = ctx.message.content.split(" ")
       if len(ctx.message.mentions) > 0 or (len(reason) > 1 and reason[1].isdecimal() and len(reason[1]) > 15):
