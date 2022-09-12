@@ -1,9 +1,5 @@
-import random
-import time
-
-from prefix import *
 from connection import *
-from discord.ext import commands
+from prefix import *
 from bot import *
 
 

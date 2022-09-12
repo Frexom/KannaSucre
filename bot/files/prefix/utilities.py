@@ -1,9 +1,6 @@
-import random
-import discord
-from discord.ext import commands
-from prefix import *
 from mentions import *
-
+from prefix import *
+from bot import *
 
 import sys
 sys.path.append("../ressources")
@@ -25,14 +22,14 @@ async def dice(ctx):
 @bot.command(name="servericon")
 async def servericon(ctx):
   if not ctx.author.bot :
-    await ctx.send(ctx.guild.icon_url or "This server does not have an icon.")
+    await ctx.send(ctx.guild.icon.url or "This server does not have an icon.")
 
 
 @bot.command(name="usericon")
-async def usericon(ctx, user):
-  if not ctx.author.bot :
-    print(type(user))
-    await ctx.send(user.display_avatar.url or "This user does not have an icon.")
+async def usericon(ctx):
+    if not ctx.author.bot :
+        user = get_target(ctx)
+        await ctx.send(user.display_avatar.url or "This user does not have an icon.")
 
 
 @bot.command(name="help")

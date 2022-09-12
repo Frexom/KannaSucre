@@ -36,13 +36,18 @@ from slashAdmin import *
 @bot.event
 async def on_ready():
 
+
     #Adding cogs
-    await bot.add_cog(slashUtilities(bot))
-    await bot.add_cog(slashPoke(bot))
-    await bot.add_cog(slashModeration(bot))
-    await bot.add_cog(slashOwner(bot))
-    await bot.add_cog(slashFun(bot))
-    await bot.add_cog(slashAdmin(bot))
+    try:
+        await bot.add_cog(slashUtilities(bot))
+        await bot.add_cog(slashPoke(bot))
+        await bot.add_cog(slashModeration(bot))
+        await bot.add_cog(slashOwner(bot))
+        await bot.add_cog(slashFun(bot))
+        await bot.add_cog(slashAdmin(bot))
+    #Cog already loaded (while reconnecting)
+    except discord.errors.ClientException:
+        pass
 
     #Downtime database update
     for i in range(len(bot.guilds)):

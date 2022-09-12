@@ -1,21 +1,19 @@
-import discord
-from connection import *
-from discord.ext import commands
 from PIL import Image, ImageFont, ImageDraw
-from prefix import *
-from mentions import *
 
-import os
+from connection import *
+from mentions import *
+from prefix import *
+from bot import *
 
 
 import sys
 sys.path.append("../ressources")
 
 @bot.command(name="level")
-async def level(ctx, user):
+async def level(ctx):
+    user = get_target(ctx)
     if not user.bot and not ctx.author.bot:
-      print(os.getcwd())
-      await user.avatar_url_as(format="png").save(fp="./files/LevelCommand/Users/" + str(user.id) + ".png")
+      await user.display_avatar.save(fp="./files/LevelCommand/Users/" + str(user.id) + ".png")
       connection, cursor = await get_conn("./files/ressources/bot.db")
       await cursor.execute("SELECT user_level, user_xp FROM users WHERE user_id = ?", (user.id, ))
       stats = await cursor.fetchone()
