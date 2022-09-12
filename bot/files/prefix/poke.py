@@ -208,7 +208,7 @@ async def pokeinfo(ctx):
             await msg.edit(embed=await get_pokeinfo_embed(poke_id, page, shiny))
           except asyncio.TimeoutError:
             active = False
-      except TimeoutError:
+      except TypeError:
         e = discord.Embed(title = "Not found :(", description = "No such pokemon")
         await ctx.send(embed = e)
 
