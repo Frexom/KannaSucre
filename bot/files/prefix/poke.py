@@ -1,20 +1,13 @@
-from discord.ext import commands
-import discord
-import aiosqlite3
-import sqlite3
-import time
-import random
-import asyncio
 from connection import *
-from prefix import *
 from mentions import *
-
+from prefix import *
+from bot import *
 
 import sys
 sys.path.append("../ressources")
 
 
-poke_count = 251
+poke_count = 649
 
 
 
@@ -95,7 +88,7 @@ async def get_pokemon_details(bot):
 @bot.command(name="poke")
 async def poke(ctx):
   if not ctx.author.bot :
-    await ctx.channel.trigger_typing()
+    await ctx.channel.typing()
     connection, cursor = await get_conn("./files/ressources/bot.db")
     await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (ctx.author.id, ))
     data = await cursor.fetchone()
@@ -188,10 +181,11 @@ async def pokeinfo(ctx):
           poke_id = int(message[1])
         if poke_id > poke_count or poke_id <= 0 :
           raise TypeError
+        print('AAA')
         msg = await ctx.send(embed=await get_pokeinfo_embed(poke_id, 0, False))
-        await msg.add_reaction(emoji = "\u25C0")
-        await msg.add_reaction(emoji = "\u2728")
-        await msg.add_reaction(emoji = "\u25B6")
+        await msg.add_reaction('◀')
+        await msg.add_reaction('✨')
+        await msg.add_reaction('▶')
         await asyncio.sleep(1)
 
         def check(r, a):
@@ -214,7 +208,7 @@ async def pokeinfo(ctx):
             await msg.edit(embed=await get_pokeinfo_embed(poke_id, page, shiny))
           except asyncio.TimeoutError:
             active = False
-      except TypeError:
+      except TimeoutError:
         e = discord.Embed(title = "Not found :(", description = "No such pokemon")
         await ctx.send(embed = e)
 
@@ -299,8 +293,8 @@ async def pokedex(ctx):
           page = 0
 
       msg = await ctx.send(embed=await get_pokedex_embed(user, page))
-      await msg.add_reaction(emoji = "\u25C0")
-      await msg.add_reaction(emoji = "\u25B6")
+      await msg.add_reaction('◀️')
+      await msg.add_reaction('▶️')
       await asyncio.sleep(1)
 
       def check(r, a):
@@ -311,9 +305,9 @@ async def pokedex(ctx):
       while(active == 1):
         try:
           a = await bot.wait_for("reaction_add", check = check, timeout = 15)
-          if a[0].emoji == '▶':
+          if a[0].emoji == '▶️':
             page = (page + 1) % (int(poke_count/20)+1)
-          elif a[0].emoji == '◀':
+          elif a[0].emoji == '◀️':
             page = (page - 1) % (int(poke_count/20)+1)
           await msg.edit(embed=await get_pokedex_embed(user, page))
         except asyncio.TimeoutError:
@@ -327,7 +321,7 @@ async def pokedex(ctx):
 @bot.command(name="pokerank")
 async def pokerank(ctx):
   if not ctx.author.bot :
-    await ctx.channel.trigger_typing()
+    await ctx.channel.typing()
 
     def sort_on_pokemon(e):
       return e[0]
@@ -352,6 +346,6 @@ async def pokerank(ctx):
         description += str(ranking) + "-" + user.name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
       i += 1
     embed=discord.Embed(title= "KannaSucre's Pokerank", colour=discord.Colour(0x635f))
-    embed.set_thumbnail(url=bot.user.avatar_url)
+    embed.set_thumbnail(url=bot.user.avatar.url)
     embed.add_field(name="Ranking :", value=description)
     await ctx.send(embed=embed)

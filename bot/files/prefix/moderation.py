@@ -1,8 +1,6 @@
-import discord
-from discord.ext import commands
-from perms import *
 from mentions import *
 from prefix import *
+from perms import *
 
 
 import sys
@@ -30,7 +28,7 @@ async def clear(ctx):
 @bot.command(name="prune")
 async def prune(ctx):
   if not ctx.author.bot :
-    await ctx.channel.trigger_typing()
+    await ctx.channel.typing()
     if ctx.message.author.guild_permissions.manage_messages:
       user = get_mention(ctx)
       if user is not None:

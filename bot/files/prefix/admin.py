@@ -1,6 +1,3 @@
-import discord
-from discord.ext import commands
-
 from connection import *
 from perms import *
 from prefix import *

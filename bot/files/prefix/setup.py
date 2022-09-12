@@ -1,8 +1,6 @@
-import discord
-from discord.ext import commands
 from connection import *
 from prefix import *
-import asyncio
+from bot import *
 
 
 import sys
