@@ -2,8 +2,6 @@ from mentions import *
 from prefix import *
 from perms import *
 
-
-import sys
 sys.path.append("../ressources")
 
 @bot.command(name="clear")
