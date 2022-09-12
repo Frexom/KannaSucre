@@ -1,8 +1,7 @@
 from connection import *
-from perms import *
 from prefix import *
+from perms import *
 
-import sys
 sys.path.append("../ressources")
 
 

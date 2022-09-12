@@ -2,7 +2,6 @@ from mentions import *
 from prefix import *
 from bot import *
 
-import sys
 sys.path.append("../ressources")
 
 
