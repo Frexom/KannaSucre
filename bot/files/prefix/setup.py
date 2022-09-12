@@ -6,7 +6,7 @@ import asyncio
 
 
 import sys
-sys.path.append("./ressources")
+sys.path.append("../ressources")
 
 
 async def welcome_channel_setup(bot, ctx):
@@ -112,8 +112,8 @@ async def prefix_setup(bot, ctx):
   return 0
 
 
-
-async def setup(bot, ctx):
+@bot.command(name="setup")
+async def setup(ctx):
   if not ctx.author.bot and ctx.author.guild_permissions.manage_guild:
     await ctx.send("Welcome to the KannaSucre's server setup!")
     await asyncio.sleep(2)

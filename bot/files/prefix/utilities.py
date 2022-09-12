@@ -6,12 +6,12 @@ from mentions import *
 
 
 import sys
-sys.path.append("./ressources")
+sys.path.append("../ressources")
 
 
-
+@bot.command(name="dice")
 async def dice(ctx):
-  if not ctx.message.author.bot :
+  if not ctx.author.bot :
     words = ctx.message.content.split(" ")
     if len(words) > 1 and words[1].isdecimal() and int(words[1]) > 0:
       i = ctx.message.content.split(" ")[1]
@@ -22,21 +22,22 @@ async def dice(ctx):
       await ctx.send("```" + str(prefix) + "dice *number>0*```")
 
 
-
+@bot.command(name="servericon")
 async def servericon(ctx):
-  if not ctx.message.author.bot:
+  if not ctx.author.bot :
     await ctx.send(ctx.guild.icon_url or "This server does not have an icon.")
 
 
+@bot.command(name="usericon")
+async def usericon(ctx, user):
+  if not ctx.author.bot :
+    print(type(user))
+    await ctx.send(user.display_avatar.url or "This user does not have an icon.")
 
-async def usericon(ctx):
-  if not ctx.message.author.bot :
-    user = get_target(ctx)
-    await ctx.send(user.avatar_url or "This user does not have an icon.")
 
-
+@bot.command(name="help")
 async def help(ctx):
-  if not ctx.message.author.bot:
+  if not ctx.author.bot :
     connection, cursor = await get_conn("./files/ressources/bot.db")
     message_list = ctx.message.content.split(" ")
     if len(message_list) < 2:
