@@ -1,13 +1,11 @@
-import discord
-from discord.ext import commands
-from perms import *
-from mentions import *
-from prefix import *
-from bot import *
-
 from datetime import datetime, timedelta
 
-import sys
+from mentions import *
+from prefix import *
+from perms import *
+from bot import *
+
+
 sys.path.append("../ressources")
 
 class slashModeration(commands.Cog):

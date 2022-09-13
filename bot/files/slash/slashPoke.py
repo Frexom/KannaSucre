@@ -1,18 +1,9 @@
-from discord.ext import commands
-import discord
-import aiosqlite3
-import sqlite3
-import time
-import random
-import asyncio
-
 from connection import *
-from prefix import *
 from mentions import *
+from prefix import *
 from bot import *
 
 
-import sys
 sys.path.append("../ressources")
 
 

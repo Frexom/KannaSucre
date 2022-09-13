@@ -1,12 +1,7 @@
-import discord
-import random
-from discord.ext import commands
-
 from connection import *
 from prefix import *
 from bot import *
 
-import sys
 sys.path.append("../ressources")
 
 class slashFun(commands.Cog):

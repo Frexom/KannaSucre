@@ -1,12 +1,8 @@
-import discord
-from discord.ext import commands
-
 from connection import *
-from perms import *
 from prefix import *
+from perms import *
 from bot import *
 
-import sys
 sys.path.append("../ressources")
 
 class slashAdmin(commands.Cog):
