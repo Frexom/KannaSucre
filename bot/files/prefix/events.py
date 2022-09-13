@@ -13,12 +13,13 @@ async def setup_func(guild):
 	if await cursor.fetchone() == None:
 		await cursor.execute("INSERT INTO guilds(guild_id, guild_prefix) VALUES(?, '!')", (guild.id, ))
 		for user in guild.members :
+			print('a')
 			if not user.bot:
 				await cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user.id, ))
 				if await cursor.fetchone() == None:
 					await cursor.execute("INSERT INTO users(user_id) VALUES(?)", (user.id, ))
-					await connection.commit()
-					await close_conn(connection, cursor)
+	await connection.commit()
+	await close_conn(connection, cursor)
 
 
 @bot.event
