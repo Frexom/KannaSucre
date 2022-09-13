@@ -2,7 +2,7 @@ import sqlite3
 
 
 def get_conn():
-  conn = sqlite3.connect("bot.db")
+  conn = sqlite3.connect("../bot/files/ressources/bot.db")
   c = conn.cursor()
   return conn, c
 
@@ -20,6 +20,7 @@ def insert_pokemons():
      cursor.execute("SELECT trim(poke_desc) FROM pokedex WHERE poke_id = ?", (i+1, ))
      desc = cursor.fetchone()
      cursor.execute("UPDATE pokedex SET poke_desc = ? WHERE poke_id = ?", (desc[0], i+1))
+     print(f"Poke-description N°{i+1} trimmed")
   connection.commit()
   cursor.close()
   close_conn(connection, cursor)
