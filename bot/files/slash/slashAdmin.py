@@ -50,7 +50,7 @@ class slashAdmin(commands.Cog):
                     await interaction.response.send_message("Welcome feature disabled, use `/welcome channel : ...` to restore it. ")
                 else:
                     channel = channel.id
-                    await interaction.response.send_message("Welcome messgaes will now be sent in <#" + str(channel) + ">.")
+                    await interaction.response.send_message("Welcome messages will now be sent in <#" + str(channel) + ">.")
 
                 connection, cursor = await get_conn("./files/ressources/bot.db")
                 await cursor.execute("UPDATE guilds SET guild_welcome_channel_id = ? WHERE guild_id=?", (channel, interaction.guild.id))
@@ -70,7 +70,7 @@ class slashAdmin(commands.Cog):
                     await interaction.response.send_message("Announcements feature disabled, use `/announcements channel : ...` to restore it. ")
                 else:
                     channel = channel.id
-                    await interaction.response.send_message("Announcements messgaes will now be sent in <#" + str(channel) + ">.")
+                    await interaction.response.send_message("Announcements messages will now be sent in <#" + str(channel) + ">.")
 
                 connection, cursor = await get_conn("./files/ressources/bot.db")
                 await cursor.execute("UPDATE guilds SET guild_announcements_channel_id = ? WHERE guild_id=?", (channel, interaction.guild.id))

@@ -1,9 +1,8 @@
+import sys
+sys.path.append("./files/ressources")
+sys.path.append("./files/prefix")
+sys.path.append("./files/slash")
 
-from discord.ext import commands
-
-
-from connection import *
-from prefix import *
 from bot import *
 
 from image_editing import *
@@ -23,9 +22,6 @@ from slashOwner import *
 from slashPoke import *
 from slashFun import *
 
-sys.path.append("./files/ressources")
-sys.path.append("./files/prefix")
-sys.path.append("./files/slash")
 
 
 @bot.event
