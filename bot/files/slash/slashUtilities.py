@@ -1,10 +1,5 @@
-import random
-import discord
-from discord.ext import commands
-
 from bot import *
 
-import sys
 sys.path.append("../ressources")
 
 

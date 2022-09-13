@@ -1,12 +1,7 @@
-import discord
-import os
-from discord.ext import commands
-
-from bot import *
 from connection import *
 from prefix import *
+from bot import *
 
-import sys
 sys.path.append("../ressources")
 
 class slashOwner(commands.Cog):
