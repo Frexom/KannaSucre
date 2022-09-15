@@ -57,25 +57,23 @@ class slashOwner(commands.Cog):
 
                 await cursor.execute(query)
 
-                bot.connection = connection
-                bot.cursor = cursor
-                bot.sqlUser = interaction.user
-                bot.sqlInteraction = interaction
+                sqlInteraction = interaction
                 view = discord.ui.View()
 
                 async def commitCallback(interaction):
-                    if interaction.user == bot.sqlUser:
-                        await bot.connection.commit()
-                        await bot.sqlInteraction.edit_original_response(content = "Commited.", view = None)
-                        await close_conn(bot.connection, bot.cursor)
+                    nonlocal connection, cursor, sqlInteraction
+                    if interaction.user == sqlInteraction.user:
+                        await connection.commit()
+                        await sqlInteraction.edit_original_response(content = "Commited.", view = None)
+                        await close_conn(connection, cursor)
                 commitButton = discord.ui.Button(label = "Commit", style = discord.ButtonStyle.danger, emoji = "⛔")
                 commitButton.callback = commitCallback
 
                 async def rollbackCallback(interaction):
-                    if interaction.user == bot.sqlUser:
-                        await bot.connection.rollback()
-                        await bot.sqlInteraction.edit_original_response(content = "Rolled-back.", view = None)
-                        await close_conn(bot.connection, bot.cursor)
+                    if interaction.user == sqlInteraction.user:
+                        await connection.rollback()
+                        await sqlInteraction.edit_original_response(content = "Rolled-back.", view = None)
+                        await close_conn(connection, cursor)
                 rollbackButton = discord.ui.Button(label = "Rollback", style = discord.ButtonStyle.primary, emoji = "🔙")
                 rollbackButton.callback = rollbackCallback
 
@@ -102,20 +100,21 @@ class slashOwner(commands.Cog):
     @app_commands.guilds(int(os.environ['TESTGUILDID']))
     async def shutdown(self, interaction: discord.Interaction):
         if await bot.is_owner(interaction.user):
-            bot.shutdownUser = interaction.user
-            bot.shutdownInteraction = interaction
+
+            shutdownInteraction = interaction
             view = discord.ui.View()
 
             async def shutCallback(interaction):
-                if interaction.user == bot.shutdownUser:
-                    await bot.shutdownInteraction.edit_original_response(content = "Shutting down...", view = None)
+                nonlocal shutdownInteraction
+                if interaction.user == shutdownInteraction.user:
+                    await shutdownInteraction.edit_original_response(content = "Shutting down...", view = None)
                     await bot.close()
             shutButton = discord.ui.Button(label = "Shutdown", style = discord.ButtonStyle.danger, emoji = "⛔")
             shutButton.callback = shutCallback
 
             async def cancelCallback(interaction):
-                if interaction.user == bot.shutdownUser:
-                    await bot.shutdownInteraction.edit_original_response(content = "Shutdown cancelled.", view = None)
+                if interaction.user == shutdownInteraction.user:
+                    await shutdownInteraction.edit_original_response(content = "Shutdown cancelled.", view = None)
             cancelButton = discord.ui.Button(label = "Cancel", style = discord.ButtonStyle.primary, emoji = "❌")
             cancelButton.callback = cancelCallback
 
