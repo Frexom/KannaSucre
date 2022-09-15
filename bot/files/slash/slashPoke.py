@@ -207,27 +207,30 @@ class slashPoke(commands.Cog):
 
                     await close_conn(connection, cursor)
 
-                    bot.page = 0
-                    bot.shiny = False
+                    page = 0
+                    shiny = False
                     view = discord.ui.View()
 
                     async def prevCallback(interaction):
-                        bot.page -= 1
-                        await interaction.message.edit(embed = await self.get_pokeinfo_embed(poke_id, bot.page, bot.shiny), view = view)
+                        nonlocal page, shiny
+                        page -= 1
+                        await interaction.message.edit(embed = await self.get_pokeinfo_embed(poke_id, page, shiny), view = view)
                         await interaction.response.defer()
                     prev = discord.ui.Button(label = "Previous", style = discord.ButtonStyle.primary, emoji = "⬅️")
                     prev.callback = prevCallback
 
                     async def shinyCallback(interaction):
-                        bot.shiny = not bot.shiny
-                        await interaction.message.edit(embed = await self.get_pokeinfo_embed(poke_id, bot.page, bot.shiny), view = view)
+                        nonlocal page, shiny
+                        shiny = not shiny
+                        await interaction.message.edit(embed = await self.get_pokeinfo_embed(poke_id, page, shiny), view = view)
                         await interaction.response.defer()
                     shinyButton = discord.ui.Button(label = "Shiny", style = discord.ButtonStyle.secondary, emoji = "✨")
                     shinyButton.callback = shinyCallback
 
                     async def nextCallback(interaction):
-                        bot.page += 1
-                        await interaction.message.edit(embed = await self.get_pokeinfo_embed(poke_id, bot.page, bot.shiny), view = view)
+                        nonlocal page, shiny
+                        page += 1
+                        await interaction.message.edit(embed = await self.get_pokeinfo_embed(poke_id, page, shiny), view = view)
                         await interaction.response.defer()
                     next = discord.ui.Button(label = "Next", style = discord.ButtonStyle.primary, emoji = "➡️")
                     next.callback = nextCallback
@@ -311,19 +314,20 @@ class slashPoke(commands.Cog):
                 user = interaction.user
             if not user.bot:
                 view = discord.ui.View()
-                bot.pokedex_page = page-1
-                bot.pokedex_user = user
+                page = page-1
 
                 async def prevCallback(interaction):
-                    bot.pokedex_page = (bot.pokedex_page - 1) % (int(poke_count/20)+1)
-                    await interaction.message.edit(embed = await self.get_pokedex_embed(bot.pokedex_user, bot.pokedex_page), view = view)
+                    nonlocal page, user
+                    page = (page - 1) % (int(poke_count/20)+1)
+                    await interaction.message.edit(embed = await self.get_pokedex_embed(user, page), view = view)
                     await interaction.response.defer()
                 prev = discord.ui.Button(label = "Previous", emoji = "⬅️")
                 prev.callback = prevCallback
 
                 async def nextCallback(interaction):
-                    bot.pokedex_page = (bot.pokedex_page + 1) % (int(poke_count/20)+1)
-                    await interaction.message.edit(embed = await self.get_pokedex_embed(bot.pokedex_user, bot.pokedex_page), view = view)
+                    nonlocal page, user
+                    page = (page + 1) % (int(poke_count/20)+1)
+                    await interaction.message.edit(embed = await self.get_pokedex_embed(user, page), view = view)
                     await interaction.response.defer()
                 next = discord.ui.Button(label = "Next", emoji = "➡️")
                 next.callback = nextCallback
@@ -332,7 +336,7 @@ class slashPoke(commands.Cog):
                 view.add_item(next)
 
 
-                await interaction.response.send_message(embed=await self.get_pokedex_embed(user, bot.pokedex_page), view = view)
+                await interaction.response.send_message(embed=await self.get_pokedex_embed(user, page), view = view)
 
             else:
                 await interaction.response.send_message("This command isn't supported for bots.")
