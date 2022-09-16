@@ -22,6 +22,11 @@ async def setup_func(guild):
 
 
 @bot.event
+async def on_dbl_vote(data):
+	print(data)
+
+
+@bot.event
 async def on_command_error(ctx, error):
 	if isinstance(error, commands.CommandInvokeError):
 		error = error.original

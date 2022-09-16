@@ -35,6 +35,7 @@ async def on_ready():
         await bot.add_cog(slashOwner(bot))
         await bot.add_cog(slashPoke(bot))
         await bot.add_cog(slashFun(bot))
+
     #Cog already loaded (while reconnecting)
     except discord.errors.ClientException:
         pass
@@ -42,6 +43,9 @@ async def on_ready():
     #Downtime database update
     for i in range(len(bot.guilds)):
         await setup_func(bot.guilds[i])
+
+    #Starting webhook Listener
+    await webhookManager.run(8082)
 
     #Appearance
     game = discord.Game('send "ping" to see prefix')

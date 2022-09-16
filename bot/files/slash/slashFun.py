@@ -53,12 +53,12 @@ class slashFun(commands.Cog):
                 "https://images-ext-1.discordapp.net/external/2TAL2AoHlWYA2U4lStmtWb8CCo0S417XnedHFaz9uaw/%3Fitemid%3D19674705/https/media1.tenor.com/images/f7b6be96e8ebb23319b43304da0e1118/tenor.gif"
           ]
           if interaction.user == user:
-              e = discord.Embed(title=str(interaction.user.name) + ", I see you're lonely, take my hug! :heart:")
+              e = discord.Embed(title=str(interaction.user.display_name) + ", I see you're lonely, take my hug! :heart:")
               e.set_image(url="https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif")
           else:
-              e = discord.Embed(title=str(user.name) + ", you have been hugged by " + str(interaction.user.name) + " :heart:")
+              e = discord.Embed(title=str(user.display_name) + ", you have been hugged by " + str(interaction.user.display_name) + " :heart:")
               e.set_image(url=str(hugList[random.randint(0, len(hugList) - 1)]))
-          await interaction.response.send_message(embed=e)
+          await interaction.response.send_message(content = user.mention or None,embed=e)
 
 
     @app_commands.command(name="stand", description = "Displays your assigned JJBA stand, your stand is bounded to you and won't change.")
@@ -76,6 +76,6 @@ class slashFun(commands.Cog):
         stand = await cursor.fetchone()
         await connection.commit()
         await close_conn(connection, cursor)
-        e = discord.Embed(title = interaction.user.name + ", your stand is **" + stand[0] + "**.", colour=discord.Colour(0x635f))
+        e = discord.Embed(title = interaction.user.display_name + ", your stand is **" + stand[0] + "**.", colour=discord.Colour(0x635f))
         e.set_image(url=stand[1])
         await interaction.response.send_message (embed = e)
