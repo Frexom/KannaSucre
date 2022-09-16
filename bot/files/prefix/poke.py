@@ -121,7 +121,7 @@ async def poke(ctx):
         desc = "This is a **" + pokemon_details[3] + "** pokemon!" + shiny_string + "\nYou already had that pokemon.:confused:\nRolls +" + str(0.25*pokemon_details[2]) + "."
         await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon_details[2], ctx.author.id))
       await connection.commit()
-      e = discord.Embed(title = "Congratulation **" + str(ctx.author.name) + "**, you got **" + pokemon_details[1] + "**!",  description = desc)
+      e = discord.Embed(title = "Congratulation **" + str(ctx.author.display_name) + "**, you got **" + pokemon_details[1] + "**!",  description = desc)
       e.set_image(url=pokemon_details[-1])
       await ctx.send(embed = e)
     else:
@@ -129,11 +129,11 @@ async def poke(ctx):
       if time_left > 3600:
         time_left -= 3600
         time_left = int(time_left/60)
-        await ctx.send(str(ctx.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+        await ctx.send(str(ctx.author.display_name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
       else:
         time_left += 60
         time_left = int(time_left/60)
-        await ctx.send(str(ctx.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+        await ctx.send(str(ctx.author.display_name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
     await close_conn(connection, cursor)
 
 
@@ -229,15 +229,15 @@ async def rolls(ctx):
   time_since = int(now - last_roll)
   time_left = int(7200 - time_since)
   if time_left <= 0:
-    await ctx.send(str(ctx.author.name) + ", your poke roll is available.\nRolls : `" + str(pity)+ "`.")
+    await ctx.send(str(ctx.author.display_name) + ", your poke roll is available.\nRolls : `" + str(pity)+ "`.")
   elif time_left > 3600:
     time_left -= 3600
     time_left = int(time_left/60)
-    await ctx.send(str(ctx.author.name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+    await ctx.send(str(ctx.author.display_name) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
   else:
     time_left += 60
     time_left = int(time_left/60)
-    await ctx.send(str(ctx.author.name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+    await ctx.send(str(ctx.author.display_name) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
   await close_conn(connection, cursor)
 
 
@@ -270,7 +270,7 @@ async def get_pokedex_embed(user, page):
             list_index += 1
         else:
           list_pokemons += str(i+1) + " - --------\n"
-  embed=discord.Embed(title = str(user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count) + " pokemons")
+  embed=discord.Embed(title = str(user.display_name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count) + " pokemons")
   embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
   embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
   embed.set_footer(text = "page " + str(page+1) + "/" + str(int(poke_count/20)+1))
@@ -342,7 +342,7 @@ async def pokerank(ctx):
       user = await bot.fetch_user(result_list[i][1])
       if user != None:
         ranking += 1;
-        description += str(ranking) + "-" + user.name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
+        description += str(ranking) + "-" + displayuser.display_name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
       i += 1
     embed=discord.Embed(title= "KannaSucre's Pokerank", colour=discord.Colour(0x635f))
     embed.set_thumbnail(url=bot.user.avatar.url)

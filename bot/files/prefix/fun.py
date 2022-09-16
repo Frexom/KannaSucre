@@ -51,10 +51,10 @@ async def hug(ctx):
         "https://images-ext-1.discordapp.net/external/2TAL2AoHlWYA2U4lStmtWb8CCo0S417XnedHFaz9uaw/%3Fitemid%3D19674705/https/media1.tenor.com/images/f7b6be96e8ebb23319b43304da0e1118/tenor.gif"
         ]
     if ctx.author == user or user == bot.user:
-        e = discord.Embed(title=str(ctx.author.name) + ", I see you're lonely, take my hug! :heart:")
+        e =  + discord.Embed(title=str(ctx.author.display_name) + ", I see you're lonely, take my hug! :heart:")
         e.set_image(url="https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif")
     else:
-        e = discord.Embed(title=str(user.name) + ", you have been hugged by " + str(ctx.author.name) + " :heart:")
+        e = discord.Embed(title=str(user.display_name) + ", you have been hugged by " + str(ctx.author.display_name) + " :heart:")
         e.set_image(url=str(hugList[random.randint(0, len(hugList) - 1)]))
     await ctx.send(embed=e)
 
@@ -73,6 +73,6 @@ async def stand(ctx):
     stand = await cursor.fetchone()
     await connection.commit()
     await close_conn(connection, cursor)
-    e = discord.Embed(title = ctx.author.name + ", your stand is **" + stand[0] + "**.", colour=discord.Colour(0x635f))
+    e = discord.Embed(title = ctx.author.display_name + ", your stand is **" + stand[0] + "**.", colour=discord.Colour(0x635f))
     e.set_image(url=stand[1])
     await ctx.send(embed = e)
