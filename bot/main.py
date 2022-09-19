@@ -44,9 +44,6 @@ async def on_ready():
     for i in range(len(bot.guilds)):
         await setup_func(bot.guilds[i])
 
-    #Starting webhook Listener
-    await webhookManager.run(8082)
-
     #Appearance
     game = discord.Game('send "ping" to see prefix')
     await bot.change_presence(status=discord.Status.online, activity=game)
