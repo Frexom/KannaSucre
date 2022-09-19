@@ -1,5 +1,6 @@
 #Mine
 bot/files/LevelCommand/Users
+bot/files/LevelCommand/stats*.png
 *.db
 
 # Byte-compiled / optimized / DLL files

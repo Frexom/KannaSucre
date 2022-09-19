@@ -39,7 +39,7 @@ class slashPoke(commands.Cog):
 
 
 
-    async def get_alt(self, poke_id):
+    async def get_alt(self, poke_id:int):
         connection, cursor = await get_conn("./files/ressources/bot.db")
         await cursor.execute("SELECT DISTINCT pokelink_alt FROM pokelink WHERE poke_id = ?", (poke_id, ))
         alt = await cursor.fetchall()
@@ -50,7 +50,7 @@ class slashPoke(commands.Cog):
             return alt[random.randint(0, len(alt)-1)][0]
 
 
-    async def get_pokemon_sex(self, poke_id, poke_alt):
+    async def get_pokemon_sex(self, poke_id: int, poke_alt: int):
         connection, cursor = await get_conn("./files/ressources/bot.db")
         await cursor.execute("SELECT pokelink_sex FROM pokelink WHERE poke_id = ? AND pokelink_alt = ?", (poke_id, poke_alt))
         data = await cursor.fetchall()
@@ -62,7 +62,7 @@ class slashPoke(commands.Cog):
 
 
 
-    async def get_pokemon_id(self, rarity):
+    async def get_pokemon_id(self, rarity: int):
         connection, cursor = await get_conn("./files/ressources/bot.db")
         await cursor.execute("SELECT poke_id, poke_name FROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
         temp =    await cursor.fetchone()
@@ -163,7 +163,7 @@ class slashPoke(commands.Cog):
 
 
 
-    async def get_pokeinfo_embed(self, poke_id, page, shiny):
+    async def get_pokeinfo_embed(self, poke_id: int, page: int, shiny: bool):
         connection, cursor = await get_conn("./files/ressources/bot.db")
         await cursor.execute("SELECT poke_id, poke_name, pokelink_sex, pokelink_normal, pokelink_shiny, poke_desc, pokelink_label FROM pokelink JOIN pokedex USING(poke_id) WHERE poke_id = ?;", (poke_id, ))
         pokedetails = await cursor.fetchall()
@@ -273,7 +273,7 @@ class slashPoke(commands.Cog):
         await close_conn(connection, cursor)
 
 
-    async def get_pokedex_embed(self, user, page):
+    async def get_pokedex_embed(self, user : discord.Member, page : int):
         connection, cursor = await get_conn("./files/ressources/bot.db")
         await cursor.execute("SELECT DISTINCT poke_id, poke_name, is_shiny FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
         Pokemons = await cursor.fetchall()
@@ -319,6 +319,7 @@ class slashPoke(commands.Cog):
 
         await cursor.execute("SELECT COUNT(*) FROM pokedex GROUP BY poke_rarity")
         totals = await cursor.fetchall()
+        await close_conn(connection, cursor)
 
         embed = discord.Embed(title = str(user.name) + "'s Pokedex")
         rarityCountStr = ""
@@ -385,6 +386,7 @@ class slashPoke(commands.Cog):
                 return e[0]
 
             await interaction.response.defer()
+
             connection, cursor = await get_conn("./files/ressources/bot.db")
             await cursor.execute("SELECT COUNT(DISTINCT poke_id), user_id FROM pokemon_obtained GROUP BY user_id LIMIT 10")
             result = await cursor.fetchall()
