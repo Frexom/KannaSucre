@@ -1,7 +1,6 @@
 import discord
 import asyncio
 import random
-import topgg
 import time
 import sys
 import os
