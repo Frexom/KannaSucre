@@ -305,6 +305,31 @@ class slashPoke(commands.Cog):
         await close_conn(connection, cursor)
         return embed
 
+    async def get_closed_pokedex(self, user: discord.Member):
+
+        connection, cursor = await get_conn("./files/ressources/bot.db")
+
+        rarities = ["Common", "Uncommon", "Rare", "Super rare", "Legendary"]
+
+        await cursor.execute("SELECT COUNT(distinct poke_id) FROM pokemon_obtained JOIN pokedex USING(poke_id) WHERE user_id = ? GROUP BY poke_rarity", (user.id,))
+        obtained = await cursor.fetchall()
+
+        await cursor.execute("SELECT COUNT(*) FROM pokemon_obtained WHERE is_shiny = 1 AND user_id = ?", (user.id,))
+        shiny = await cursor.fetchone()
+
+        await cursor.execute("SELECT COUNT(*) FROM pokedex GROUP BY poke_rarity")
+        totals = await cursor.fetchall()
+
+        embed = discord.Embed(title = str(user.name) + "'s Pokedex")
+        rarityCountStr = ""
+        for i in range(5):
+            rarityCountStr += "__" + rarities[i] + "__ :\n" + str(obtained[i][0]) + "/" + str(totals[i][0]) + " pokémons\n\n"
+
+        embed.add_field(name = "Pokémons : ", value = rarityCountStr)
+        embed.add_field(name = "Shinies✨ : ", value = str(shiny[0]) + "/" + str(poke_count) + " shiny pokémons", inline=False)
+        embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
+        return embed
+
 
     @app_commands.command(name = "pokedex", description = "Shows all the pokemons you caught in your pokedex.")
     @app_commands.describe(user = "The user you want to see the pokedex of.", page="The pokedex's page you want to see.")
@@ -313,13 +338,21 @@ class slashPoke(commands.Cog):
             if user is None:
                 user = interaction.user
             if not user.bot:
-                view = discord.ui.View()
+                closedView = discord.ui.View()
+                openedView = discord.ui.View()
                 page = page-1
+
+                async def openCallback(interaction):
+                    nonlocal user, page, openedView
+                    await interaction.message.edit(embed = await self.get_pokedex_embed(user, page), view = openedView)
+                    await interaction.response.defer()
+                open = discord.ui.Button(label = "Open", emoji = "🌐")
+                open.callback = openCallback
 
                 async def prevCallback(interaction):
                     nonlocal page, user
                     page = (page - 1) % (int(poke_count/20)+1)
-                    await interaction.message.edit(embed = await self.get_pokedex_embed(user, page), view = view)
+                    await interaction.message.edit(embed = await self.get_pokedex_embed(user, page))
                     await interaction.response.defer()
                 prev = discord.ui.Button(label = "Previous", emoji = "⬅️")
                 prev.callback = prevCallback
@@ -327,16 +360,17 @@ class slashPoke(commands.Cog):
                 async def nextCallback(interaction):
                     nonlocal page, user
                     page = (page + 1) % (int(poke_count/20)+1)
-                    await interaction.message.edit(embed = await self.get_pokedex_embed(user, page), view = view)
+                    await interaction.message.edit(embed = await self.get_pokedex_embed(user, page))
                     await interaction.response.defer()
                 next = discord.ui.Button(label = "Next", emoji = "➡️")
                 next.callback = nextCallback
 
-                view.add_item(prev)
-                view.add_item(next)
+                closedView.add_item(open)
+                openedView.add_item(prev)
+                openedView.add_item(next)
 
 
-                await interaction.response.send_message(embed=await self.get_pokedex_embed(user, page), view = view)
+                await interaction.response.send_message(embed=await self.get_closed_pokedex(user), view = closedView)
 
             else:
                 await interaction.response.send_message("This command isn't supported for bots.")
