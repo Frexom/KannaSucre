@@ -1,5 +1,6 @@
 from connection import *
 from mentions import *
+from pokemon import *
 from prefix import *
 from bot import *
 
@@ -7,86 +8,12 @@ from bot import *
 sys.path.append("../ressources")
 
 
-poke_count = 649
-
+#poke_count = 649
+poke_count = 151
 
 class slashPoke(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-
-    def get_rarity(self):
-        rand = random.randint(1, 100)
-        if rand == 100:
-            return [5, "legendary"]
-        elif rand >= 95 and rand <= 99:
-            return [4, "Super Rare"]
-        elif rand >= 80 and rand <=94:
-            return [3, "Rare"]
-        elif rand >= 55 and rand <=79:
-            return [2, "Uncommon"]
-        else:
-            return [1, "Common"]
-
-
-
-    def get_shiny(self):
-        rand = random.randint(1, 256)
-        if rand == 1:
-            return True
-        return False
-
-
-
-
-    async def get_alt(self, poke_id:int):
-        connection, cursor = await get_conn("./files/ressources/bot.db")
-        await cursor.execute("SELECT DISTINCT pokelink_alt FROM pokelink WHERE poke_id = ?", (poke_id, ))
-        alt = await cursor.fetchall()
-        await close_conn(connection, cursor)
-        if len(alt) == 1:
-            return alt[0][0]
-        else:
-            return alt[random.randint(0, len(alt)-1)][0]
-
-
-    async def get_pokemon_sex(self, poke_id: int, poke_alt: int):
-        connection, cursor = await get_conn("./files/ressources/bot.db")
-        await cursor.execute("SELECT pokelink_sex FROM pokelink WHERE poke_id = ? AND pokelink_alt = ?", (poke_id, poke_alt))
-        data = await cursor.fetchall()
-        await close_conn(connection, cursor)
-        if len(data) == 1:
-            return data[0][0]
-        else:
-            return data[random.randint(0,len(data)-1)][0]
-
-
-
-    async def get_pokemon_id(self, rarity: int):
-        connection, cursor = await get_conn("./files/ressources/bot.db")
-        await cursor.execute("SELECT poke_id, poke_name FROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
-        temp =    await cursor.fetchone()
-        await close_conn(connection, cursor)
-        return temp
-
-
-
-    async def get_pokemon_details(self):
-        rarity = self.get_rarity()
-        poke_id = await self.get_pokemon_id(rarity[0])
-        shiny = self.get_shiny()
-        poke_alt = await self.get_alt(poke_id[0])
-        poke_sex = await self.get_pokemon_sex(poke_id[0], poke_alt)
-        connection, cursor = await get_conn("./files/ressources/bot.db")
-        if shiny:
-            await cursor.execute("SELECT pokelink_shiny FROM pokelink WHERE poke_id = ? and pokelink_alt = ? and pokelink_sex = ?", (poke_id[0], poke_alt, poke_sex))
-        else:
-            await cursor.execute("SELECT pokelink_normal FROM pokelink WHERE poke_id = ? and pokelink_alt = ? and pokelink_sex = ?", (poke_id[0], poke_alt, poke_sex))
-        link = await cursor.fetchone()
-        await close_conn(connection, cursor)
-        return [poke_id[0], poke_id[1], rarity[0], rarity[1],poke_alt, shiny, poke_sex, link[0]]
-
-
 
     @app_commands.command(name ="poke", description="Catches a pokemon for you!")
     async def poke(self, interaction: discord.Interaction):
@@ -107,48 +34,51 @@ class slashPoke(commands.Cog):
                     pity -= 1
                     await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, userID))
                 else:
-                    await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
+                    #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID
+                    pass
                 await connection.commit()
 
-                pokemon_details = await self.get_pokemon_details()
+                pokemon = Pokemon()
 
-                await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (userID, pokemon_details[0], pokemon_details[4] ))
+                await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (userID, pokemon.id, pokemon.alt ))
                 is_obtained = await cursor.fetchone()
 
                 #Second chance
                 if(is_obtained):
-                        pokemon_details = await self.get_pokemon_details()
+                        pokemon = Pokemon()
 
-                await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (userID, pokemon_details[0], pokemon_details[4] ))
+                await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (userID, pokemon.id, pokemon.alt ))
                 is_obtained = await cursor.fetchone()
-                await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ?", (userID, pokemon_details[0]))
+                await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ?", (userID, pokemon.id))
                 is_pokedex = await cursor.fetchone()
 
 
 
                 shiny_string = ""
                 form_string = ""
-                is_shiny = pokemon_details[5]
+                link = pokemon.link
 
-                if is_shiny:
+                if pokemon.shiny:
                     shiny_string = "\nWait!! Is it shiny??? :sparkles:"
+                    link = pokemon.shiny_link
+
                 if(is_obtained == None and (is_pokedex)):
                     form_string = "\nYou already had that Pokémon, but that's a new form! :new:"
 
                 if is_obtained == None:
-                    await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, pokelink_alt, is_shiny, date) VALUES (?, ?, ?, ?, ?)", (userID, pokemon_details[0], pokemon_details[4], int(is_shiny), now))
-                    desc = "This is a **" + pokemon_details[3] + "** pokemon!" + form_string + shiny_string
+                    await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, pokelink_alt, is_shiny, date) VALUES (?, ?, ?, ?, ?)", (userID, pokemon.id, pokemon.alt, int(pokemon.shiny), now))
+                    desc = "This is a **" + pokemon.rarity[1] + "** pokemon!" + form_string + shiny_string
 
-                elif (is_obtained[3] == 0 and is_shiny):
-                    await cursor.execute("UPDATE pokemon_obtained SET is_shiny = 1 WHERE user_id = ? and poke_id = ?", (userID, pokemon_details[0]))
-                    desc = "This is a **" + pokemon_details[3] + "** pokemon!" + form_string + shiny_string
+                elif (is_obtained[3] == 0 and pokemon.shiny):
+                    await cursor.execute("UPDATE pokemon_obtained SET is_shiny = 1 WHERE user_id = ? and poke_id = ?", (userID, pokemon.id))
+                    desc = "This is a **" + pokemon.rarity[1] + "** pokemon!" + form_string + shiny_string
                 else:
-                    desc = "This is a **" + pokemon_details[3] + "** pokemon!" + shiny_string + "\nYou already had that pokemon.:confused:\nRolls +" + str(0.25*pokemon_details[2]) + "."
-                    await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon_details[2], userID))
+                    desc = "This is a **" + pokemon.rarity[1] + "** pokemon!" + shiny_string + "\nYou already had that pokemon.:confused:\nRolls +" + str(0.25*pokemon.rarity[0]) + "."
+                    await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon.rarity[0], userID))
                 await connection.commit()
-                e = discord.Embed(title = "Congratulation **" + str(userName) + "**, you got **" + pokemon_details[1] + "**!",    description = desc)
-                e.set_image(url=pokemon_details[-1])
-                await interaction.response.send_message(embed = e)
+                e = discord.Embed(title = "Congratulation **" + str(userName) + "**, you got **" + pokemon.name + "**!",    description = desc)
+                e.set_image(url=link)
+                await interaction.response.send_message(content = link, embed = e)
             else:
                 time_left = int(7200 - time_since)
                 if time_left > 3600:
@@ -163,29 +93,30 @@ class slashPoke(commands.Cog):
 
 
 
-    async def get_pokeinfo_embed(self, poke_id: int, page: int, shiny: bool):
-        connection, cursor = await get_conn("./files/ressources/bot.db")
-        await cursor.execute("SELECT poke_id, poke_name, pokelink_sex, pokelink_normal, pokelink_shiny, poke_desc, pokelink_label FROM pokelink JOIN pokedex USING(poke_id) WHERE poke_id = ?;", (poke_id, ))
-        pokedetails = await cursor.fetchall()
+    async def get_pokeinfo_embed(self, pokemon):
 
-        page = page % len(pokedetails)
         poke_sex = ""
-        if(pokedetails[page][2] == "f"):
+        if(pokemon.genre == "f"):
             poke_sex = "\u2640"
-        if(pokedetails[page][2] == "m"):
+        if(pokemon.genre == "m"):
             poke_sex = "\u2642"
 
 
-        if(shiny):
-            e = discord.Embed(title = "N°" + str(poke_id) + " : " + pokedetails[page][1] + ":sparkles: " + poke_sex, description = pokedetails[page][6] + " form")
-            e.set_image(url=pokedetails[page][4])
+        if(pokemon.shiny):
+            e = discord.Embed(title = "N°" + str(pokemon.id) + " : " + pokemon.name + ":sparkles: " + poke_sex, description = pokemon.label + " form")
+            e.set_image(url=pokemon.shiny_link)
+            e.set_footer(text=pokemon.shiny_link + " | page " + str(pokemon.current_link) + "/" + str(pokemon.pokelinks))
         else:
-            e = discord.Embed(title = "N°" + str(poke_id) + " : " + pokedetails[page][1] + poke_sex, description = pokedetails[page][6] + " form")
-            e.set_image(url=pokedetails[page][3])
+            e = discord.Embed(title = "N°" + str(pokemon.id) + " : " + pokemon.name + poke_sex, description = pokemon.label + " form")
+            e.set_image(url=pokemon.link)
+            e.set_footer(text=pokemon.link + " | page " + str(pokemon.current_link) + "/" + str(pokemon.pokelinks))
 
-        e.add_field(name = "Description : ", value=pokedetails[page][5])
-        e.set_footer(text = "page " + str(page+1) + "/" + str(len(pokedetails)))
+        e.add_field(name = "Description : ", value=pokemon.description)
+        if(pokemon.devolution is not None):
+            e.add_field(name = "Evolution : ", value = "Has evolved by " + pokemon.devolution[2], inline=False)
+        e.set_footer(text = "page " + str(pokemon.current_link) + "/" + str(pokemon.pokelinks))
         return e
+
 
 
 
@@ -203,45 +134,61 @@ class slashPoke(commands.Cog):
                     else:
                         poke_id = id
                     if poke_id > poke_count or poke_id <= 0 :
+                        await close_conn(connection, cursor)
                         raise TypeError
 
-                    await close_conn(connection, cursor)
 
-                    page = 0
-                    shiny = False
+                    pokemon = Pokemon(poke_id)
                     view = discord.ui.View()
 
-                    async def prevCallback(interaction):
-                        nonlocal page, shiny
-                        page -= 1
-                        await interaction.message.edit(embed = await self.get_pokeinfo_embed(poke_id, page, shiny), view = view)
-                        await interaction.response.defer()
+                #Callback definition, and buttons generation
                     prev = discord.ui.Button(label = "Previous", style = discord.ButtonStyle.primary, emoji = "⬅️")
+                    async def prevCallback(interaction):
+                        nonlocal pokemon
+                        pokemon.prev_alt()
+                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = await self.get_pokeinfo_embed(pokemon), view = view)
+                        await interaction.response.defer()
                     prev.callback = prevCallback
 
-                    async def shinyCallback(interaction):
-                        nonlocal page, shiny
-                        shiny = not shiny
-                        await interaction.message.edit(embed = await self.get_pokeinfo_embed(poke_id, page, shiny), view = view)
+
+                    devolveButton = discord.ui.Button(label = "Devolve", style = discord.ButtonStyle.secondary, emoji = "⏬")
+                    async def devolveCallback(interaction):
+                        nonlocal pokemon, view, devolveButton
+                        pokemon.devolve()
+                        if pokemon.devolution is None:
+                            view.remove_item(devolveButton)
+                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = await self.get_pokeinfo_embed(pokemon), view = view)
                         await interaction.response.defer()
+                    devolveButton.callback = devolveCallback
+
+
                     shinyButton = discord.ui.Button(label = "Shiny", style = discord.ButtonStyle.secondary, emoji = "✨")
+                    async def shinyCallback(interaction):
+                        nonlocal pokemon
+                        pokemon.shiny = not pokemon.shiny
+                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = await self.get_pokeinfo_embed(pokemon), view = view)
+                        await interaction.response.defer()
                     shinyButton.callback = shinyCallback
 
-                    async def nextCallback(interaction):
-                        nonlocal page, shiny
-                        page += 1
-                        await interaction.message.edit(embed = await self.get_pokeinfo_embed(poke_id, page, shiny), view = view)
-                        await interaction.response.defer()
+
                     next = discord.ui.Button(label = "Next", style = discord.ButtonStyle.primary, emoji = "➡️")
+                    async def nextCallback(interaction):
+                        nonlocal pokemon
+                        pokemon.next_alt()
+                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = await self.get_pokeinfo_embed(pokemon), view = view)
+                        await interaction.response.defer()
                     next.callback = nextCallback
 
+
                     view.add_item(prev)
+                    if(pokemon.devolution is not None):
+                        view.add_item(devolveButton)
                     view.add_item(shinyButton)
                     view.add_item(next)
 
-                    await interaction.response.send_message(embed = await self.get_pokeinfo_embed(poke_id, 0, False), view=view)
+                    await interaction.response.send_message(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = await self.get_pokeinfo_embed(pokemon), view=view)
 
-                except TypeError:
+                except TimeoutError:
                     e = discord.Embed(title = "Not found :(", description = "No such pokemon")
                     await interaction.response.send_message(embed = e)
             else:
