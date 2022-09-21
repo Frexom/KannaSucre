@@ -157,7 +157,6 @@ class slashPoke(commands.Cog):
                         await interaction.response.defer()
                         if pokemon.evolutions is not None:
                             if len(pokemon.evolutions) > 1:
-                                print(buttonView.children)
                                 dropdown = PokeDropdown(pokemon, buttonView)
 
                                 evoView = discord.ui.View()
