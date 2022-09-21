@@ -3,6 +3,7 @@ from mentions import *
 from pokemon import *
 from prefix import *
 from bot import *
+from ui import *
 
 
 sys.path.append("../ressources")
@@ -34,8 +35,7 @@ class slashPoke(commands.Cog):
                     pity -= 1
                     await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, userID))
                 else:
-                    #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID
-                    pass
+                    await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
                 await connection.commit()
 
                 pokemon = Pokemon()
@@ -93,33 +93,6 @@ class slashPoke(commands.Cog):
 
 
 
-    async def get_pokeinfo_embed(self, pokemon):
-
-        poke_sex = ""
-        if(pokemon.genre == "f"):
-            poke_sex = "\u2640"
-        if(pokemon.genre == "m"):
-            poke_sex = "\u2642"
-
-
-        if(pokemon.shiny):
-            e = discord.Embed(title = "N°" + str(pokemon.id) + " : " + pokemon.name + ":sparkles: " + poke_sex, description = pokemon.label + " form")
-            e.set_image(url=pokemon.shiny_link)
-            e.set_footer(text=pokemon.shiny_link + " | page " + str(pokemon.current_link) + "/" + str(pokemon.pokelinks))
-        else:
-            e = discord.Embed(title = "N°" + str(pokemon.id) + " : " + pokemon.name + poke_sex, description = pokemon.label + " form")
-            e.set_image(url=pokemon.link)
-            e.set_footer(text=pokemon.link + " | page " + str(pokemon.current_link) + "/" + str(pokemon.pokelinks))
-
-        e.add_field(name = "Description : ", value=pokemon.description)
-        if(pokemon.devolution is not None):
-            e.add_field(name = "Evolution : ", value = "Has evolved by " + pokemon.devolution[2], inline=False)
-        e.set_footer(text = "page " + str(pokemon.current_link) + "/" + str(pokemon.pokelinks))
-        return e
-
-
-
-
     @app_commands.command(name = "pokeinfo", description = "Shows a pokemon's details!")
     @app_commands.describe(id="The pokemon's pokedex ID.", name="The pokemon's name.")
     async def pokeinfo(self, interaction: discord.Interaction, id: int = None, name: str = None):
@@ -139,54 +112,82 @@ class slashPoke(commands.Cog):
 
 
                     pokemon = Pokemon(poke_id)
-                    view = discord.ui.View()
+                    buttonView = discord.ui.View()
 
                 #Callback definition, and buttons generation
-                    prev = discord.ui.Button(label = "Previous", style = discord.ButtonStyle.primary, emoji = "⬅️")
+                    evolveButton = discord.ui.Button(label = "Evolve⠀", style = discord.ButtonStyle.secondary, emoji = "⏫", row = 1)
+                    prev = discord.ui.Button(label = " ", style = discord.ButtonStyle.primary, emoji = "⬅️", row = 2)
+                    shinyButton = discord.ui.Button(label = "⠀Shiny", style = discord.ButtonStyle.secondary, emoji = "✨", row = 2)
+                    next = discord.ui.Button(label = " ", style = discord.ButtonStyle.primary, emoji = "➡️", row = 2)
+                    devolveButton = discord.ui.Button(label = "Devolve", style = discord.ButtonStyle.secondary, emoji = "⏬", row = 3)
+
+                    filler1 = discord.ui.Button(label = "⠀⠀⠀", row = 1)
+                    filler2 = discord.ui.Button(label = "⠀⠀⠀", row = 1)
+                    filler3 = discord.ui.Button(label = "⠀⠀⠀", row = 3)
+                    filler4 = discord.ui.Button(label = "⠀⠀⠀", row = 3)
+
+
                     async def prevCallback(interaction):
                         nonlocal pokemon
                         pokemon.prev_alt()
-                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = await self.get_pokeinfo_embed(pokemon), view = view)
+                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed())
                         await interaction.response.defer()
                     prev.callback = prevCallback
 
 
-                    devolveButton = discord.ui.Button(label = "Devolve", style = discord.ButtonStyle.secondary, emoji = "⏬")
                     async def devolveCallback(interaction):
-                        nonlocal pokemon, view, devolveButton
-                        pokemon.devolve()
-                        if pokemon.devolution is None:
-                            view.remove_item(devolveButton)
-                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = await self.get_pokeinfo_embed(pokemon), view = view)
+                        nonlocal pokemon
+                        if pokemon.devolution is not None:
+                            pokemon.devolve()
+                            await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed())
                         await interaction.response.defer()
                     devolveButton.callback = devolveCallback
 
 
-                    shinyButton = discord.ui.Button(label = "Shiny", style = discord.ButtonStyle.secondary, emoji = "✨")
                     async def shinyCallback(interaction):
                         nonlocal pokemon
                         pokemon.shiny = not pokemon.shiny
-                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = await self.get_pokeinfo_embed(pokemon), view = view)
+                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed())
                         await interaction.response.defer()
                     shinyButton.callback = shinyCallback
 
 
-                    next = discord.ui.Button(label = "Next", style = discord.ButtonStyle.primary, emoji = "➡️")
+                    async def evolveCallback(interaction: discord.Interaction):
+                        nonlocal pokemon, buttonView
+                        await interaction.response.defer()
+                        if pokemon.evolutions is not None:
+                            if len(pokemon.evolutions) > 1:
+                                print(buttonView.children)
+                                dropdown = PokeDropdown(pokemon, buttonView)
+
+                                evoView = discord.ui.View()
+                                evoView.add_item(dropdown)
+                                await interaction.message.edit(view = evoView)
+                            else:
+                                pokemon.evolve()
+                                await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed())
+                    evolveButton.callback = evolveCallback
+
+
+
                     async def nextCallback(interaction):
                         nonlocal pokemon
                         pokemon.next_alt()
-                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = await self.get_pokeinfo_embed(pokemon), view = view)
+                        await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed())
                         await interaction.response.defer()
                     next.callback = nextCallback
 
+                    buttonView.add_item(filler1)
+                    buttonView.add_item(evolveButton)
+                    buttonView.add_item(filler2)
+                    buttonView.add_item(prev)
+                    buttonView.add_item(shinyButton)
+                    buttonView.add_item(next)
+                    buttonView.add_item(filler3)
+                    buttonView.add_item(devolveButton)
+                    buttonView.add_item(filler4)
 
-                    view.add_item(prev)
-                    if(pokemon.devolution is not None):
-                        view.add_item(devolveButton)
-                    view.add_item(shinyButton)
-                    view.add_item(next)
-
-                    await interaction.response.send_message(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = await self.get_pokeinfo_embed(pokemon), view=view)
+                    await interaction.response.send_message(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed(), view = buttonView)
 
                 except TimeoutError:
                     e = discord.Embed(title = "Not found :(", description = "No such pokemon")

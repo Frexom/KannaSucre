@@ -69,7 +69,25 @@ def get_current_link(poke_id: int, poke_alt: int, poke_genre: str):
 def get_devolution(poke_id : int, poke_alt:int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
     cursor.execute("SELECT evo_pre, evo_pre_alt, evo_method FROM evolutions WHERE evo_post = ? AND evo_post_alt = ?", (poke_id, poke_alt))
-    return cursor.fetchone()
+    temp = cursor.fetchone()
+    return None if temp == [] else temp
+
+def get_evolutions(poke_id: int, poke_alt: int):
+    connection, cursor = get_static_conn("./files/ressources/bot.db")
+    cursor.execute("SELECT DISTINCT evo_post, evo_post_alt, poke_name, pokelink_label  FROM evolutions JOIN pokedex ON evo_post = pokedex.poke_id JOIN pokelink ON evo_post = pokelink.poke_id and evo_post_alt = pokelink_alt WHERE evo_pre = ? and evo_pre_alt = ?", (poke_id, poke_alt))
+    temp = cursor.fetchall()
+    if temp == []:
+        return None
+    else:
+        evolutions = []
+        uniques = []
+        for evo in temp:
+
+            checkUnique = str(evo[0]) + "." + str(evo[1])
+            if checkUnique not in uniques:
+                uniques.append(checkUnique)
+                evolutions.append(evo)
+        return evolutions
 
 
 class Pokemon:
@@ -110,6 +128,7 @@ class Pokemon:
         self.pokealts = cursor.fetchone()
         self.pokealts = self.pokealts[0]
         self.devolution = get_devolution(self.id, self.alt)
+        self.evolutions = get_evolutions(self.id, self.alt)
         close_static_conn(connection, cursor)
 
     def next_alt(self):
@@ -162,8 +181,36 @@ class Pokemon:
             self.current_link = get_current_link(self.id, self.alt, self.genre)
             close_static_conn(connection, cursor)
 
+    def get_pokeinfo_embed(self):
+
+        poke_sex = ""
+        if(self.genre == "f"):
+            poke_sex = "\u2640"
+        if(self.genre == "m"):
+            poke_sex = "\u2642"
+
+
+        if(self.shiny):
+            e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + ":sparkles: " + poke_sex, description = self.label + " form")
+            e.set_image(url=self.shiny_link)
+        else:
+            e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + poke_sex, description = self.label + " form")
+            e.set_image(url=self.link)
+
+        e.add_field(name = "Description : ", value=self.description)
+        if(self.devolution is not None):
+            e.add_field(name = "Evolution : ", value = "Has evolved by " + self.devolution[2], inline=False)
+        e.set_footer(text = "page " + str(self.current_link) + "/" + str(self.pokelinks))
+        return e
+
     def devolve(self):
         self.id = self.devolution[0]
         self.alt = self.devolution[1]
+        self.update_properties()
+        self.current_link = get_current_link(self.id, self.alt, self.genre)
+
+    def evolve(self, choice: int = 0):
+        self.id = self.evolutions[choice][0]
+        self.alt = self.evolutions[choice][1]
         self.update_properties()
         self.current_link = get_current_link(self.id, self.alt, self.genre)
