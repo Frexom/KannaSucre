@@ -23,6 +23,8 @@ class slashPoke(commands.Cog):
             userID = interaction.user.id
             userName = interaction.user.display_name
 
+            await interaction.response.defer()
+
             connection, cursor = await get_conn("./files/ressources/bot.db")
             await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (userID, ))
             data = await cursor.fetchone()
@@ -78,17 +80,17 @@ class slashPoke(commands.Cog):
                 await connection.commit()
                 e = discord.Embed(title = "Congratulation **" + str(userName) + "**, you got **" + pokemon.name + "**!",    description = desc)
                 e.set_image(url=link)
-                await interaction.response.send_message(content = link, embed = e)
+                await interaction.followup.send(content = link, embed = e)
             else:
                 time_left = int(7200 - time_since)
                 if time_left > 3600:
                     time_left -= 3600
                     time_left = int(time_left/60)
-                    await interaction.response.send_message(str(userName) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+                    await interaction.followup.send(str(userName) + ", your next roll will be available in 1 hour " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
                 else:
                     time_left += 60
                     time_left = int(time_left/60)
-                    await interaction.response.send_message(str(userName) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
+                    await interaction.followup.send(str(userName) + ", your next roll will be available in " + str(time_left) + " minutes.\nRolls : `" + str(pity)+ "`.")
             await close_conn(connection, cursor)
 
 
