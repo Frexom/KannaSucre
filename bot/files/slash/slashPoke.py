@@ -9,8 +9,7 @@ from ui import *
 sys.path.append("../ressources")
 
 
-#poke_count = 649
-poke_count = 151
+poke_count = 721
 
 class slashPoke(commands.Cog):
     def __init__(self, bot):
@@ -190,7 +189,7 @@ class slashPoke(commands.Cog):
 
                     await interaction.response.send_message(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed(), view = buttonView)
 
-                except TimeoutError:
+                except TypeError:
                     e = discord.Embed(title = "Not found :(", description = "No such pokemon")
                     await interaction.response.send_message(embed = e)
             else:
