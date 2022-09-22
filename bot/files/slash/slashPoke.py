@@ -9,8 +9,6 @@ from ui import *
 sys.path.append("../ressources")
 
 
-poke_count = 721
-
 class slashPoke(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
