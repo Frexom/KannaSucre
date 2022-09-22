@@ -3,7 +3,6 @@ from bot import *
 
 class PokeDropdown(discord.ui.Select):
     def __init__(self, pokemon: Pokemon, buttonView: discord.ui.View):
-        print(buttonView)
         self.pokemon = pokemon
         self.buttonView = buttonView
 
