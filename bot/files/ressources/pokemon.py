@@ -1,7 +1,7 @@
 from connection import *
 from bot import *
 
-poke_count = 151
+poke_count = 721
 
 
 def get_rarity():
@@ -93,7 +93,7 @@ def get_evolutions(poke_id: int, poke_alt: int):
 class Pokemon:
     def __init__(self, poke_id: int = None):
         if poke_id is not None:
-            if poke_id < poke_count and poke_id > 0:
+            if poke_id <= poke_count and poke_id > 0:
                 self.id = poke_id
                 self.shiny = False
                 self.current_link = 1
