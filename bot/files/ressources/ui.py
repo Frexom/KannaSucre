@@ -22,3 +22,13 @@ class PokeDropdown(discord.ui.Select):
         await interaction.response.defer()
         self.pokemon.evolve(int(self.values[0]))
         await interaction.message.edit(content = self.pokemon.shiny_link if self.pokemon.shiny else self.pokemon.link, embed = self.pokemon.get_pokeinfo_embed(), view = self.buttonView)
+
+
+class pokeView(discord.ui.View):
+    def __init__(self,interaction: discord.Interaction, timeout:int = 180):
+        super().__init__(timeout = 20)
+        self.interaction = interaction;
+
+
+    async def on_timeout(self):
+        await self.interaction.edit_original_response(view=None)

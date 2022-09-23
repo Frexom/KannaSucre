@@ -111,7 +111,7 @@ class slashPoke(commands.Cog):
 
 
                     pokemon = Pokemon(poke_id)
-                    buttonView = discord.ui.View()
+                    buttonView = pokeView(interaction, 20)
 
                 #Callback definition, and buttons generation
                     evolveButton = discord.ui.Button(label = "Evolve⠀", style = discord.ButtonStyle.secondary, emoji = "⏫", row = 1)
@@ -120,10 +120,10 @@ class slashPoke(commands.Cog):
                     next = discord.ui.Button(label = " ", style = discord.ButtonStyle.primary, emoji = "➡️", row = 2)
                     devolveButton = discord.ui.Button(label = "Devolve", style = discord.ButtonStyle.secondary, emoji = "⏬", row = 3)
 
-                    filler1 = discord.ui.Button(label = "⠀⠀⠀", row = 1)
-                    filler2 = discord.ui.Button(label = "⠀⠀⠀", row = 1)
-                    filler3 = discord.ui.Button(label = "⠀⠀⠀", row = 3)
-                    filler4 = discord.ui.Button(label = "⠀⠀⠀", row = 3)
+                    filler1 = discord.ui.Button(label = "⠀⠀⠀", row = 1, disabled = True)
+                    filler2 = discord.ui.Button(label = "⠀⠀⠀", row = 1, disabled = True)
+                    filler3 = discord.ui.Button(label = "⠀⠀⠀", row = 3, disabled = True)
+                    filler4 = discord.ui.Button(label = "⠀⠀⠀", row = 3, disabled = True)
 
 
                     async def prevCallback(interaction):
@@ -158,8 +158,9 @@ class slashPoke(commands.Cog):
                             if len(pokemon.evolutions) > 1:
                                 dropdown = PokeDropdown(pokemon, buttonView)
 
-                                evoView = discord.ui.View()
+                                evoView = pokeView(buttonView.interaction, 20)
                                 evoView.add_item(dropdown)
+
                                 await interaction.message.edit(view = evoView)
                             else:
                                 pokemon.evolve()
@@ -175,6 +176,7 @@ class slashPoke(commands.Cog):
                         await interaction.response.defer()
                     next.callback = nextCallback
 
+
                     buttonView.add_item(filler1)
                     buttonView.add_item(evolveButton)
                     buttonView.add_item(filler2)
@@ -187,7 +189,8 @@ class slashPoke(commands.Cog):
 
                     await interaction.response.send_message(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed(), view = buttonView)
 
-                except TypeError:
+
+                except discord.Forbidden:
                     e = discord.Embed(title = "Not found :(", description = "No such pokemon")
                     await interaction.response.send_message(embed = e)
             else:
@@ -251,6 +254,7 @@ class slashPoke(commands.Cog):
         await close_conn(connection, cursor)
         return embed
 
+
     async def get_closed_pokedex(self, user: discord.Member):
 
         connection, cursor = await get_conn("./files/ressources/bot.db")
@@ -280,13 +284,13 @@ class slashPoke(commands.Cog):
 
     @app_commands.command(name = "pokedex", description = "Shows all the pokemons you caught in your pokedex.")
     @app_commands.describe(user = "The user you want to see the pokedex of.", page="The pokedex's page you want to see.")
-    async def pokedex(self, interaction: discord.Interaction, user: discord.Member = None, page: int = 1):
+    async def pokedex(self, interaction: discord.Interaction, user: discord.User = None, page: int = 1):
         if not interaction.user.bot :
             if user is None:
                 user = interaction.user
             if not user.bot:
-                closedView = discord.ui.View()
-                openedView = discord.ui.View()
+                closedView = pokeView(interaction, 20)
+                openedView = pokeView(interaction, 20)
                 page = page-1
 
                 async def openCallback(interaction):
