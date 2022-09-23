@@ -17,6 +17,7 @@ from fun import *
 
 from slashModeration import *
 from slashUtilities import *
+from slashEvents import *
 from slashAdmin import *
 from slashOwner import *
 from slashPoke import *
