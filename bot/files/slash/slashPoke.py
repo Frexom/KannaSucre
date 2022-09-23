@@ -190,7 +190,7 @@ class slashPoke(commands.Cog):
                     await interaction.response.send_message(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed(), view = buttonView)
 
 
-                except discord.Forbidden:
+                except TypeError:
                     e = discord.Embed(title = "Not found :(", description = "No such pokemon")
                     await interaction.response.send_message(embed = e)
             else:
