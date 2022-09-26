@@ -13,22 +13,25 @@ class slashPoke(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name ="poke", description="Catches a pokemon for you!")
+    @app_commands.command(name ="poke", description="Catch a random pokémon!")
     async def poke(self, interaction: discord.Interaction):
         if not interaction.user.bot :
 
             userID = interaction.user.id
             userName = interaction.user.display_name
 
+            #Not doidng it may cause bugs
             await interaction.response.defer()
 
             connection, cursor = await get_conn("./files/ressources/bot.db")
             await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (userID, ))
             data = await cursor.fetchone()
+
             last_roll = data[0]
             pity = data[1]
             now = time.time()
             time_since = int(now - last_roll)
+
             if time_since > 7200 or pity >= 1:
                 if time_since < 7200:
                     pity -= 1
@@ -61,23 +64,30 @@ class slashPoke(commands.Cog):
                     shiny_string = "\nWait!! Is it shiny??? :sparkles:"
                     link = pokemon.shiny_link
 
+                #New Form
                 if(is_obtained == None and (is_pokedex)):
                     form_string = "\nYou already had that Pokémon, but that's a new form! :new:"
 
+                #New Pokémon
                 if is_obtained == None:
                     await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, pokelink_alt, is_shiny, date) VALUES (?, ?, ?, ?, ?)", (userID, pokemon.id, pokemon.alt, int(pokemon.shiny), now))
                     desc = "This is a **" + pokemon.rarity[1] + "** pokemon!" + form_string + shiny_string
 
+                #Pokemon already captured but shiny
                 elif (is_obtained[3] == 0 and pokemon.shiny):
                     await cursor.execute("UPDATE pokemon_obtained SET is_shiny = 1 WHERE user_id = ? and poke_id = ?", (userID, pokemon.id))
                     desc = "This is a **" + pokemon.rarity[1] + "** pokemon!" + form_string + shiny_string
+
+                #Pokemon already captured
                 else:
                     desc = "This is a **" + pokemon.rarity[1] + "** pokemon!" + shiny_string + "\nYou already had that pokemon.:confused:\nRolls +" + str(0.25*pokemon.rarity[0]) + "."
                     await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon.rarity[0], userID))
+
                 await connection.commit()
                 e = discord.Embed(title = "Congratulation **" + str(userName) + "**, you got **" + pokemon.name + "**!",    description = desc)
                 e.set_image(url=link)
                 await interaction.followup.send(content = link, embed = e)
+
             else:
                 time_left = int(7200 - time_since)
                 if time_left > 3600:
@@ -222,7 +232,7 @@ class slashPoke(commands.Cog):
         await close_conn(connection, cursor)
 
 
-    async def get_pokedex_embed(self, user : discord.Member, page : int):
+    async def get_pokedex_embed(self, user : discord.User, page : int):
         connection, cursor = await get_conn("./files/ressources/bot.db")
         await cursor.execute("SELECT DISTINCT poke_id, poke_name, is_shiny FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
         Pokemons = await cursor.fetchall()
@@ -255,7 +265,7 @@ class slashPoke(commands.Cog):
         return embed
 
 
-    async def get_closed_pokedex(self, user: discord.Member):
+    async def get_closed_pokedex(self, user: discord.User):
 
         connection, cursor = await get_conn("./files/ressources/bot.db")
 
@@ -282,7 +292,7 @@ class slashPoke(commands.Cog):
         return embed
 
 
-    @app_commands.command(name = "pokedex", description = "Shows all the pokemons you caught in your pokedex.")
+    @app_commands.command(name = "pokedex", description = "Shows all the pokemons someone caught in their pokedex.")
     @app_commands.describe(user = "The user you want to see the pokedex of.", page="The pokedex's page you want to see.")
     async def pokedex(self, interaction: discord.Interaction, user: discord.User = None, page: int = 1):
         if not interaction.user.bot :
@@ -293,34 +303,35 @@ class slashPoke(commands.Cog):
                 openedView = pokeView(interaction, 20)
                 page = page-1
 
+                open = discord.ui.Button(label = "Open", emoji = "🌐")
                 async def openCallback(interaction):
                     nonlocal user, page, openedView
                     await interaction.message.edit(embed = await self.get_pokedex_embed(user, page), view = openedView)
                     await interaction.response.defer()
-                open = discord.ui.Button(label = "Open", emoji = "🌐")
                 open.callback = openCallback
 
+
+                close = discord.ui.Button(label = "Close", emoji = "🌐")
                 async def closeCallback(interaction):
                     nonlocal user, closedView
                     await interaction.message.edit(embed = await self.get_closed_pokedex(user), view = closedView)
                     await interaction.response.defer()
-                close = discord.ui.Button(label = "Close", emoji = "🌐")
                 close.callback = closeCallback
 
+                prev = discord.ui.Button(label = " ", emoji = "⬅️")
                 async def prevCallback(interaction):
                     nonlocal page, user
                     page = (page - 1) % (int(poke_count/20)+1)
                     await interaction.message.edit(embed = await self.get_pokedex_embed(user, page))
                     await interaction.response.defer()
-                prev = discord.ui.Button(label = " ", emoji = "⬅️")
                 prev.callback = prevCallback
 
+                next = discord.ui.Button(label = " ", emoji = "➡️")
                 async def nextCallback(interaction):
                     nonlocal page, user
                     page = (page + 1) % (int(poke_count/20)+1)
                     await interaction.message.edit(embed = await self.get_pokedex_embed(user, page))
                     await interaction.response.defer()
-                next = discord.ui.Button(label = " ", emoji = "➡️")
                 next.callback = nextCallback
 
                 closedView.add_item(open)
