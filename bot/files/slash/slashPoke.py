@@ -300,12 +300,19 @@ class slashPoke(commands.Cog):
                 open = discord.ui.Button(label = "Open", emoji = "🌐")
                 open.callback = openCallback
 
+                async def closeCallback(interaction):
+                    nonlocal user, closedView
+                    await interaction.message.edit(embed = await self.get_closed_pokedex(user), view = closedView)
+                    await interaction.response.defer()
+                close = discord.ui.Button(label = "Close", emoji = "🌐")
+                close.callback = closeCallback
+
                 async def prevCallback(interaction):
                     nonlocal page, user
                     page = (page - 1) % (int(poke_count/20)+1)
                     await interaction.message.edit(embed = await self.get_pokedex_embed(user, page))
                     await interaction.response.defer()
-                prev = discord.ui.Button(label = "Previous", emoji = "⬅️")
+                prev = discord.ui.Button(label = " ", emoji = "⬅️")
                 prev.callback = prevCallback
 
                 async def nextCallback(interaction):
@@ -313,11 +320,12 @@ class slashPoke(commands.Cog):
                     page = (page + 1) % (int(poke_count/20)+1)
                     await interaction.message.edit(embed = await self.get_pokedex_embed(user, page))
                     await interaction.response.defer()
-                next = discord.ui.Button(label = "Next", emoji = "➡️")
+                next = discord.ui.Button(label = " ", emoji = "➡️")
                 next.callback = nextCallback
 
                 closedView.add_item(open)
                 openedView.add_item(prev)
+                openedView.add_item(close)
                 openedView.add_item(next)
 
 
