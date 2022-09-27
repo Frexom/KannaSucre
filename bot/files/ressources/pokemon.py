@@ -90,6 +90,8 @@ def get_evolutions(poke_id: int, poke_alt: int):
         return evolutions
 
 
+
+
 class Pokemon:
     def __init__(self, poke_id: int = None):
         if poke_id is not None:
@@ -214,3 +216,141 @@ class Pokemon:
         self.alt = self.evolutions[choice][1]
         self.update_properties()
         self.current_link = get_current_link(self.id, self.alt, self.genre)
+
+
+
+
+class Pokedex():
+    def __init__(self, user: discord.User, page: int = 0):
+        self.page = page
+        self.user = user
+        self.shiny = False
+        self.embed = self.__get_closed_pokedex()
+
+    def next(self):
+        self.page += 1
+        if self.shiny:
+            self.embed = self.__get_shiny_embed()
+        else:
+            self.embed = self.__get_pokedex_embed()
+
+    def prev(self):
+        self.page += -1
+        if self.shiny:
+            self.embed = self.__get_shiny_embed()
+        else:
+            self.embed = self.__get_pokedex_embed()
+
+    def open(self):
+        if self.shiny:
+            self.embed = self.__get_shiny_embed()
+        else:
+            self.embed = self.__get_pokedex_embed()
+
+    def close(self):
+        self.shiny = False
+        self.page = 0
+        self.embed = self.__get_closed_pokedex()
+
+    def toggleShiny(self):
+        self.shiny = True
+
+
+
+    def __get_closed_pokedex(self):
+        connection, cursor = get_static_conn("./files/ressources/bot.db")
+
+        rarities = ["Common", "Uncommon", "Rare", "Super rare", "Legendary"]
+
+        cursor.execute("SELECT COUNT(distinct poke_id), poke_rarity FROM pokemon_obtained JOIN pokedex USING(poke_id) WHERE user_id = ? GROUP BY poke_rarity ORDER BY poke_rarity", (self.user.id,))
+        obtained = cursor.fetchall()
+
+        cursor.execute("SELECT COUNT(*) FROM pokemon_obtained WHERE is_shiny = 1 AND user_id = ?", (self.user.id,))
+        shiny = cursor.fetchone()
+
+        cursor.execute("SELECT COUNT(*) FROM pokedex GROUP BY poke_rarity")
+        totals = cursor.fetchall()
+        close_static_conn(connection, cursor)
+
+        embed = discord.Embed(title = str(self.user.name) + "'s Pokedex")
+        rarityCountStr = ""
+
+        currentIndex = 0
+        for i in range(5):
+            if(len(obtained) > currentIndex and obtained[currentIndex][1] == i+1):
+                rarityCountStr += "__" + rarities[i] + "__ :\n" + str(obtained[currentIndex][0]) + "/" + str(totals[i][0]) + " pokémons\n\n"
+                currentIndex += 1
+            else:
+                rarityCountStr += "__" + rarities[i] + "__ :\n0/" + str(totals[i][0]) + " pokémons\n\n"
+
+        embed.add_field(name = "Pokémons : ", value = rarityCountStr)
+        embed.add_field(name = "Shinies✨ : ", value = str(shiny[0]) + "/" + str(poke_count) + " shiny pokémons", inline=False)
+        embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
+        return embed
+
+    def __get_pokedex_embed(self):
+
+        connection, cursor = get_static_conn("./files/ressources/bot.db")
+        cursor.execute("SELECT DISTINCT poke_id, poke_name, is_shiny FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (self.user.id, ))
+        Pokemons = cursor.fetchall()
+        cursor.execute("SELECT COUNT(DISTINCT poke_id) FROM pokemon_obtained WHERE user_id = ?;", (self.user.id, ))
+        number_of_pokemons = cursor.fetchone()
+        number_of_pokemons = number_of_pokemons[0]
+
+        close_static_conn(connection, cursor)
+
+        self.page = (self.page) % (int(poke_count/20)+1)
+
+        if Pokemons == [] :
+            list_pokemons = "No pokemons."
+        else:
+            list_pokemons = ""
+            list_index = 0
+            while(Pokemons[list_index][0] <= self.page*20 and list_index != len(Pokemons)-1) :
+                list_index += 1
+            for i in range(self.page*20, self.page*20+20):
+                if i < poke_count:
+                    if Pokemons[list_index][0] == i+1:
+                        if Pokemons[list_index][2]:
+                            list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + ":sparkles:\n"
+                        else:
+                            list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + "\n"
+                        if list_index < len(Pokemons)-1:
+                            list_index += 1
+                    else:
+                        list_pokemons += str(i+1) + " - --------\n"
+        embed=discord.Embed(title = str(self.user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count) + " pokemons")
+        embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
+        embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
+        
+        embed.set_footer(text = "page " + str(self.page+1) + "/" + str(int(poke_count/20)+1))
+        return embed
+
+
+    def __get_shiny_embed(self):
+        connection, cursor = get_static_conn("./files/ressources/bot.db")
+        cursor.execute("SELECT DISTINCT poke_id, poke_name FROM pokemon_obtained JOIN pokedex USING(poke_id) WHERE is_shiny = 1 AND user_id = ? ORDER BY poke_id", (self.user.id,))
+        shinies = cursor.fetchall()
+
+        close_static_conn(connection, cursor)
+
+        self.page = (self.page) % (int(len(shinies)/20)+1)
+
+        if shinies == []:
+            list_pokemons = "No pokemons."
+        else:
+            list_pokemons = ""
+            list_index = 0
+
+            count = 0
+            for i in range(self.page*20, (self.page+1)*20):
+                if(len(shinies) > self.page*20 + count):
+
+                    list_pokemons += str(shinies[i][0]) + " - " + shinies[i][1] + ":sparkles:\n"
+                count += 1
+
+        embed=discord.Embed(title = str(self.user.name) + "'s shiny Pokémons", description = str(len(shinies)) + "/" + str(poke_count) + " shiny pokemons")
+        embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
+        embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
+        embed.set_footer(text = "page " + str(self.page+1) + "/" + str(int(len(shinies)/20)+1))
+        return embed
