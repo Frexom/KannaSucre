@@ -232,64 +232,6 @@ class slashPoke(commands.Cog):
         await close_conn(connection, cursor)
 
 
-    async def get_pokedex_embed(self, user : discord.User, page : int):
-        connection, cursor = await get_conn("./files/ressources/bot.db")
-        await cursor.execute("SELECT DISTINCT poke_id, poke_name, is_shiny FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (user.id, ))
-        Pokemons = await cursor.fetchall()
-        await cursor.execute("SELECT COUNT(DISTINCT poke_id) FROM pokemon_obtained WHERE user_id = ?;", (user.id, ))
-        number_of_pokemons = await cursor.fetchone()
-        number_of_pokemons = number_of_pokemons[0]
-        if Pokemons == [] :
-            list_pokemons = "No pokemons."
-        else:
-            list_pokemons = ""
-            list_index = 0
-            while(Pokemons[list_index][0] <= page*20 and list_index != len(Pokemons)-1) :
-                list_index += 1
-            for i in range(page*20, page*20+20):
-                if i < poke_count:
-                    if Pokemons[list_index][0] == i+1:
-                        if Pokemons[list_index][2]:
-                            list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + ":sparkles:\n"
-                        else:
-                            list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + "\n"
-                        if list_index < len(Pokemons)-1:
-                            list_index += 1
-                    else:
-                        list_pokemons += str(i+1) + " - --------\n"
-        embed=discord.Embed(title = str(user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count) + " pokemons")
-        embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
-        embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
-        embed.set_footer(text = "page " + str(page+1) + "/" + str(int(poke_count/20)+1))
-        await close_conn(connection, cursor)
-        return embed
-
-
-    async def get_closed_pokedex(self, user: discord.User):
-
-        connection, cursor = await get_conn("./files/ressources/bot.db")
-
-        rarities = ["Common", "Uncommon", "Rare", "Super rare", "Legendary"]
-
-        await cursor.execute("SELECT COUNT(distinct poke_id) FROM pokemon_obtained JOIN pokedex USING(poke_id) WHERE user_id = ? GROUP BY poke_rarity", (user.id,))
-        obtained = await cursor.fetchall()
-
-        await cursor.execute("SELECT COUNT(*) FROM pokemon_obtained WHERE is_shiny = 1 AND user_id = ?", (user.id,))
-        shiny = await cursor.fetchone()
-
-        await cursor.execute("SELECT COUNT(*) FROM pokedex GROUP BY poke_rarity")
-        totals = await cursor.fetchall()
-        await close_conn(connection, cursor)
-
-        embed = discord.Embed(title = str(user.name) + "'s Pokedex")
-        rarityCountStr = ""
-        for i in range(5):
-            rarityCountStr += "__" + rarities[i] + "__ :\n" + str(obtained[i][0]) + "/" + str(totals[i][0]) + " pokémons\n\n"
-
-        embed.add_field(name = "Pokémons : ", value = rarityCountStr)
-        embed.add_field(name = "Shinies✨ : ", value = str(shiny[0]) + "/" + str(poke_count) + " shiny pokémons", inline=False)
-        embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
-        return embed
 
 
     @app_commands.command(name = "pokedex", description = "Shows all the pokemons someone caught in their pokedex.")
@@ -301,46 +243,60 @@ class slashPoke(commands.Cog):
             if not user.bot:
                 closedView = pokeView(interaction, 20)
                 openedView = pokeView(interaction, 20)
-                page = page-1
+                pokedex = Pokedex(user, page-1)
 
                 open = discord.ui.Button(label = "Open", emoji = "🌐")
                 async def openCallback(interaction):
-                    nonlocal user, page, openedView
-                    await interaction.message.edit(embed = await self.get_pokedex_embed(user, page), view = openedView)
+                    nonlocal openedView, pokedex
+                    pokedex.open()
+                    await interaction.message.edit(embed = pokedex.embed, view = openedView)
                     await interaction.response.defer()
                 open.callback = openCallback
 
 
+                shinies = discord.ui.Button(label = "Shinies", emoji = "✨")
+                async def shiniesCallback(interaction):
+                    nonlocal openedView, pokedex
+                    pokedex.toggleShiny()
+                    pokedex.open()
+                    await interaction.message.edit(embed = pokedex.embed, view = openedView)
+                    await interaction.response.defer()
+                shinies.callback = shiniesCallback
+
+
+
                 close = discord.ui.Button(label = "Close", emoji = "🌐")
                 async def closeCallback(interaction):
-                    nonlocal user, closedView
-                    await interaction.message.edit(embed = await self.get_closed_pokedex(user), view = closedView)
+                    nonlocal closedView, pokedex
+                    pokedex.close()
+                    await interaction.message.edit(embed = pokedex.embed, view = closedView)
                     await interaction.response.defer()
                 close.callback = closeCallback
 
                 prev = discord.ui.Button(label = " ", emoji = "⬅️")
                 async def prevCallback(interaction):
-                    nonlocal page, user
-                    page = (page - 1) % (int(poke_count/20)+1)
-                    await interaction.message.edit(embed = await self.get_pokedex_embed(user, page))
+                    nonlocal pokedex
+                    pokedex.prev()
+                    await interaction.message.edit(embed = pokedex.embed)
                     await interaction.response.defer()
                 prev.callback = prevCallback
 
                 next = discord.ui.Button(label = " ", emoji = "➡️")
                 async def nextCallback(interaction):
-                    nonlocal page, user
-                    page = (page + 1) % (int(poke_count/20)+1)
-                    await interaction.message.edit(embed = await self.get_pokedex_embed(user, page))
+                    nonlocal pokedex
+                    pokedex.next()
+                    await interaction.message.edit(embed = pokedex.embed)
                     await interaction.response.defer()
                 next.callback = nextCallback
 
                 closedView.add_item(open)
+                closedView.add_item(shinies)
                 openedView.add_item(prev)
                 openedView.add_item(close)
                 openedView.add_item(next)
 
 
-                await interaction.response.send_message(embed=await self.get_closed_pokedex(user), view = closedView)
+                await interaction.response.send_message(embed=pokedex.embed, view = closedView)
 
             else:
                 await interaction.response.send_message("This command isn't supported for bots.")
