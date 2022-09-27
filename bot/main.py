@@ -46,7 +46,7 @@ async def on_ready():
         await setup_func(bot.guilds[i])
 
     #Appearance
-    game = discord.Game('send "ping" to see prefix')
+    game = discord.Game('Now with slash commands!')
     await bot.change_presence(status=discord.Status.online, activity=game)
     random.seed(time.time())
     print("Bot is ready")
