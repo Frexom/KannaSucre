@@ -1,4 +1,4 @@
-from connection import *
+    from connection import *
 from prefix import *
 from perms import *
 from bot import *
@@ -29,7 +29,7 @@ class slashAdmin(commands.Cog):
             if interaction.user.guild_permissions.ban_members:
                 if not user.guild_permissions.ban_members:
                     if reason is not None:
-                        await user.send("you have been banned from **" + str(interaction.guild.name) + "**.\nReason : `" + reason + "`.")
+                        await user.send("You have been banned from **" + str(interaction.guild.name) + "**.\nReason : `" + reason + "`.")
                     else:
                         await user.send("You have been banned from **" + str(interaction.guild.name) + "**.\nNo reason given.")
                     await user.ban(reason = (reason or "No reason given.") + " / Triggered by " + interaction.user.name)
@@ -47,7 +47,7 @@ class slashAdmin(commands.Cog):
             if interaction.user.guild_permissions.manage_guild:
                 if channel is None:
                     channel = 0
-                    await interaction.response.send_message("Welcome feature disabled, use `/welcome channel : ...` to restore it. ")
+                    await interaction.response.send_message("Welcome feature disabled, use `/welcome channel : ...` to restore it.")
                 else:
                     channel = channel.id
                     await interaction.response.send_message("Welcome messages will now be sent in <#" + str(channel) + ">.")
@@ -67,7 +67,7 @@ class slashAdmin(commands.Cog):
             if interaction.user.guild_permissions.manage_guild:
                 if channel is None:
                     channel = 0
-                    await interaction.response.send_message("Announcements feature disabled, use `/announcements channel : ...` to restore it. ")
+                    await interaction.response.send_message("Announcements feature disabled, use `/announcements channel : ...` to restore it.")
                 else:
                     channel = channel.id
                     await interaction.response.send_message("Announcements messages will now be sent in <#" + str(channel) + ">.")

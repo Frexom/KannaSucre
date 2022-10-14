@@ -59,7 +59,7 @@ class slashModeration(commands.Cog):
                     if reason is None:
                         await user.send("You have been kicked from **" + str(interaction.guild.name) + "**.\nNo reason given.")
                     else:
-                        await user.send("you have been kicked from **" + str(interaction.guild.name) + "**.\nReason : `" + reason + "`.")
+                        await user.send("You have been kicked from **" + str(interaction.guild.name) + "**.\nReason : `" + reason + "`.")
                     await user.kick(reason = (reason or "No reason given.") + " / Triggered by " + interaction.user.name)
                     await interaction.response.send_message(content="User kicked.", ephemeral = True)
                 else:
