@@ -12,8 +12,6 @@ class slashUtilities(commands.Cog):
         async def dice(self, interaction: discord.Interaction, max: int = 6):
             if not interaction.user.bot:
                 await interaction.response.send_message("Rolled **" + str(random.randint(1, max)) + "** between 1 and " + str(max) + "!")
-            else:
-                await interaction.response("Please input both min **and** max, or none.")
 
 
         @app_commands.command(name = "servericon", description = "Shows the server's icon!")
