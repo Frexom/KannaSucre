@@ -53,11 +53,13 @@ class slashFun(commands.Cog):
                 "https://images-ext-1.discordapp.net/external/2TAL2AoHlWYA2U4lStmtWb8CCo0S417XnedHFaz9uaw/%3Fitemid%3D19674705/https/media1.tenor.com/images/f7b6be96e8ebb23319b43304da0e1118/tenor.gif"
           ]
           if interaction.user == user:
-              e = discord.Embed(title=str(interaction.user.display_name) + ", I see you're lonely, take my hug! :heart:")
+              title = await getLocalString(interaction.guild.id, "strings", "hugLonely", [("user", interaction.user.display_name)])
+              e = discord.Embed(title=title)
               link = "https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif"
               e.set_image(url=link)
           else:
-              e = discord.Embed(title=str(user.display_name) + ", you have been hugged by " + str(interaction.user.display_name) + " :heart:")
+              title = await getLocalString(interaction.guild.id, "strings", "hugUser", [("user", user.display_name), ("otherUser", interaction.user.display_name)])
+              e = discord.Embed(title=title)
               link = str(hugList[random.randint(0, len(hugList) - 1)])
               e.set_image(url= link)
           await interaction.response.send_message(content = (user.mention or None) + "\n" + link,embed=e)
@@ -78,6 +80,7 @@ class slashFun(commands.Cog):
         stand = await cursor.fetchone()
         await connection.commit()
         await close_conn(connection, cursor)
-        e = discord.Embed(title = interaction.user.display_name + ", your stand is **" + stand[0] + "**.", colour=discord.Colour(0x635f))
+        title = await getLocalString(interaction.guild.id, "strings", "userStand", [("user", interaction.user.display_name), ("standName", stand[0])])
+        e = discord.Embed(title = title, colour=discord.Colour(0x635f))
         e.set_image(url=stand[1])
         await interaction.response.send_message (content = stand[1], embed = e)

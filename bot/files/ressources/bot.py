@@ -10,6 +10,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 from prefix import *
+from locales import *
 
 load_dotenv()
 

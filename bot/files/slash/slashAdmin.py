@@ -1,4 +1,4 @@
-    from connection import *
+from connection import *
 from prefix import *
 from perms import *
 from bot import *
@@ -16,7 +16,8 @@ class slashAdmin(commands.Cog):
             if interaction.user.guild_permissions.manage_guild:
                 connection, cursor = await get_conn("./files/ressources/bot.db")
                 await cursor.execute("UPDATE guilds SET guild_prefix = ? WHERE guild_id = ?", (prefix, interaction.guild.id))
-                await interaction.response.send_message("My prefix for this server now is `" + str(prefix) + "` :)")
+                content = await getLocalString(interaction.guild.id, "strings", "newPrefix", [("prefix", str(prefix))])
+                await interaction.response.send_message(content = content)
                 await connection.commit()
                 await close_conn(connection, cursor)
             else:
@@ -29,11 +30,14 @@ class slashAdmin(commands.Cog):
             if interaction.user.guild_permissions.ban_members:
                 if not user.guild_permissions.ban_members:
                     if reason is not None:
-                        await user.send("You have been banned from **" + str(interaction.guild.name) + "**.\nReason : `" + reason + "`.")
+                        content = await getLocalString(interaction.guild.id, "strings", "banReason", [("guild", interaction.guild.name), ("reason", reason)])
+                        await user.send(content = content)
                     else:
-                        await user.send("You have been banned from **" + str(interaction.guild.name) + "**.\nNo reason given.")
+                        content = await getLocalString(interaction.guild.id, "strings", "banNoReason", [("guild", interaction.guild.name)])
+                        await user.send(content = content)
                     await user.ban(reason = (reason or "No reason given.") + " / Triggered by " + interaction.user.name)
-                    await interaction.response.send_message("User banned.", ephemeral = True)
+                    content = await getLocalString(interaction.guild.id, "strings", "userBanned", [])
+                    await interaction.response.send_message(content = content)
                 else:
                     await lack_perms(interaction, "ban")
             else:
@@ -47,10 +51,12 @@ class slashAdmin(commands.Cog):
             if interaction.user.guild_permissions.manage_guild:
                 if channel is None:
                     channel = 0
-                    await interaction.response.send_message("Welcome feature disabled, use `/welcome channel : ...` to restore it.")
+                    content = await getLocalString(interaction.guild.id, "strings", "welcomeDisabled", [])
+                    await interaction.response.send_message(content = content)
                 else:
                     channel = channel.id
-                    await interaction.response.send_message("Welcome messages will now be sent in <#" + str(channel) + ">.")
+                    content = await getLocalString(interaction.guild.id, "strings", "welcomeChannel", [("channel", channel)])
+                    await interaction.response.send_message(content = content)
 
                 connection, cursor = await get_conn("./files/ressources/bot.db")
                 await cursor.execute("UPDATE guilds SET guild_welcome_channel_id = ? WHERE guild_id=?", (channel, interaction.guild.id))
@@ -67,9 +73,11 @@ class slashAdmin(commands.Cog):
             if interaction.user.guild_permissions.manage_guild:
                 if channel is None:
                     channel = 0
-                    await interaction.response.send_message("Announcements feature disabled, use `/announcements channel : ...` to restore it.")
+                    content = await getLocalString(interaction.guild.id, "strings", "announcementsDisabled", [])
+                    await interaction.response.send_message(content = content)
                 else:
                     channel = channel.id
+                    content = await getLocalString(interaction.guild.id, "strings", "announcementsChannel", [("channel", channel)])
                     await interaction.response.send_message("Announcements messages will now be sent in <#" + str(channel) + ">.")
 
                 connection, cursor = await get_conn("./files/ressources/bot.db")

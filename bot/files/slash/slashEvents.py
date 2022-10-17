@@ -9,18 +9,19 @@ async def on_app_command_error(interaction : discord.Interaction, error: discord
         error = error.original
 
     if (isinstance(error, discord.Forbidden)):
-        await interaction.response.send_message("I don't have enough permissions to do that!")
+        await interaction.response.send_message(await getLocalString(interaction.guild.id, "strings", "kannaMissPerms", []))
 
     #Error report
     else:
         me = await bot.fetch_user(os.environ['OWNER_ID'])
-        await me.send(error)
 
+        await me.send("Error : \n"+str(error))
+        content = await getLocalString(interaction.guild.id, "strings", "kannaError", [])
         try:
-            await interaction.response.send_message("There was an error, it will be reported to staff.");
+            await interaction.response.send_message(content = content);
         except Exception as e:
             try:
-                await interaction.followup.send("There was an error, it will be reported to staff.", view = None, embed = None)
+                await interaction.followup.send(content = content, view = None, embed = None)
             except Exception:
                 return
     return

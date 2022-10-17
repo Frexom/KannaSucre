@@ -101,6 +101,7 @@ class Pokemon:
                 self.current_link = 1
                 self.alt = 0
                 self.update_properties()
+
             else:
                 raise ValueError(f"Poke_id must be between 0 and {poke_count}.")
         else:
@@ -322,7 +323,7 @@ class Pokedex():
         embed=discord.Embed(title = str(self.user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count) + " pokemons")
         embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
         embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
-        
+
         embed.set_footer(text = "page " + str(self.page+1) + "/" + str(int(poke_count/20)+1))
         return embed
 
