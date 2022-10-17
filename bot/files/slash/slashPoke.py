@@ -40,14 +40,14 @@ class slashPoke(commands.Cog):
                     await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
                 await connection.commit()
 
-                pokemon = Pokemon()
+                pokemon = Pokemon(guildID = interaction.guild.id)
 
                 await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (userID, pokemon.id, pokemon.alt ))
                 is_obtained = await cursor.fetchone()
 
                 #Second chance
                 if(is_obtained):
-                        pokemon = Pokemon(201)
+                        pokemon = Pokemon(guildID = interaction.guild.id)
 
                 await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (userID, pokemon.id, pokemon.alt ))
                 is_obtained = await cursor.fetchone()
@@ -129,7 +129,7 @@ class slashPoke(commands.Cog):
                         raise TypeError
 
 
-                    pokemon = Pokemon(poke_id)
+                    pokemon = Pokemon(guildID = interaction.guild.id, pokeID = poke_id)
                     buttonView = pokeView(interaction, 20)
 
                 #Callback definition, and buttons generation
