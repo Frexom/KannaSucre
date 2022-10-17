@@ -25,10 +25,10 @@ def get_shiny():
 
 def get_pokemon_id(rarity: int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
-    cursor.execute("SELECT poke_id, poke_name FROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
+    cursor.execute("SELECT poke_idFROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
     temp = cursor.fetchone()
     close_static_conn(connection, cursor)
-    return temp
+    return temp[0]
 
 def get_pokemon_alt(poke_id:int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
@@ -93,10 +93,12 @@ def get_evolutions(poke_id: int, poke_alt: int):
 
 
 class Pokemon:
-    def __init__(self, poke_id: int = None):
-        if poke_id is not None:
-            if poke_id <= poke_count and poke_id > 0:
-                self.id = poke_id
+    def __init__(self, guildID: int, pokeID: int = None):
+        self.guildID = guildID
+
+        if pokeID is not None:
+            if pokeID <= poke_count and pokeID > 0:
+                self.id = pokeID
                 self.shiny = False
                 self.current_link = 1
                 self.alt = 0
@@ -108,22 +110,21 @@ class Pokemon:
             self.rarity = get_rarity()
             self.shiny = get_shiny()
             self.id = get_pokemon_id(self.rarity[0])
-            self.name = self.id[1]
-            self.id = self.id[0]
+            self.name = getLocalStaticString(self.guildID, "poke", "name"+str(self.id), [])
             self.alt = get_pokemon_alt(self.id)
             self.genre = get_pokemon_genre(self.id, self.alt)
             self.link = get_pokemon_link(self.id, self.alt, self.genre, self.shiny)
 
     def update_properties(self):
         connection, cursor = get_static_conn("./files/ressources/bot.db")
-        cursor.execute("SELECT poke_name, poke_desc, pokelink_normal, pokelink_shiny, pokelink_sex, pokelink_label FROM pokedex JOIN pokelink USING(poke_id) WHERE poke_id = ? AND pokelink_alt = ?", (self.id, self.alt))
+        cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_sex, pokelink_label FROM pokedex JOIN pokelink USING(poke_id) WHERE poke_id = ? AND pokelink_alt = ?", (self.id, self.alt))
         temp = cursor.fetchone()
-        self.name = temp[0]
-        self.description = temp[1]
-        self.link = temp[2]
-        self.shiny_link = temp[3]
-        self.genre = temp[4]
-        self.label = temp[5]
+        self.name = getLocalStaticString(self.guildID, "poke", "name"+str(self.id), [])
+        self.description = getLocalStaticString(self.guildID, "poke", "desc"+str(self.id), [])
+        self.link = temp[0]
+        self.shiny_link = temp[1]
+        self.genre = temp[2]
+        self.label = temp[3]
         cursor.execute("SELECT COUNT(*) FROM pokelink WHERE poke_id = ?", (self.id, ))
         self.pokelinks = cursor.fetchone()
         self.pokelinks = self.pokelinks[0]
