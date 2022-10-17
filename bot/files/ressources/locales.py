@@ -22,6 +22,6 @@ async def getLocalString(guildID:int, filename:str, key:str, values:list):
             raise ValueError("String has not been found")
 
         for tuple in values:
-            string = string.replace('{'+tuple[0]+'}', tuple[1])
+            string = string.replace('{'+tuple[0]+'}', str(tuple[1]))
         string = string.replace('\\n', '\n')
         return string
