@@ -11,13 +11,18 @@ class slashUtilities(commands.Cog):
         @app_commands.describe(max="The largest number included.")
         async def dice(self, interaction: discord.Interaction, max: int = 6):
             if not interaction.user.bot:
-                await interaction.response.send_message("Rolled **" + str(random.randint(1, max)) + "** between 1 and " + str(max) + "!")
+                content = await getLocalString(interaction.guild.id, "strings", "diceRoll", [("randomNumber", str(random.randint(1, max))), ("maxNumber", max)])
+                await interaction.response.send_message(content = content)
 
 
         @app_commands.command(name = "servericon", description = "Shows the server's icon!")
         async def servericon(self, interaction: discord.Interaction):
             if not interaction.user.bot :
-                await interaction.response.send_message(interaction.guild.icon.url or "This server does not have an icon.")
+                if(interaction.guild.icon is None):
+                    content = await getLocalString(interaction.guild.id, "strings", "servericon", [])
+                    await interaction.response.send_message(content = content)
+                else:
+                    await interaction.response.send_message(content = interaction.guild.icon.url)
 
 
         @app_commands.command(name = "usericon", description = "Shows an user's avatar!")
@@ -26,7 +31,8 @@ class slashUtilities(commands.Cog):
             if not interaction.user.bot :
                 if member == None:
                     member = interaction.user
-                await interaction.response.send_message(member.display_avatar.url or "This user does not have an icon.")
+                content = getLocalString(interaction.guild.id, "strings", "usericon", [])
+                await interaction.response.send_message(member.display_avatar.url or content)
 
         @app_commands.command(name="help", description="Get some help about the commands!")
         @app_commands.describe(command="Name of the command you want the details of!")
