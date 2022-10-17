@@ -1,0 +1,53 @@
+pokeCatch&Congratulation {user}, you got {pokeName}.
+pokeRarity&This is a {rarity} pokémon.
+pokeAlready&You already had that pokémon.😕
+pokeExtraRolls&Rolls +{number}.
+rollsHours&{user}, your next roll will be available in {hours} hour {minutes} minutes.\nRolls : {number}.
+rollsMinutes&{user}, your next roll will be available in {minutes} minutes.\nRolls : {number}.
+pokeNewForm&You already had that Pokémon, but that's a new form!🆕
+common&Common
+uncommon&Uncommon
+rare&Rare
+superRare&Super Rare
+legendary&Legendary
+missingPerms&I'm sorry but you don't meet the requirements to run that command : `{commandName}`.\nThis command requires the following permission : `{permission}`.
+lackPerms&I'm sorry but the command target has as much as or more permissions than you. You can't target them with the following command : `{commandName}`.
+normal&Normal
+male&Male
+female&Female
+chooseEvolution&Choose an evolution
+description&Description
+evolution&Evolution
+Has evolved by &Has evolved by
+userPokedex&{user}'s Pokédex
+shinies&Shinies✨ :
+shinyPoke&shiny pokémons
+noPoke&No pokémons.
+newPrefix&My prefix for this server now is `{prefix}` :)
+banReason&You have been banned from **{guild}**.\nReason : `{reason}`.
+banNoReason&You have been banned from **{guild}**.\nNo reason given.
+userBanned&User banned.
+welcomeDisabled&Welcome feature disabled, use `/welcome channel : ...` to restore it.
+welcomeChannel&Welcome messages will now be sent in <#{channel}>.
+announcementsDisabled&Announcements feature disabled, use `/announcements channel : ...` to restore it.
+announcementsChannel&Announcements messages will now be sent in <#{channel}>.
+kannaMissPerms&I don't have enough permissions to do that!
+kannaError&There was an error, it will be reported to staff.
+hugLonely&{user}, I see you're lonely, take my hug! ❤️
+hugUser&{user}, you have been hugged by {otherUser}❤️
+userStand&{user}, your stand is **{standName}**.
+pruneUser&{number} messages from `{user}` were deleted on `{guild}`.
+clearMessages&{number} messages were deleted :D
+clearMore&You can't clear more than 50 messages at the same time.
+kickNoReason&You have been kicked from **{guild}**.\nNo reason given.
+kickReason&You have been kicked from **{guild}**.\nReason : `{reason}`.
+userKicked&User kicked.
+isShiny&\nWait!! Is it shiny??? ✨
+pokeinfoNorFound&Not found :(
+pokeinfoNoSuch&No such pokemon.
+pokeinfoInput&Please input either the Pokémon's ID or name.
+commandBot&This command isn't supported for bots.
+rollsAvailable&{user}, your poke roll is available.\nRolls : `{number}`.
+diceRoll&Rolled **{randomNumber}** between 1 and {maxNumber}!
+servericon&This server does not have an icon.
+usericon&This user does not have an icon.
