@@ -11,7 +11,7 @@ async def setup_func(guild):
 	connection, cursor = await get_conn("./files/ressources/bot.db")
 	await cursor.execute("SELECT guild_id FROM guilds WHERE guild_id = ?", (guild.id, ))
 	if await cursor.fetchone() == None:
-		await cursor.execute("INSERT INTO guilds(guild_id, guild_prefix) VALUES(?, '!')", (guild.id, ))
+		await cursor.execute("INSERT INTO guilds(guild_id, guild_prefix, guild_locale) VALUES(?, '!', 'en')", (guild.id, ))
 		for user in guild.members :
 			if not user.bot:
 				await cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user.id, ))
