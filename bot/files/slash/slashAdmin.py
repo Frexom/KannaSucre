@@ -86,3 +86,21 @@ class slashAdmin(commands.Cog):
                 await close_conn(connection, cursor)
             else:
                 await missing_perms(interaction, "announcements", "manage guild")
+
+    @app_commands.command(name="language", description="Defines the language the bot uses on this server!")
+    @app_commands.choices(language=[
+        app_commands.Choice(name="English", value="en")
+        ,app_commands.Choice(name="French", value="fr")
+#        ,app_commands.Choice(name="French", value="es")
+    ])
+    @app_commands.describe(language="The language you want KannaSucre to use.")
+    async def language(self, interaction: discord.Interaction, language: app_commands.Choice[str]):
+        if not interaction.user.bot:
+            if interaction.user.guild_permissions.manage_guild:
+                connection, cursor = await get_conn("./files/ressources/bot.db")
+                await cursor.execute("UPDATE guilds SET guild_locale = ? WHERE guild_id = ?", (language.value, interaction.guild.id))
+                await connection.commit()
+                content = await getLocalString(interaction.guild.id, "strings", "newLanguage", [])
+                await interaction.response.send_message(content="The language is now French")
+            else:
+                await missing_perms(interaction, "language", "manage guild")
