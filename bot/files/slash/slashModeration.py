@@ -31,8 +31,8 @@ class slashModeration(commands.Cog):
                         except Exception:
                             pass
 
-
-                    content = await getLocalString(interaction.guild.id, "strings", "pruneUser", [("number", str(mess_count)), ("user", user.name), ("guild", interaction.guild.name)])
+                    t = Translator(interaction.guild.id, loadStrings = True)
+                    content = t.getLocalString("pruneUser", [("number", str(mess_count)), ("user", user.name), ("guild", interaction.guild.name)])
                     await interaction.followup.send(content = content, ephemeral=True)
                 else:
                     await lack_perms(interaction, "prune")
@@ -45,19 +45,21 @@ class slashModeration(commands.Cog):
     async def clear(self, interaction: discord.Interaction, amount: int):
         if not interaction.user.bot :
             if interaction.user.guild_permissions.manage_messages:
+                t = Translator(interaction.guild.id, loadStrings=True)
                 if amount < 50:
                     await interaction.response.defer()
+
                     try:
                         mess_count = len(await interaction.channel.purge(limit = amount, before=datetime.now()-timedelta(seconds=1), reason = "Requested by " + interaction.user.name))
                     except Exception:
-                        content =  await getLocalString(interaction.guild.id, "strings", "noAccess", [])
+                        content =  t.getLocalString("noAccess", [])
                         await interaction.followup.send(content = content)
                         return
 
-                    content = await getLocalString(interaction.guild.id, "strings", "clearMessages", [("number", mess_count)])
+                    content = t.getLocalString("clearMessages", [("number", mess_count)])
                     await interaction.followup.send(content = content, ephemeral=True)
                 else:
-                    content = await getLocalString(interaction.guild.id, "strings", "clearMore", [])
+                    content = t.getLocalString("clearMore", [])
                     await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "clear", "manage messages")
@@ -69,15 +71,18 @@ class slashModeration(commands.Cog):
         if not interaction.user.bot :
             if interaction.user.guild_permissions.kick_members:
                 if not user.guild_permissions.kick_members:
+
+                    t = Translator(interaction.guild.id, loadStrings = True)
                     if reason is None:
-                        content = await getLocalString(interaction.guild.id, "strings", "kickNoReason", [("guild", interaction.guild.name)])
+                        content = t.getLocalString("kickNoReason", [("guild", interaction.guild.name)])
                         await user.send(content = content)
                     else:
-                        content = await getLocalString(interaction.guild.id, "strings", "kickReason", [("guild", interaction.guild.name), ("reason", reason)])
+                        content = t.getLocalString("kickReason", [("guild", interaction.guild.name), ("reason", reason)])
                         await user.send(content = content)
                     await user.kick(reason = (reason or "No reason given.") + " / Triggered by " + interaction.user.name)
-                    content = await getLocalString(interaction.guild.id, "strings", "userKicked", [])
+                    content = t.getLocalString("userKicked", [])
                     await interaction.response.send_message(content = content)
+
                 else:
                      await lack_perms(interaction, "kick")
             else:

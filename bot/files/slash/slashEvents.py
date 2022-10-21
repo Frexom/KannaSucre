@@ -9,14 +9,16 @@ async def on_app_command_error(interaction : discord.Interaction, error: discord
         error = error.original
 
     if (isinstance(error, discord.Forbidden)):
-        await interaction.response.send_message(await getLocalString(interaction.guild.id, "strings", "kannaMissPerms", []))
+        t = Translator(interaction.guild.id)
+        await interaction.response.send_message(content = t.getLocalString("kannaMissPerms", []))
 
     #Error report
     else:
         me = await bot.fetch_user(os.environ['OWNER_ID'])
 
         await me.send("Error : \n"+str(error))
-        content = await getLocalString(interaction.guild.id, "strings", "kannaError", [])
+        t = Translator(interaction.guild.id, loadStrings=True)
+        content = t.getLocalString("kannaError", [])
         try:
             await interaction.response.send_message(content = content);
         except Exception as e:
