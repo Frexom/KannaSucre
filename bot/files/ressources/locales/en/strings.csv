@@ -1,6 +1,6 @@
 pokeCatch&Congratulation {user}, you got {pokeName}.
-pokeRarity&This is a **{rarity}** pokémon.
-pokeAlready&You already had that pokémon.😕
+pokeRarity&This is a **{rarity}** Pokémon.
+pokeAlready&You already had that Pokémon.😕
 pokeExtraRolls&Rolls +{number}.
 rollsHours&{user}, your next roll will be available in {hours} hour {minutes} minutes.\nRolls : `{number}`.
 rollsMinutes&{user}, your next roll will be available in {minutes} minutes.\nRolls : `{number}`.
@@ -21,8 +21,8 @@ evolution&Evolution
 evolvedBy&Has evolved by
 userPokedex&{user}'s Pokédex
 shinies&Shinies✨ :
-shinyPoke&shiny pokémons
-noPoke&No pokémons.
+shinyPoke&shiny Pokémons
+noPoke&No Pokémons.
 newPrefix&My prefix for this server now is `{prefix}` :)
 banReason&You have been banned from **{guild}**.\nReason : `{reason}`.
 banNoReason&You have been banned from **{guild}**.\nNo reason given.
@@ -44,8 +44,8 @@ kickReason&You have been kicked from **{guild}**.\nReason : `{reason}`.
 userKicked&User kicked.
 isShiny&\nWait!! Is it shiny??? ✨
 pokeinfoNotFound&Not found :(
-pokeinfoNoSuch&No such pokemon.
-pokeinfoInput&Please input either the Pokémon's ID or name.
+pokeinfoNoSuch&No such Pokemon.
+pokeinfoInput&Please input either the Pokémon's ID or its name.
 commandBot&This command isn't supported for bots.
 rollsAvailable&{user}, your poke roll is available.\nRolls : `{number}`.
 diceRoll&Rolled **{randomNumber}** between 1 and {maxNumber}!

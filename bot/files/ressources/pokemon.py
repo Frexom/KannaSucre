@@ -25,7 +25,7 @@ def get_shiny():
 
 def get_pokemon_id(rarity: int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
-    cursor.execute("SELECT poke_idFROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
+    cursor.execute("SELECT poke_id FROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
     temp = cursor.fetchone()
     close_static_conn(connection, cursor)
     return temp[0]
