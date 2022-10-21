@@ -52,13 +52,15 @@ class slashFun(commands.Cog):
                 "https://images-ext-1.discordapp.net/external/q5s6oHF9R6FwOHPrUxly-Oi0nO-YUmO7BQrtXl-8CNI/%3Fitemid%3D7552087/https/media1.tenor.com/images/03ff67460b3e97cf13aac5d45a072d22/tenor.gif",
                 "https://images-ext-1.discordapp.net/external/2TAL2AoHlWYA2U4lStmtWb8CCo0S417XnedHFaz9uaw/%3Fitemid%3D19674705/https/media1.tenor.com/images/f7b6be96e8ebb23319b43304da0e1118/tenor.gif"
           ]
+
+          t = Translator(interaction.guild.id, loadStrings=True)
           if interaction.user == user:
-              title = await getLocalString(interaction.guild.id, "strings", "hugLonely", [("user", interaction.user.display_name)])
+              title = t.getLocalString("hugLonely", [("user", interaction.user.display_name)])
               e = discord.Embed(title=title)
               link = "https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif"
               e.set_image(url=link)
           else:
-              title = await getLocalString(interaction.guild.id, "strings", "hugUser", [("user", user.display_name), ("otherUser", interaction.user.display_name)])
+              title = t.getLocalString("hugUser", [("user", user.display_name), ("otherUser", interaction.user.display_name)])
               e = discord.Embed(title=title)
               link = str(hugList[random.randint(0, len(hugList) - 1)])
               e.set_image(url= link)
@@ -80,7 +82,8 @@ class slashFun(commands.Cog):
         stand = await cursor.fetchone()
         await connection.commit()
         await close_conn(connection, cursor)
-        title = await getLocalString(interaction.guild.id, "strings", "userStand", [("user", interaction.user.display_name), ("standName", stand[0])])
+        t = Translator(interaction.guild.id, loadStrings = True)
+        title = t.getLocalString("userStand", [("user", interaction.user.display_name), ("standName", stand[0])])
         e = discord.Embed(title = title, colour=discord.Colour(0x635f))
         e.set_image(url=stand[1])
         await interaction.response.send_message (content = stand[1], embed = e)

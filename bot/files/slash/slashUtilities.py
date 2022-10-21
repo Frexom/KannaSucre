@@ -11,7 +11,9 @@ class slashUtilities(commands.Cog):
         @app_commands.describe(max="The largest number included.")
         async def dice(self, interaction: discord.Interaction, max: int = 6):
             if not interaction.user.bot:
-                content = await getLocalString(interaction.guild.id, "strings", "diceRoll", [("randomNumber", str(random.randint(1, max))), ("maxNumber", max)])
+                t = Translator(interaction.guild.id, loadStrings = True)
+                number = str(random.randint(1, max))
+                content = t.getLocalString("diceRoll", [("randomNumber", number), ("maxNumber", max)])
                 await interaction.response.send_message(content = content)
 
 
@@ -19,7 +21,8 @@ class slashUtilities(commands.Cog):
         async def servericon(self, interaction: discord.Interaction):
             if not interaction.user.bot :
                 if(interaction.guild.icon is None):
-                    content = await getLocalString(interaction.guild.id, "strings", "servericon", [])
+                    t = Translator(interaction.guild.id, loadStrings = True)
+                    content = t.getLocalString("servericon", [])
                     await interaction.response.send_message(content = content)
                 else:
                     await interaction.response.send_message(content = interaction.guild.icon.url)
@@ -31,7 +34,8 @@ class slashUtilities(commands.Cog):
             if not interaction.user.bot :
                 if member == None:
                     member = interaction.user
-                content = getLocalString(interaction.guild.id, "strings", "usericon", [])
+                t = Translator(interaction.guild.id, loadStrings = True)
+                content = t.getLocalString("usericon", [])
                 await interaction.response.send_message(member.display_avatar.url or content)
 
         @app_commands.command(name="help", description="Get some help about the commands!")

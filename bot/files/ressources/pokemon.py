@@ -95,6 +95,7 @@ def get_evolutions(poke_id: int, poke_alt: int):
 class Pokemon:
     def __init__(self, guildID: int, pokeID: int = None):
         self.guildID = guildID
+        self.translator = Translator(self.guildID, loadStrings = True, loadPoke = True)
 
         if pokeID is not None:
             if pokeID <= poke_count and pokeID > 0:
@@ -110,7 +111,7 @@ class Pokemon:
             self.rarity = get_rarity()
             self.shiny = get_shiny()
             self.id = get_pokemon_id(self.rarity[0])
-            self.name = getLocalStaticString(self.guildID, "poke", "name"+str(self.id), [])
+            self.name = self.translator.getLocalPokeString("name"+str(self.id))
             self.alt = get_pokemon_alt(self.id)
             self.genre = get_pokemon_genre(self.id, self.alt)
             self.link = get_pokemon_link(self.id, self.alt, self.genre, self.shiny)
@@ -119,8 +120,9 @@ class Pokemon:
         connection, cursor = get_static_conn("./files/ressources/bot.db")
         cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_sex, pokelink_label FROM pokedex JOIN pokelink USING(poke_id) WHERE poke_id = ? AND pokelink_alt = ?", (self.id, self.alt))
         temp = cursor.fetchone()
-        self.name = getLocalStaticString(self.guildID, "poke", "name"+str(self.id), [])
-        self.description = getLocalStaticString(self.guildID, "poke", "desc"+str(self.id), [])
+
+        self.name = self.translator.getLocalPokeString("name"+str(self.id))
+        self.description = self.translator.getLocalPokeString("desc"+str(self.id))
         self.link = temp[0]
         self.shiny_link = temp[1]
         self.genre = temp[2]
