@@ -1,55 +1,55 @@
-pokeCatch&Congratulation {user}, you got {pokeName}.
-pokeRarity&This is a **{rarity}** pokémon.
-pokeAlready&You already had that pokémon.😕
-pokeExtraRolls&Rolls +{number}.
-rollsHours&{user}, your next roll will be available in {hours} hour {minutes} minutes.\nRolls : `{number}`.
-rollsMinutes&{user}, your next roll will be available in {minutes} minutes.\nRolls : `{number}`.
-pokeNewForm&You already had that Pokémon, but that's a new form!🆕
-common&Common
-uncommon&Uncommon
+pokeCatch&Félicitations {user}, tu as attrapé {pokeName}.
+pokeRarity&C'est un pokémon {rarity}.
+pokeAlready&Tu as déjà attrapé ce Pokémon.😕
+pokeExtraRolls&Pokéballs +{number}.
+rollsHours&{user}, ta prochaine Pokéball sera disponible dans {hours} heure {minutes} minutes.\nPokéballs: `{number}`.
+rollsMinutes&{user}, ta prochaine Pokéball sera disponible dans {minutes} minutes.\nPokéballs: `{number}`.
+pokeNewForm&Tu as déjà attrapé ce Pokémon, mais c'est une nouvelle forme !🆕
+common&Commun
+uncommon&Peu commun
 rare&Rare
 superRare&Super Rare
-legendary&Legendary
-missingPerms&I'm sorry but you don't meet the requirements to run that command : `{commandName}`.\nThis command requires the following permission : `{permission}`.
-lackPerms&I'm sorry but the command target has as much as or more permissions than you. You can't target them with the following command : `{commandName}`.
+legendary&Légendaire
+missingPerms&Je suis désolée mais vous ne remplissez pas les conditions pour exécuter cette commande : `{commandName}`.\nCette commande nécessite la permission suivante : `{permission}`.
+lackPerms&Je suis désolée mais la personne ciblée a autant ou plus de permissions que vous. Vous ne pouvez pas la cibler avec cette commande : `{commandName}`.
 normal&Normal
-male&Male
-female&Female
-chooseEvolution&Choose an evolution
+male&Mâle
+female&Femelle
+chooseEvolution&Choisis une évolution
 description&Description
-evolution&Evolution
-evolvedBy&Has evolved by
-userPokedex&{user}'s Pokédex
-shinies&Shinies✨ :
-shinyPoke&shiny pokémons
-noPoke&No pokémons.
-newPrefix&My prefix for this server now is `{prefix}` :)
-banReason&You have been banned from **{guild}**.\nReason : `{reason}`.
-banNoReason&You have been banned from **{guild}**.\nNo reason given.
-userBanned&User banned.
-welcomeDisabled&Welcome feature disabled, use `/welcome channel : ...` to restore it.
-welcomeChannel&Welcome messages will now be sent in <#{channel}>.
-announcementsDisabled&Announcements feature disabled, use `/announcements channel : ...` to restore it.
-announcementsChannel&Announcements messages will now be sent in <#{channel}>.
-kannaMissPerms&I don't have enough permissions to do that!
-kannaError&There was an error, it will be reported to staff.
-hugLonely&{user}, I see you're lonely, take my hug! ❤️
-hugUser&{user}, you have been hugged by {otherUser}❤️
-userStand&{user}, your stand is **{standName}**.
-pruneUser&{number} messages from `{user}` were deleted on `{guild}`.
-clearMessages&{number} messages were deleted :D
-clearMore&You can't clear more than 50 messages at the same time.
-kickNoReason&You have been kicked from **{guild}**.\nNo reason given.
-kickReason&You have been kicked from **{guild}**.\nReason : `{reason}`.
-userKicked&User kicked.
-isShiny&\nWait!! Is it shiny??? ✨
-pokeinfoNotFound&Not found :(
-pokeinfoNoSuch&No such pokemon.
-pokeinfoInput&Please input either the Pokémon's ID or name.
-commandBot&This command isn't supported for bots.
-rollsAvailable&{user}, your poke roll is available.\nRolls : `{number}`.
-diceRoll&Rolled **{randomNumber}** between 1 and {maxNumber}!
-servericon&This server does not have an icon.
-usericon&This user does not have an icon.
-noAccess&Sorry, I don't have access to this channel.
-newLanguage&From now on, I'll speak English!
+evolution&Évolution
+evolvedBy&A évolué en
+userPokedex&Pokédex de {user}
+shinies&Chromatiques✨ :
+shinyPoke&Pokémons chromatiques
+noPoke&Aucun Pokémon.
+newPrefix&Mon préfixe sur ce serveur est maintenant `{prefix}` :)
+banReason&Vous avez été banni⋅e de **{guild}**.\nRaison : `{reason}`.
+banNoReason&Vous avez été banni⋅e de **{guild}**.\nAucune raison n'a été donnée.
+userBanned&Utilisateur banni.
+welcomeDisabled&Les messages de bienvenue et de départ sont désactivés, utilisez `/welcome channel : ...` pour les rétablir.
+welcomeChannel&Les messages de bienvenue seront maintenant envoyés dans <#{channel}>.
+announcementsDisabled&Messages d'annonces de KannaSucre désactivés, utilisez `/announcements channel : ...` pour les rétablir.
+announcementsChannel&Les messages d'annonces seront maintenant envoyés dans <#{channel}>.
+kannaMissPerms&Je n'ai pas assez de permissions pour faire cela !
+kannaError&Une erreur est survenue, elle sera signalée au programmeur.
+hugLonely&{user}, on dirait que tu te sens seul⋅e, prends mon câlin! ❤️
+hugUser&{user}, {otherUser} t'a fait un câlin ! ❤️
+userStand&{user}, tu es le porteur du stand **{standName}**.
+pruneUser&{number} messages de `{user}` ont été supprimés de `{guild}`.
+clearMessages&{number} messages ont été supprimés :D
+clearMore&Vous ne pouvez pas effacer plus de 50 messages en même temps.
+kickNoReason&Vous avez été expulsé⋅e de **{guild}**.\nAucune raison n'a été donnée.
+kickReason&Vous avez été expulsé⋅e de **{guild}**.\nMotif :`{reason}`.
+userKicked&Utilisateur expulsé.
+isShiny&\nIl est chromatique ?!? ✨
+pokeinfoNotFound&Introuvable :(
+pokeinfoNoSuch&Ce Pokémon n'existe pas.
+pokeinfoInput&J'ai besoin de l'ID du Pokémon ou de son nom.
+commandBot&Cette commande n'est pas prise en charge pour les bots.
+rollsAvailable&{user}, tu peux lancer une Pokéball.\nPokéballs:`{number}`.
+diceRoll&Tu as lancé un dé entre 1 et {maxNumber}, tu es tombé·e sur un **{randomNumber}** !
+servericon&Ce serveur ne possède pas d'icône.
+usericon&Cet utilisateur n'a pas de photo de profil.
+noAccess&Désolée, je n'ai pas accès à ce salon.
+newLanguage&À partir de maintenant, je parlerai français !
