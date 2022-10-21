@@ -101,6 +101,6 @@ class slashAdmin(commands.Cog):
                 await cursor.execute("UPDATE guilds SET guild_locale = ? WHERE guild_id = ?", (language.value, interaction.guild.id))
                 await connection.commit()
                 content = await getLocalString(interaction.guild.id, "strings", "newLanguage", [])
-                await interaction.response.send_message(content="The language is now French")
+                await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "language", "manage guild")

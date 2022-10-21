@@ -52,3 +52,4 @@ diceRoll&Rolled **{randomNumber}** between 1 and {maxNumber}!
 servericon&This server does not have an icon.
 usericon&This user does not have an icon.
 noAccess&Sorry, I don't have access to this channel.
+newLanguage&From now on, I'll speak English!
