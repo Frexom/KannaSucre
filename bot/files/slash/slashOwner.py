@@ -147,3 +147,9 @@ class slashOwner(commands.Cog):
             await interaction.followup.send(message, ephemeral=True)
         else:
             await interaction.response.send_message("You don't have the permission to use that.")
+
+    @app_commands.command(name="guildcount", description="Shows how many guilds the bot is in.")
+    async def guildCount(self, interaction: discord.Interaction):
+        guilds = len(bot.guilds)
+        content = "KannaSucre is in {} guilds., {} more to be verified!".format(guilds, 75-guilds)
+        await interaction.response.send_message(content = content)
