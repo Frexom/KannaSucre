@@ -115,16 +115,18 @@ class slashPoke(commands.Cog):
     @app_commands.command(name = "pokeinfo", description = "Shows a pokemon's details!")
     @app_commands.describe(id="The pokemon's pokedex ID.", name="The pokemon's name.")
     async def pokeinfo(self, interaction: discord.Interaction, id: int = None, name: str = None):
-        t = Translator(interaction.guild.id, loadStrings = True)
+        t = Translator(interaction.guild.id, loadStrings = True, loadPoke = True)
 
         if not interaction.user.bot:
             if id is not None or name is not None:
                 connection, cursor = await get_conn("./files/ressources/bot.db")
                 try:
                     if name is not None:
-                        await cursor.execute("SELECT poke_id FROM pokedex WHERE lower(poke_name) = lower(?)", (name, ))
-                        poke_id = await cursor.fetchone()
-                        poke_id = poke_id[0]
+
+                        #await cursor.execute("SELECT poke_id FROM pokedex WHERE lower(poke_name) = lower(?)", (name, ))
+                        #poke_id = await cursor.fetchone()
+                        #poke_id = poke_id[0]
+                        poke_id = t.getPokeIdByName(name.lower())
                     else:
                         poke_id = id
                     if poke_id > poke_count or poke_id <= 0 :

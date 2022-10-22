@@ -47,14 +47,14 @@ class Translator():
                     break
 
             if string is None:
-                raise ValueError("String has not been found")
+                raise KeyError("String {} has not been found".format(key))
 
             for tuple in values:
                 string = string.replace('{'+tuple[0]+'}', str(tuple[1]))
             string = string.replace('\\n', '\n')
             return string
         else:
-            raise ValueError("Must load strings.csv first")
+            raise EnvironmentError("Must load strings.csv first!")
 
 
     def getLocalPokeString(self, key:str):
@@ -65,7 +65,29 @@ class Translator():
                     string = row[1]
                     return string
 
-            raise ValueError("String has not been found")
-            
+            raise KeyError("String {} has not been found".format(key))
+
         else:
-            raise ValueError("Must load poke.csv first")
+            raise Environmentrror("Must load poke.csv first!")
+
+    def getPokeIdByName(self, name:str):
+        if(self.poke is not None):
+            for row in self.poke:
+                if(row[1].lower() == name):
+                    return int(row[0][4:])
+
+        if(self.locale != "en"):
+            file = './files/ressources/locales/en/poke.csv'
+            with open(file) as f:
+                reader = csv.reader(f, delimiter ="&")
+
+                for row in reader:
+                    if(row[1].lower() == name):
+                        return int(row[0][4:])
+
+
+
+
+            raise TypeError("Pokemon does not exist!")
+        else:
+            raise EnvironmentError("Must load poke.csv first!")
