@@ -4,18 +4,23 @@ from bot import *
 poke_count = 809
 
 
-def get_rarity():
+
+
+def get_rarity(guildID: int):
+    t = Translator(guildID, loadStrings = True)
     rand = random.randint(1, 100)
     if rand == 100:
-        return [5, "legendary"]
+        return [5, t.getLocalString("legendary", [])]
     elif rand >= 95 and rand <= 99:
-        return [4, "Super Rare"]
+        return [4, t.getLocalString("superRare", [])]
     elif rand >= 80 and rand <=94:
-        return [3, "Rare"]
+        return [3, t.getLocalString("rare", [])]
     elif rand >= 55 and rand <=79:
-        return [2, "Uncommon"]
+        return [2, t.getLocalString("uncommon", [])]
     else:
-        return [1, "Common"]
+        return [1, t.getLocalString("common", [])]
+
+
 
 def get_shiny():
     rand = random.randint(1, 256)
@@ -108,7 +113,7 @@ class Pokemon:
             else:
                 raise ValueError(f"Poke_id must be between 0 and {poke_count}.")
         else:
-            self.rarity = get_rarity()
+            self.rarity = get_rarity(guildID)
             self.shiny = get_shiny()
             self.id = get_pokemon_id(self.rarity[0])
             self.name = self.translator.getLocalPokeString("name"+str(self.id))
@@ -203,9 +208,11 @@ class Pokemon:
             e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + poke_sex, description = self.label + " form")
             e.set_image(url=self.link)
 
-        e.add_field(name = "Description : ", value=self.description)
+        e.add_field(name = self.translator.getLocalString("description", []) + " :", value=self.description)
         if(self.devolution is not None):
-            e.add_field(name = "Evolution : ", value = "Has evolved by " + self.devolution[2], inline=False)
+            value = self.translator.getLocalString("evolvedBy", [])
+            name = self.translator.getLocalString("evolution", [])
+            e.add_field(name = name + " :", value = value + self.devolution[2], inline=False)
         e.set_footer(text = "page " + str(self.current_link) + "/" + str(self.pokelinks))
         return e
 

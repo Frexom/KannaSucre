@@ -1,5 +1,5 @@
 pokeCatch&Félicitations {user}, tu as attrapé {pokeName}.
-pokeRarity&C'est un pokémon {rarity}.
+pokeRarity&C'est un pokémon **{rarity}**.
 pokeAlready&Tu as déjà attrapé ce Pokémon.😕
 pokeExtraRolls&Pokéballs +{number}.
 rollsHours&{user}, ta prochaine Pokéball sera disponible dans {hours} heure {minutes} minutes.\nPokéballs: `{number}`.
@@ -18,7 +18,7 @@ female&Femelle
 chooseEvolution&Choisis une évolution
 description&Description
 evolution&Évolution
-evolvedBy&A évolué en
+evolvedBy&A évolué en 
 userPokedex&Pokédex de {user}
 shinies&Chromatiques✨ :
 shinyPoke&Pokémons chromatiques
