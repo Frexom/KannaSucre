@@ -1,5 +1,6 @@
 from bot import *
 
+from traceback import format_exc
 
 
 @bot.tree.error
@@ -15,8 +16,16 @@ async def on_app_command_error(interaction : discord.Interaction, error: discord
     #Error report
     else:
         me = await bot.fetch_user(os.environ['OWNER_ID'])
+        message = format_exc()
+        if len(message) >= 2000:
+            message = message.splitlines()
+            middle = int(len(message)/2)
 
-        await me.send("Error : \n"+str(error))
+            await me.send('\n'.join(message[:middle]))
+            await me.send('\n'.join(message[middle:]))
+        else:
+            await me.send()
+
         t = Translator(interaction.guild.id, loadStrings=True)
         content = t.getLocalString("kannaError", [])
         try:
