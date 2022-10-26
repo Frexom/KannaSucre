@@ -25,7 +25,7 @@ class PokeDropdown(discord.ui.Select):
 
 
 class pokeView(discord.ui.View):
-    def __init__(self,interaction: discord.Interaction, timeout:int = 20):
+    def __init__(self,interaction: discord.Interaction, timeout:int = 90):
         super().__init__(timeout = timeout)
         self.interaction = interaction;
 
