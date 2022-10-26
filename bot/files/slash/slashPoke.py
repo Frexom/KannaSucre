@@ -266,7 +266,7 @@ class slashPoke(commands.Cog):
             if not user.bot:
                 closedView = pokeView(interaction, 20)
                 openedView = pokeView(interaction, 20)
-                pokedex = Pokedex(user, page-1)
+                pokedex = Pokedex(interaction.guild.id, user, page-1)
 
                 open = discord.ui.Button(label = "Open", emoji = "🌐")
                 async def openCallback(interaction):

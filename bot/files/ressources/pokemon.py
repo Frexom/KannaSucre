@@ -232,11 +232,12 @@ class Pokemon:
 
 
 class Pokedex():
-    def __init__(self, user: discord.User, page: int = 0):
+    def __init__(self, guildID: int, user: discord.User, page: int = 0):
         self.page = page
         self.user = user
         self.shiny = False
         self.embed = self.__get_closed_pokedex()
+        self.translator = Translator(guildID, loadPoke = True, loadStrings = True)
 
     def next(self):
         self.page += 1
@@ -313,7 +314,7 @@ class Pokedex():
         self.page = (self.page) % (int(poke_count/20)+1)
 
         if Pokemons == [] :
-            list_pokemons = "No pokemons."
+            list_pokemons = self.translator.getLocalString("noPoke", [])
         else:
             list_pokemons = ""
             list_index = 0
@@ -322,17 +323,20 @@ class Pokedex():
             for i in range(self.page*20, self.page*20+20):
                 if i < poke_count:
                     if Pokemons[list_index][0] == i+1:
+                        pokeName = self.translator.getLocalPokeString("name"+str(Pokemons[list_index][0]))
+
                         if Pokemons[list_index][2]:
-                            list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + ":sparkles:\n"
+                            list_pokemons += str(i+1) + " - " + pokeName + ":sparkles:\n"
                         else:
-                            list_pokemons += str(i+1) + " - " + Pokemons[list_index][1] + "\n"
+                            list_pokemons += str(i+1) + " - " + pokeName + "\n"
                         if list_index < len(Pokemons)-1:
                             list_index += 1
                     else:
                         list_pokemons += str(i+1) + " - --------\n"
-        embed=discord.Embed(title = str(self.user.name) + "'s Pokedex", description = str(number_of_pokemons) + "/" + str(poke_count) + " pokemons")
+        title = self.translator.getLocalString("userPokedex", [("user", self.user.name)])
+        embed=discord.Embed(title = title, description = str(number_of_pokemons) + "/" + str(poke_count) + " Pokémons")
         embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
-        embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
+        embed.add_field(name="Pokémons :", value=list_pokemons, inline=True)
 
         embed.set_footer(text = "page " + str(self.page+1) + "/" + str(int(poke_count/20)+1))
         return embed
