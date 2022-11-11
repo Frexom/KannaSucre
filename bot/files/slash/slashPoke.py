@@ -66,7 +66,6 @@ class slashPoke(commands.Cog):
                 if pokemon.shiny:
                     shiny_string = "\n"
                     shiny_string += t.getLocalString("isShiny", [])
-                    link = pokemon.shiny_link
 
                 #New Form
                 if(is_obtained == None and (is_pokedex)):
