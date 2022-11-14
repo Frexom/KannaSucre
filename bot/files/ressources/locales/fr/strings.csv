@@ -18,7 +18,7 @@ female&Femelle
 chooseEvolution&Choisis une évolution
 description&Description
 evolution&Évolution
-evolvedBy&A évolué en 
+evolvedBy&A évolué en
 userPokedex&Pokédex de {user}
 shinies&Chromatiques✨ :
 shinyPoke&Pokémons chromatiques
@@ -53,3 +53,5 @@ servericon&Ce serveur ne possède pas d'icône.
 usericon&Cet utilisateur n'a pas de photo de profil.
 noAccess&Désolée, je n'ai pas accès à ce salon.
 newLanguage&À partir de maintenant, je parlerai français !
+userShiny&Pokémons chromatiques de {user}
+page&page {current}/{total}

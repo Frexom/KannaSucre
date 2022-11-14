@@ -24,7 +24,7 @@ async def on_app_command_error(interaction : discord.Interaction, error: discord
             await me.send('\n'.join(message[:middle]))
             await me.send('\n'.join(message[middle:]))
         else:
-            await me.send()
+            await me.send(message)
 
         t = Translator(interaction.guild.id, loadStrings=True)
         content = t.getLocalString("kannaError", [])

@@ -3,7 +3,7 @@ from connection import *
 
 
 class Translator():
-    def __init__(self, guildID:int, loadStrings:bool = False, loadPoke: bool = False):
+    def __init__(self, guildID:int, loadStrings:bool = False, loadPoke: bool = False, loadPokeEvos: bool = False):
         connection, cursor = get_static_conn("./files/ressources/bot.db")
         cursor.execute("SELECT guild_locale FROM guilds WHERE guild_id = ?", (guildID,))
         locale = cursor.fetchone()
@@ -12,11 +12,14 @@ class Translator():
 
         self.strings = None
         self.poke = None
+        self.evolutions = None
 
         if(loadStrings):
             self.loadStrings()
         if(loadPoke):
             self.loadPoke()
+        if(loadPokeEvos):
+            self.loadPokeEvos()
 
     def loadStrings(self):
         if(self.strings is None):
@@ -36,6 +39,15 @@ class Translator():
                 self.poke = list(reader)
         else:
             raise ValueError("poke.csv already loaded!")
+
+    def loadPokeEvos(self):
+        if(self.evolutions is None):
+            file = './files/ressources/locales/{}/evolutions.csv'.format(self.locale)
+            with open(file) as f:
+                reader = csv.reader(f, delimiter ="&")
+                self.evolutions = list(reader)
+        else:
+            raise ValueError("evolutions.csv already loaded!")
 
 
     def getLocalString(self, key:str, values:list):
@@ -68,7 +80,25 @@ class Translator():
             raise KeyError("String {} has not been found".format(key))
 
         else:
-            raise Environmentrror("Must load poke.csv first!")
+            raise EnvironmentError("Must load poke.csv first!")
+
+    def getLocalPokeEvo(self, key:str, values:list):
+        if(self.evolutions is not None):
+            string = None
+            for row in self.evolutions:
+                if(row[0] == key):
+                    string = row[1]
+                    break
+
+            if string is None:
+                raise KeyError("String {} has not been found".format(key))
+
+            for tuple in values:
+                string = string.replace('{'+tuple[0]+'}', str(tuple[1]))
+            return string
+        else:
+            raise EnvironmentError("Must load evolutions.csv first!")
+
 
     def getPokeIdByName(self, name:str):
         if(self.poke is not None):
@@ -76,18 +106,14 @@ class Translator():
                 if(row[1].lower() == name):
                     return int(row[0][4:])
 
-        if(self.locale != "en"):
-            file = './files/ressources/locales/en/poke.csv'
-            with open(file) as f:
-                reader = csv.reader(f, delimiter ="&")
+            if(self.locale != "en"):
+                file = './files/ressources/locales/en/poke.csv'
+                with open(file) as f:
+                    reader = csv.reader(f, delimiter ="&")
 
-                for row in reader:
-                    if(row[1].lower() == name):
-                        return int(row[0][4:])
-
-
-
-
-            raise TypeError("Pokemon does not exist!")
+                    for row in reader:
+                        if(row[1].lower() == name):
+                            return int(row[0][4:])
+            return 0
         else:
             raise EnvironmentError("Must load poke.csv first!")
