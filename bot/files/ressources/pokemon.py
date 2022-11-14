@@ -1,7 +1,7 @@
 from connection import *
 from bot import *
 
-poke_count = 809
+poke_count = 905
 
 
 
@@ -100,7 +100,7 @@ def get_evolutions(poke_id: int, poke_alt: int):
 class Pokemon:
     def __init__(self, guildID: int, pokeID: int = None):
         self.guildID = guildID
-        self.translator = Translator(self.guildID, loadStrings = True, loadPoke = True)
+        self.translator = Translator(self.guildID, loadStrings = True, loadPoke = True, loadPokeEvos = True)
 
         if pokeID is not None:
             if pokeID <= poke_count and pokeID > 0:
@@ -145,14 +145,22 @@ class Pokemon:
     def next_alt(self):
         if self.pokelinks > 1:
             connection, cursor = get_static_conn("./files/ressources/bot.db")
+            next_alt = False
             if self.genre == "f":
-                self.genre = "m"
-                cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_label FROM pokelink WHERE poke_id = ? AND pokelink_alt = ? AND pokelink_sex = ?", (self.id, self.alt, self.genre))
-                temp = cursor.fetchone()
-                self.link = temp[0]
-                self.shiny_link = temp[1]
-                self.label = temp[2]
+                try:
+                    self.genre = "m"
+                    cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_label FROM pokelink WHERE poke_id = ? AND pokelink_alt = ? AND pokelink_sex = ?", (self.id, self.alt, self.genre))
+                    temp = cursor.fetchone()
+                    self.link = temp[0]
+                    self.shiny_link = temp[1]
+                    self.label = temp[2]
+                except TypeError:
+                    next_alt = True
+                    pass
             else:
+                next_alt = True
+
+            if(next_alt):
                 if self.alt != self.pokealts:
                     self.alt += 1
                 else:
@@ -170,14 +178,21 @@ class Pokemon:
     def prev_alt(self):
         if self.pokelinks > 1:
             connection, cursor = get_static_conn("./files/ressources/bot.db")
+            next_alt = False
             if self.genre == "m":
-                self.genre = "f"
-                cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_label FROM pokelink WHERE poke_id = ? AND pokelink_alt = ? AND pokelink_sex = ?", (self.id, self.alt, self.genre))
-                temp = cursor.fetchone()
-                self.link = temp[0]
-                self.shiny_link = temp[1]
-                self.label = temp[2]
+                try:
+                    self.genre = "f"
+                    cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_label FROM pokelink WHERE poke_id = ? AND pokelink_alt = ? AND pokelink_sex = ?", (self.id, self.alt, self.genre))
+                    temp = cursor.fetchone()
+                    self.link = temp[0]
+                    self.shiny_link = temp[1]
+                    self.label = temp[2]
+                except TypeError:
+                    next_alt = True
+                    pass
             else:
+                next_alt = True
+            if(next_alt):
                 if self.alt != 0:
                     self.alt -= 1
                 else:
@@ -210,9 +225,29 @@ class Pokemon:
 
         e.add_field(name = self.translator.getLocalString("description", []) + " :", value=self.description)
         if(self.devolution is not None):
-            value = self.translator.getLocalString("evolvedBy", [])
+            evolved = self.translator.getLocalString("evolvedBy", [])
             name = self.translator.getLocalString("evolution", [])
-            e.add_field(name = name + " :", value = value + self.devolution[2], inline=False)
+            method = ""
+            arguments = self.devolution[2].split()
+
+            if(arguments[0] == "friend" or arguments[0] == "trade" or arguments[0][:4] == "spec"):
+                method = self.translator.getLocalPokeEvo(arguments[0], {})
+            elif(arguments[0] == "item"):
+                item = self.translator.getLocalPokeEvo(arguments[1], {})
+                method = self.translator.getLocalPokeEvo(arguments[0], [("item", item)])
+            elif(arguments[0] == "tradeItem"):
+                item = self.translator.getLocalPokeEvo(arguments[1], {})
+                method = self.translator.getLocalPokeEvo(arguments[0], [("item", item)])
+            elif(arguments[0] == "level"):
+                method = self.translator.getLocalPokeEvo(arguments[0], [("level", str(arguments[1]))])
+
+            if(arguments[-1] == "Day" or arguments[-1] == "Night"):
+                method += " "
+                method += self.translator.getLocalPokeEvo(arguments[-1], [])
+
+            method += "."
+
+            e.add_field(name = name + " :", value = evolved + " " + method, inline=False)
         e.set_footer(text = "page " + str(self.current_link) + "/" + str(self.pokelinks))
         return e
 
