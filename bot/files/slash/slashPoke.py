@@ -38,8 +38,7 @@ class slashPoke(commands.Cog):
                     pity -= 1
                     await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, userID))
                 else:
-                    #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
-                    pass
+                    await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
                 await connection.commit()
 
                 pokemon = Pokemon(guildID = interaction.guild.id)
