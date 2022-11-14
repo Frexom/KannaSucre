@@ -38,7 +38,8 @@ class slashPoke(commands.Cog):
                     pity -= 1
                     await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, userID))
                 else:
-                    await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
+                    #await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
+                    pass
                 await connection.commit()
 
                 pokemon = Pokemon(guildID = interaction.guild.id)
@@ -123,7 +124,7 @@ class slashPoke(commands.Cog):
                     poke_id = t.getPokeIdByName(name.lower())
                 else:
                     poke_id = id
-                
+
                 #If poke_id is Illegal
                 if poke_id > poke_count or poke_id <= 0 :
                     await close_conn(connection, cursor)
