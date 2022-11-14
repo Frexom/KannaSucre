@@ -145,7 +145,7 @@ class Pokemon:
     def next_alt(self):
         if self.pokelinks > 1:
             connection, cursor = get_static_conn("./files/ressources/bot.db")
-            next_alt = False
+            nextAlt = False
             if self.genre == "f":
                 try:
                     self.genre = "m"
@@ -155,12 +155,12 @@ class Pokemon:
                     self.shiny_link = temp[1]
                     self.label = temp[2]
                 except TypeError:
-                    next_alt = True
+                    nextAlt = True
                     pass
             else:
-                next_alt = True
+                nextAlt = True
 
-            if(next_alt):
+            if(nextAlt):
                 if self.alt != self.pokealts:
                     self.alt += 1
                 else:
@@ -171,14 +171,15 @@ class Pokemon:
                 self.shiny_link = temp[1]
                 self.genre = temp[2]
                 self.label = temp[3]
-                self.devolution = get_devolution(self.id, self.alt)
+            self.devolution = get_devolution(self.id, self.alt)
+            self.evolutions = get_evolutions(self.id, self.alt)
             self.current_link = get_current_link(self.id, self.alt, self.genre)
             close_static_conn(connection, cursor)
 
     def prev_alt(self):
         if self.pokelinks > 1:
             connection, cursor = get_static_conn("./files/ressources/bot.db")
-            next_alt = False
+            nextAlt = False
             if self.genre == "m":
                 try:
                     self.genre = "f"
@@ -191,8 +192,9 @@ class Pokemon:
                     next_alt = True
                     pass
             else:
-                next_alt = True
-            if(next_alt):
+                nextAlt = True
+
+            if(nextAlt):
                 if self.alt != 0:
                     self.alt -= 1
                 else:
@@ -203,7 +205,8 @@ class Pokemon:
                 self.shiny_link = temp[1]
                 self.genre = temp[2]
                 self.label = temp[3]
-                self.devolution = get_devolution(self.id, self.alt)
+            self.devolution = get_devolution(self.id, self.alt)
+            self.evolutions = get_evolutions(self.id, self.alt)
             self.current_link = get_current_link(self.id, self.alt, self.genre)
             close_static_conn(connection, cursor)
 
