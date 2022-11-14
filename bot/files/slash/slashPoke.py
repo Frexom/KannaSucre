@@ -123,7 +123,7 @@ class slashPoke(commands.Cog):
                     poke_id = t.getPokeIdByName(name.lower())
                 else:
                     poke_id = id
-                
+
                 #If poke_id is Illegal
                 if poke_id > poke_count or poke_id <= 0 :
                     await close_conn(connection, cursor)

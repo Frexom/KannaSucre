@@ -6,7 +6,7 @@ from bot import *
 sys.path.append("../ressources")
 
 
-poke_count = 809
+poke_count = 905
 
 
 
