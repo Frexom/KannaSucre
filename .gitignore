@@ -2,6 +2,7 @@
 bot/files/LevelCommand/Users
 bot/files/LevelCommand/stats*.png
 *.db
+useful
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
