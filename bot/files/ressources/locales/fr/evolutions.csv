@@ -11,7 +11,7 @@ spec461&tenant la Griffe rasoir de nuit
 spec901&utilisant un Bloc de Tourbe sous la pleine lune
 spec473&apprenant Pouvoir Antique
 spec899&utilisant Sprint Bouclier 20 fois en Style Rapide
-spec 106&atteignant le niveau 20 avec Attaque > Défense
+spec106&atteignant le niveau 20 avec Attaque > Défense
 spec107&atteignant le niveau 20 avec Attaque < Défense
 spec237&atteignant le niveau 20 avec Attaque = Défense
 spec475&utilisant une Pierre Aube sur un Kirlia mâle
@@ -33,15 +33,15 @@ spec589&étant échangé contre Escargaume
 spec617&étant échangé contre Carabing
 spec675&atteignant le niveau 32 avec un Pokémon de type Ténèbres dans l'équipe
 spec678A&atteignant le niveau 25 avec un Psystigri mâle
-678B&atteignant le niveau 25 avec un Psystigri femelle
+spec678B&atteignant le niveau 25 avec un Psystigri femelle
 spec687&atteignant le niveau 30 en tenant la console à l'envers
 spec706&atteignant le niveau 50 sous la pluie
 spec738&utilisant une Pierre Foudre (ou en passant un niveau dans un Champ Magnétique)
 spec740&allant au MontLanakila
 spec745&atteignant le niveau 25 au crépuscule
-spec 758&atteignant le niveau 33 avec un Tritox femelle
+spec758&atteignant le niveau 33 avec un Tritox femelle
 spec763&apprenant Écrasement
-791&atteignant le niveau 53 dans Pokémon: Soleil/Ultra-Soleil
+spec791&atteignant le niveau 53 dans Pokémon: Soleil/Ultra-Soleil
 spec792&atteignant le niveau 53 dans Pokémon: Lune/Ultra-Lune
 spec804&apprenant Draco-choc
 spec809&utilisant 400 bonbons Meltan dans Pokémon GO
