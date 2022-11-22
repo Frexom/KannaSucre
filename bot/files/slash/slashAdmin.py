@@ -73,31 +73,6 @@ class slashAdmin(commands.Cog):
                 await missing_perms(interaction, "welcome", "manage guild")
 
 
-    @app_commands.command(name="announcements", description = "Defines announcements channel where KannaSucre's updates notices will be sent.")
-    @app_commands.describe(channel="The channel you want the message to be sent.")
-    async def announcements(self, interaction: discord.Interaction, channel : discord.TextChannel = None):
-        if not interaction.user.bot :
-            if interaction.user.guild_permissions.manage_guild:
-
-                t = Translator(interaction.guild.id, loadStrings = True)
-
-                if channel is None:
-                    channel = 0
-                    content = t.getLocalString("announcementsDisabled", [])
-                    await interaction.response.send_message(content = content)
-                else:
-                    channel = channel.id
-                    content = t.getLocalString("announcementsChannel", [("channel", channel)])
-                    await interaction.response.send_message("Announcements messages will now be sent in <#" + str(channel) + ">.")
-
-                connection, cursor = await get_conn("./files/ressources/bot.db")
-                await cursor.execute("UPDATE guilds SET guild_announcements_channel_id = ? WHERE guild_id=?", (channel, interaction.guild.id))
-                await connection.commit()
-                await close_conn(connection, cursor)
-            else:
-                await missing_perms(interaction, "announcements", "manage guild")
-
-
     @app_commands.command(name="language", description="Defines the language the bot uses on this server!")
     @app_commands.choices(language=[
         app_commands.Choice(name="English", value="en")
@@ -117,3 +92,23 @@ class slashAdmin(commands.Cog):
                 await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "language", "manage guild")
+
+
+    @app_commands.command(name = "announce", description = "Sends a custom announcement on a set channel.")
+    @app_commands.describe(message="The announcement message.")
+    @app_commands.describe(channel="The channel to send the message")
+    async def announce(self, interaction : discord.Interaction, channel : discord.TextChannel, message: str):
+        if not interaction.user.bot:
+            if interaction.user.guild_permissions.manage_guild:
+                if interaction.user.id == int(os.environ['OWNER_ID']) and False:
+                    authorCredit = ""
+                else:
+                    authorCredit = "*Message sent by **" + interaction.user.name + "#" + interaction.user.discriminator + "** :*\n"
+
+                if(channel.guild.id == interaction.guild.id):
+                    message = await channel.send(authorCredit+message)
+                    await interaction.response.send_message("Done!\n Click here to go to message : " + message.jump_url)
+                else:
+                    await interaction.response.send_message("This channel isn't on this guild!")
+            else:
+                await missing_perms(interaction, "announce", "manage guild")

@@ -81,34 +81,6 @@ async def welcome(ctx):
       await missing_perms(ctx, "welcome", "manage guild")
 
 
-@bot.command(name="announcements")
-async def announcements(ctx):
-  if not ctx.author.bot :
-    if ctx.message.author.guild_permissions.manage_guild:
-      connection, cursor = await get_conn("./files/ressources/bot.db")
-      message = ctx.message.content.split(" ")
-      if len(ctx.message.channel_mentions) > 0 or len(message) > 1 and message[1] == str(0):
-        if len(ctx.message.channel_mentions) > 0:
-          channel = ctx.message.channel_mentions[0].id
-        else:
-          channel = 0
-        await cursor.execute("UPDATE guilds SET guild_announcements_channel_ID = ? WHERE guild_id=?",(channel, ctx.guild.id))
-        await ctx.message.add_reaction("\u2705")
-        await connection.commit()
-        await close_conn(connection, cursor)
-      else:
-        await cursor.execute("SELECT guild_announcements_channel_ID FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
-        announcements = await cursor.fetchone()
-        await close_conn(connection, cursor)
-        announcements = announcements[0]
-        prefix = str(await get_pre(ctx))
-        if announcements != 0 :
-          await ctx.send("The current announcements channel is <#" + str(announcements) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) +   "announcements *mention new announcements channel or 0 to disable*```")
-        else :
-          await ctx.send("There is not defined announcements channel defined for this server right now. If you want to set up one to stay tuned with the latest KannaSucre News, please use this command :\n" + "```" + str(prefix) + "announcements *mention new announcements channel*```")
-    else:
-      await missing_perms(ctx, "announcements", "manage guild")
-
 @bot.command(name="lengthlimit")
 async def lengthlimit(ctx):
   if not ctx.author.bot :

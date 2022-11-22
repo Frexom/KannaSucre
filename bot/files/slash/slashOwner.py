@@ -19,26 +19,6 @@ class slashOwner(commands.Cog):
             await interaction.response.send_message("You don't have the permission to use that.")
 
 
-    @app_commands.command(name = "announce", description = "Makes an announcement on all KannaSucre guilds.")
-    @app_commands.describe(message="The announcement message.")
-    @app_commands.guilds(int(os.environ['TESTGUILDID']))
-    async def announce(self, interaction : discord.Interaction, message: str):
-        if await bot.is_owner(interaction.user):
-            connection, cursor = await get_conn("./files/ressources/bot.db")
-            await cursor.execute("SELECT guild_announcements_channel_ID FROM guilds")
-            IDs = await cursor.fetchall()
-            await close_conn(connection, cursor)
-            counter = 0
-            for i in range(len(IDs)):
-                if IDs[i][0] != 0 and IDs[i][0] != None :
-                    counter += 1
-                    channel = bot.get_channel(IDs[i][0])
-                    await channel.send(message)
-            await interaction.response.send_message("Announcement made on " + str(counter) + " guilds.")
-        else:
-            await interaction.response.send_message("You don't have the permission to use that.")
-
-
     @app_commands.command(name="sql", description = "Runs SQL queries, be careful!")
     @app_commands.describe(query = "The query to run.")
     @app_commands.guilds(int(os.environ['TESTGUILDID']))
