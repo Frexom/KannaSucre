@@ -46,4 +46,6 @@ async def level(ctx):
       image.save("./files/LevelCommand/Users/stats" + str(user.id) + ".png")
       await ctx.send(file = discord.File("./files/LevelCommand/Users/stats" + str(user.id) + ".png"))
     else:
-      await ctx.send("This command isn't supported for bots.")
+      t = Translator(ctx.guild.id, loadStrings=True)
+      content = t.getLocalString("commandBot", [])
+      await ctx.send(content = content)

@@ -11,7 +11,6 @@ from utilities import *
 from events import *
 from admin import *
 from owner import *
-from setup import *
 from poke import *
 from fun import *
 

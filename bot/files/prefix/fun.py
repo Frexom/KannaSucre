@@ -49,12 +49,16 @@ async def hug(ctx):
         "https://images-ext-2.discordapp.net/external/ntTSKfK0BeNy3nAclTl5WeSesdV6zQBvvrpZNaNRG2A/%3Fitemid%3D14246498/https/media1.tenor.com/images/969f0f462e4b7350da543f0231ba94cb/tenor.gif",
         "https://images-ext-1.discordapp.net/external/q5s6oHF9R6FwOHPrUxly-Oi0nO-YUmO7BQrtXl-8CNI/%3Fitemid%3D7552087/https/media1.tenor.com/images/03ff67460b3e97cf13aac5d45a072d22/tenor.gif",
         "https://images-ext-1.discordapp.net/external/2TAL2AoHlWYA2U4lStmtWb8CCo0S417XnedHFaz9uaw/%3Fitemid%3D19674705/https/media1.tenor.com/images/f7b6be96e8ebb23319b43304da0e1118/tenor.gif"
-        ]
+    ]
+
+    t = Translator(ctx.guild.id, loadStrings=True)
     if ctx.author == user or user == bot.user:
-        e =  + discord.Embed(title=str(ctx.author.display_name) + ", I see you're lonely, take my hug! :heart:")
+        title = t.getLocalString("hugLonely", [("user", ctx.author.display_name)])
+        e =  discord.Embed(title=title)
         e.set_image(url="https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif")
     else:
-        e = discord.Embed(title=str(user.display_name) + ", you have been hugged by " + str(ctx.author.display_name) + " :heart:")
+        title = t.getLocalString("hugUser", [("user", user.display_name), ("otherUser", ctx.author.display_name)])
+        e = discord.Embed(title=title)
         e.set_image(url=str(hugList[random.randint(0, len(hugList) - 1)]))
     await ctx.send(embed=e)
 
@@ -73,6 +77,8 @@ async def stand(ctx):
     stand = await cursor.fetchone()
     await connection.commit()
     await close_conn(connection, cursor)
-    e = discord.Embed(title = ctx.author.display_name + ", your stand is **" + stand[0] + "**.", colour=discord.Colour(0x635f))
+    t = Translator(ctx.guild.id, loadStrings = True)
+    title = t.getLocalString("userStand", [("user", ctx.author.display_name), ("standName", stand[0])])
+    e = discord.Embed(title = title, colour=discord.Colour(0x635f))
     e.set_image(url=stand[1])
     await ctx.send(embed = e)

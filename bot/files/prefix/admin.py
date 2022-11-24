@@ -14,7 +14,9 @@ async def prefix(ctx):
         prefix = prefix[1]
         connection, cursor = await get_conn("./files/ressources/bot.db")
         await cursor.execute("UPDATE guilds SET guild_prefix = ? WHERE guild_id = ?", (prefix, ctx.guild.id))
-        await ctx.send("My prefix for this server now is `" + str(prefix) + "` :)")
+        t = Translator(ctx.guild.id, loadStrings=True)
+        content = t.getLocalString("newPrefix", [("prefix", str(prefix))])
+        await ctx.send(content = content)
         await connection.commit()
         await close_conn(connection, cursor)
       else:
@@ -30,6 +32,7 @@ async def ban(ctx):
     if ctx.message.author.guild_permissions.ban_members:
       reason = ctx.message.content.split(" ")
       if len(ctx.message.mentions) > 0 or (len(reason) > 1 and reason[1].isdecimal() and len(reason[1]) > 15):
+        t = Translator(ctx.guild.id, loadStrings = True)
         if reason[1].isdecimal():
           member = ctx.guild.get_member(int(reason[1]))
         else:
@@ -38,9 +41,11 @@ async def ban(ctx):
           reason = ' '.join(reason[2:])
           if not member.bot:
             if reason != "":
-              await member.send("you have been banned from **" + str(ctx.guild.name) + "**.\nReason : `" + reason + "`.")
+              content = t.getLocalString("banReason", [("guild", ctx.guild.name), ("reason", reason)])
+              await member.send(content = content)
             else:
-              await member.send("You have been banned from **" + str(ctx.guild.name) + "**.\nNo reason given.")
+              content = t.getLocalString("banNoReason", [("guild", ctx.guild.name)])
+              await member.send(content = content)
           await member.ban()
           await ctx.message.add_reaction("\u2705")
         else:
@@ -74,30 +79,10 @@ async def welcome(ctx):
         welcome = welcome[0]
         prefix = str(await get_pre(ctx))
         if welcome != 0 :
-          await ctx.send("The current welcome channel is <#" + str(welcome) + ">. If you want to change it, please use this command :\n" + "```" + str(prefix) + "welcome   *mention new welcome channel or 0 to disable*```")
+          content = t.getLocalString("welcomeChannel", [("channel", channel)])
+          await ctx.send(content = content)
         else :
-          await ctx.send("There is not defined welcome channel defined for this server right now. If you want to set up one to see who enters and leaves your server, please use this command :\n" + "```" + str(prefix) + "welcome *mention new welcome channel*```")
+          content = t.getLocalString("welcomeDisabled", [])
+          await ctx.send(content = content)
     else:
       await missing_perms(ctx, "welcome", "manage guild")
-
-
-@bot.command(name="lengthlimit")
-async def lengthlimit(ctx):
-  if not ctx.author.bot :
-    if ctx.message.author.guild_permissions.manage_guild:
-      limit = ctx.message.content.split(" ")
-      if len(limit) > 1 and limit[1].isdecimal():
-        limit = limit[1]
-        if limit.isdecimal() and int(limit) > 299:
-          connection, cursor = await get_conn("./files/ressources/bot.db")
-          await cursor.execute("UPDATE guilds SET guild_lengthlimit = ? WHERE guild_id = ?",(limit, ctx.guild.id))
-          await ctx.send("The message character limit for this server now is **" +str(limit) + "** characters :)")
-          await connection.commit()
-          await close_conn(connection, cursor)
-        else:
-          await ctx.send("I'm sorry but the character limit must be at least 300 characters.")
-      else:
-        prefix = str(await get_pre(ctx))
-        await ctx.send("```" + str(prefix) +"lengthlimit *characters limit*```")
-    else:
-      await missing_perms(ctx, "lengthlimit", "manage guild")

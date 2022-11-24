@@ -29,8 +29,10 @@ async def on_command_error(ctx, error):
 		return
 	elif isinstance(error, discord.errors.Forbidden):
 		try:
-				await ctx.channel.send("I don't have enough permissions to do that!")
-				return
+			t = Translator(ctx.guild.id, loadStrings=True)
+			content = t.getLocalString("kannaMissPerms", [])
+			await ctx.channel.send(content = content)
+			return
 		except Exception as e:
 				return
 	me = await bot.fetch_user(os.environ['OWNER_ID'])
@@ -104,5 +106,6 @@ async def on_message(message):
 			await close_conn(connection, cursor)
 			await bot.process_commands(message)
 		except Exception as e:
+			#Avoid CommandNotFound exception
 			if "50013" not in str(e):
 				raise e

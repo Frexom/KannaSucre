@@ -25,9 +25,20 @@ class PokeDropdown(discord.ui.Select):
 
 
 class pokeView(discord.ui.View):
-    def __init__(self,interaction: discord.Interaction, timeout:int = 90):
+    def __init__(self, timeout:int = 90):
         super().__init__(timeout = timeout)
-        self.interaction = interaction;
+        self.message = None
+
+    def setMessage(self, message: discord.Message):
+        self.message = message;
 
     async def on_timeout(self):
-        await self.interaction.edit_original_response(view=None)
+        if(self.message is not None):
+            if(isinstance(self.message, discord.Interaction)):
+                await self.message.edit_original_response(view=None)
+            elif(isinstance(self.message, discord.Message)):
+                await self.message.edit(view = None)
+            else:
+                raise AttributeError("Timeout message was improperly set.")
+        else:
+            raise AttributeError("Timeout message was not set.")

@@ -118,7 +118,6 @@ class slashPoke(commands.Cog):
 
         if not interaction.user.bot:
             if id is not None or name is not None:
-                connection, cursor = await get_conn("./files/ressources/bot.db")
                 if name is not None:
                     poke_id = t.getPokeIdByName(name.lower())
                 else:
@@ -126,7 +125,6 @@ class slashPoke(commands.Cog):
 
                 #If poke_id is Illegal
                 if poke_id > poke_count or poke_id <= 0 :
-                    await close_conn(connection, cursor)
                     title = t.getLocalString("pokeinfoNotFound", [])
                     description = t.getLocalString("pokeinfoNoSuch", [])
                     e = discord.Embed(title = title, description = description)
@@ -135,7 +133,8 @@ class slashPoke(commands.Cog):
 
 
                 pokemon = Pokemon(guildID = interaction.guild.id, pokeID = poke_id)
-                buttonView = pokeView(interaction, 20)
+                buttonView = pokeView(90)
+                buttonView.setMessage(interaction)
 
             #Callback definition, and buttons generation
                 evolveButton = discord.ui.Button(label = "Evolve⠀", style = discord.ButtonStyle.secondary, emoji = "⏫", row = 1)
@@ -182,7 +181,8 @@ class slashPoke(commands.Cog):
                         if len(pokemon.evolutions) > 1:
                             dropdown = PokeDropdown(pokemon, buttonView)
 
-                            evoView = pokeView(buttonView.interaction, 20)
+                            evoView = pokeView(90)
+                            evoView.setMessage(buttonView.message)
                             evoView.add_item(dropdown)
 
                             await interaction.message.edit(view = evoView)
@@ -258,8 +258,10 @@ class slashPoke(commands.Cog):
             if user is None:
                 user = interaction.user
             if not user.bot:
-                closedView = pokeView(interaction, 20)
-                openedView = pokeView(interaction, 20)
+                closedView = pokeView(90)
+                closedView.setMessage(interaction)
+                openedView = pokeView(90)
+                openedView.setMessage(interaction)
                 pokedex = Pokedex(interaction.guild.id, user, page-1)
 
                 open = discord.ui.Button(label = "Open", emoji = "🌐")
