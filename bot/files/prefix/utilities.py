@@ -7,28 +7,40 @@ sys.path.append("../ressources")
 
 @bot.command(name="dice")
 async def dice(ctx):
-  if not ctx.author.bot :
-    words = ctx.message.content.split(" ")
-    if len(words) > 1 and words[1].isdecimal() and int(words[1]) > 0:
-      i = ctx.message.content.split(" ")[1]
-      number = random.randint(1, int(i))
-      await ctx.send("Rolled **" + str(number) + "**!")
-    else:
-      prefix = str(await get_pre(ctx))
-      await ctx.send("```" + str(prefix) + "dice *number>0*```")
+    if not ctx.author.bot :
+        words = ctx.message.content.split(" ")
+        if len(words) > 1 and words[1].isdecimal() and int(words[1]) > 0:
+            max = ctx.message.content.split(" ")[1]
+            number = random.randint(1, int(max))
+            t = Translator(ctx.guild.id, loadStrings = True)
+            content = t.getLocalString("diceRoll", [("randomNumber", number), ("maxNumber", max)])
+            await ctx.send(content = content)
+        else:
+            prefix = str(await get_pre(ctx))
+            await ctx.send("```" + str(prefix) + "dice *number>0*```")
 
 
 @bot.command(name="servericon")
 async def servericon(ctx):
-  if not ctx.author.bot :
-    await ctx.send(ctx.guild.icon.url or "This server does not have an icon.")
+    if not ctx.author.bot :
+        if(ctx.guild.icon is not None):
+            await ctx.send(ctx.guild.icon.url)
+        else:
+            t = Translator(ctx.guild.id, loadStrings = True)
+            content = t.getLocalString("servericon", [])
+            await ctx.send(content = content)
 
 
 @bot.command(name="usericon")
 async def usericon(ctx):
     if not ctx.author.bot :
         user = get_target(ctx)
-        await ctx.send(user.display_avatar.url or "This user does not have an icon.")
+        if(user.display_avatar is not None):
+            await ctx.send(user.display_avatar.url)
+        else:
+            t = Translator(ctx.guild.id, loadStrings = True)
+            content = t.getLocalString("servericon", [])
+            await ctx.send(content)
 
 
 @bot.command(name="help")

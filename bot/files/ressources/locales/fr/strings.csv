@@ -42,7 +42,7 @@ clearMore&Vous ne pouvez pas effacer plus de 50 messages en même temps.
 kickNoReason&Vous avez été expulsé⋅e de **{guild}**.\nAucune raison n'a été donnée.
 kickReason&Vous avez été expulsé⋅e de **{guild}**.\nMotif :`{reason}`.
 userKicked&Utilisateur expulsé.
-isShiny&\nIl est chromatique ?!? ✨
+isShiny&Attends, il est chromatique ?!? ✨
 pokeinfoNotFound&Introuvable :(
 pokeinfoNoSuch&Ce Pokémon n'existe pas.
 pokeinfoInput&J'ai besoin de l'ID du Pokémon ou de son nom.

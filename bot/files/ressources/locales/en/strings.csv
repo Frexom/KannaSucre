@@ -28,7 +28,7 @@ banReason&You have been banned from **{guild}**.\nReason : `{reason}`.
 banNoReason&You have been banned from **{guild}**.\nNo reason given.
 userBanned&User banned.
 welcomeDisabled&Welcome feature disabled, use `/welcome channel : ...` to restore it.
-welcomeChannel&Welcome messages will now be sent in <#{channel}>.
+welcomeChannel&Welcome messages will be sent in <#{channel}>.
 announcementsDisabled&Announcements feature disabled, use `/announcements channel : ...` to restore it.
 announcementsChannel&Announcements messages will now be sent in <#{channel}>.
 kannaMissPerms&I don't have enough permissions to do that!
@@ -42,7 +42,7 @@ clearMore&You can't clear more than 50 messages at the same time.
 kickNoReason&You have been kicked from **{guild}**.\nNo reason given.
 kickReason&You have been kicked from **{guild}**.\nReason : `{reason}`.
 userKicked&User kicked.
-isShiny&\nWait!! Is it shiny??? ✨
+isShiny&Wait!! Is it shiny??? ✨
 pokeinfoNotFound&Not found :(
 pokeinfoNoSuch&No such Pokemon.
 pokeinfoInput&Please input either the Pokémon's ID or its name.
