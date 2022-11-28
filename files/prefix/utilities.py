@@ -42,6 +42,14 @@ async def usericon(ctx):
             content = t.getLocalString("servericon", [])
             await ctx.send(content)
 
+@bot.command(name="supportserver")
+async def supportserver(ctx):
+    if not ctx.author.bot:
+        link = os.environ['SUPPORTSERVERLINK']
+        t = Translator(ctx.guild.id, loadStrings=True)
+        content = t.getLocalString("supportServer", [])
+        await ctx.channel.send(content + link)
+
 
 @bot.command(name="help")
 async def help(ctx):

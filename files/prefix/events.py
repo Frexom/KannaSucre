@@ -49,7 +49,9 @@ async def on_member_join(member):
 	if channel_ID != 0:
 		welcome_channel: discord.TextChannel = bot.get_channel(channel_ID)
 		if welcome_channel is not None:
-			await welcome_channel.send("<@" + str(member.id) + "> joined the server! Yayy!!")
+			t = Translator(member.guild.id, loadStrings=True)
+			content = t.getLocalString("welcome", [("memberID", str(member.id))])
+			await welcome_channel.send(content = content)
 
 	if not member.bot:
 		await cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (member.id, ))
@@ -68,7 +70,9 @@ async def on_member_remove(member):
 	if channel_ID[0] != 0:
 		welcome_channel: discord.TextChannel = bot.get_channel(channel_ID[0])
 		if welcome_channel is not None:
-			await welcome_channel.send(str(member) + " left the server. :(")
+			t = Translator(member.guild.id, loadStrings=True)
+			content = t.getLocalString("goodbye", [("memberName", member.name+"#"+member.discriminator)])
+			await welcome_channel.send(content = content)
 	await close_conn(connection, cursor)
 
 
