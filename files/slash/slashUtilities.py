@@ -88,4 +88,6 @@ class slashUtilities(commands.Cog):
     async def supportServer(self, interaction: discord.Interaction):
         if not interaction.user.bot:
             link = os.environ['SUPPORTSERVERLINK']
-            await interaction.response.send_message("Got any question about KannaSucre? Need any help using a command? Just wanna see the latest KannaSucre updates?\nYou can join KannaSucre's support server using this link :\n" + link)
+            t = Translator(interaction.guild.id, loadStrings=True)
+            content = t.getLocalString("supportServer", [])
+            await interaction.response.send_message(content + link)

@@ -55,3 +55,9 @@ noAccess&Désolée, je n'ai pas accès à ce salon.
 newLanguage&À partir de maintenant, je parlerai français !
 userShiny&Pokémons chromatiques de {user}
 page&page {current}/{total}
+welcome&<@{memberID}> a rejoint le serveur! Yayy!!
+supportServer&Une question sur KannaSucre? Besoin d'aiide avec une commande? Voir les dernières mises à jour?\nVous pouvez rejoindre le serveur communautaire de KannaSucre avec ce lien :\n
+channelGuild&Ce salon n'est pas sur ce serveur!
+announceAuthor&*Message envoyé par {user} :*\n
+announceLink&Envoyé!\nCliquez ici pour voir le message :
+goodbye&{memberName} a quitté le serveur. :(

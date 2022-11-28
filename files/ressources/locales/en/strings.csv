@@ -55,3 +55,9 @@ noAccess&Sorry, I don't have access to this channel.
 newLanguage&From now on, I'll speak English!
 userShiny&{user}'s shiny Pokémons
 page&page {current}/{total}
+welcome&<@{memberID}> joined the server! Yayy!!
+supportServer&Got any question about KannaSucre? Need any help using a command? Just wanna see the latest KannaSucre updates?\nYou can join KannaSucre's support server using this link :\n
+channelGuild&This channel isn't on this server!
+announceAuthor&*Message sent by {user} :*\n
+announceLink&Done!\n Click here to go to message :
+goodbye&{memberName} left the server. :(

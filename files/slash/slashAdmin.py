@@ -100,15 +100,18 @@ class slashAdmin(commands.Cog):
     async def announce(self, interaction : discord.Interaction, channel : discord.TextChannel, message: str):
         if not interaction.user.bot:
             if interaction.user.guild_permissions.manage_guild:
-                if interaction.user.id == int(os.environ['OWNER_ID']) and False:
+                t = Translator(interaction.guild.id, loadStrings=True)
+                if interaction.user.id == int(os.environ['OWNER_ID']):
                     authorCredit = ""
                 else:
-                    authorCredit = "*Message sent by **" + interaction.user.name + "#" + interaction.user.discriminator + "** :*\n"
+                    authorCredit = t.getLocalString("announceAuthor", [("user", interaction.user.mention)])
 
                 if(channel.guild.id == interaction.guild.id):
                     message = await channel.send(authorCredit+message)
-                    await interaction.response.send_message("Done!\n Click here to go to message : " + message.jump_url)
+                    content = t.getLocalString("announceLink", [])
+                    await interaction.response.send_message(content + message.jump_url)
                 else:
-                    await interaction.response.send_message("This channel isn't on this guild!")
+                    content = t.getLocalString("channelGuild", [])
+                    await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "announce", "manage guild")
