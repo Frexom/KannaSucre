@@ -8,7 +8,7 @@ sys.path.append("../ressources")
 @bot.command(name="prefix")
 async def prefix(ctx):
   if not ctx.author.bot :
-    if ctx.message.author.guild_permissions.manage_guild:
+    if ctx.author.guild_permissions.manage_guild:
       prefix = ctx.message.content.split(" ")
       if len(prefix) > 1:
         prefix = prefix[1]
@@ -29,7 +29,7 @@ async def prefix(ctx):
 @bot.command(name="ban")
 async def ban(ctx):
   if not ctx.author.bot :
-    if ctx.message.author.guild_permissions.ban_members:
+    if ctx.author.guild_permissions.ban_members:
       reason = ctx.message.content.split(" ")
       if len(ctx.message.mentions) > 0 or (len(reason) > 1 and reason[1].isdecimal() and len(reason[1]) > 15):
         t = Translator(ctx.guild.id, loadStrings = True)
@@ -60,7 +60,7 @@ async def ban(ctx):
 @bot.command(name="welcome")
 async def welcome(ctx):
   if not ctx.author.bot :
-    if ctx.message.author.guild_permissions.manage_guild:
+    if ctx.author.guild_permissions.manage_guild:
       connection, cursor = await get_conn("./files/ressources/bot.db")
       message = ctx.message.content.split(" ")
       if len(ctx.message.channel_mentions) > 0 or len(message) > 1 and message[1] == str(0):
@@ -86,3 +86,28 @@ async def welcome(ctx):
           await ctx.send(content = content)
     else:
       await missing_perms(ctx, "welcome", "manage guild")
+
+
+@bot.command(name="announce")
+async def announce(ctx):
+    if ctx.author.guild_permissions.manage_guild:
+        message = ctx.message.content.split(" ")
+        channel = ctx.message.channel_mentions
+        if(len(channel) >= 1 and len(message) >= 3):
+            t = Translator(ctx.guild.id, loadStrings=True)
+            channel = channel[0]
+            if(channel.guild.id == ctx.guild.id):
+                if ctx.author.id == int(os.environ['OWNER_ID']):
+                    authorCredit = ""
+                else:
+                    authorCredit = t.getLocalString("announceAuthor", [("user", ctx.author.mention)])
+
+                await channel.send(authorCredit + str(' '.join(message[2:])))
+            else:
+                content = t.getLocalString("channelGuild", [])
+                await ctx.send(content = content)
+        else:
+            prefix = str(await get_pre(ctx))
+            await ctx.send("```" + str(prefix) + "announce *mention channel* *message*```")
+    else:
+        await missing_perms(ctx, "announce", "manage guild")
