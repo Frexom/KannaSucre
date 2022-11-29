@@ -13,24 +13,6 @@ async def preview(ctx):
     message = " ".join(message_list)
     await ctx.send(message)
 
-@bot.command(name="announce")
-@commands.is_owner()
-async def announce(ctx):
-    connection, cursor = await get_conn("./files/ressources/bot.db")
-    await cursor.execute("SELECT guild_announcements_channel_ID FROM guilds")
-    IDs = await cursor.fetchall()
-    await close_conn(connection, cursor)
-    message_list = ctx.message.content.split(" ")[1:]
-    message = ""
-    message = " ".join(message_list)
-    counter = 0
-    for i in range(len(IDs)):
-        if IDs[i][0] != 0 and IDs[i][0] != None :
-            counter += 1
-            channel = bot.get_channel(IDs[i][0])
-            await channel.send(message)
-    await ctx.send("Announcement made on " + str(counter) + " guilds.")
-
 
 @bot.command(name="sql")
 @commands.is_owner()
