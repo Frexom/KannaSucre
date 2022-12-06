@@ -5,7 +5,7 @@ from connection import *
 class Translator():
     def __init__(self, guildID:int, loadStrings:bool = False, loadPoke: bool = False, loadPokeEvos: bool = False):
         connection, cursor = get_static_conn("./files/ressources/bot.db")
-        cursor.execute("SELECT guild_locale FROM guilds WHERE guild_id = ?", (guildID,))
+        cursor.execute("SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (guildID,))
         locale = cursor.fetchone()
         self.locale = locale[0]
         close_static_conn(connection, cursor)

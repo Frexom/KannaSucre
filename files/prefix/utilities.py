@@ -58,7 +58,7 @@ async def help(ctx):
     message_list = ctx.message.content.split(" ")
     if len(message_list) < 2:
       categories = ["__Admin commands :__ \n\n", "\n\n__Moderation commands :__ \n\n", "\n\n__Utilities commands :__ \n\n", "\n\n__Miscellaneous/Fun commands :__ \n\n"]
-      await cursor.execute("SELECT com_name, com_short, cat_category FROM commands ORDER BY cat_category, com_name")
+      await cursor.execute("SELECT com_name, com_short, cat_category FROM com_command ORDER BY cat_category, com_name")
       commands = await cursor.fetchall()
       await close_conn(connection, cursor)
       content = ""
@@ -73,7 +73,7 @@ async def help(ctx):
       embed.add_field(name="** **", value=content)
       await ctx.send(embed=embed)
     else:
-      await cursor.execute("SELECT com_name, com_desc, com_use_example, com_user_perms, com_bot_perms, com_more_perms_than_target FROM commands")
+      await cursor.execute("SELECT com_name, com_desc, com_use_example, com_user_perms, com_bot_perms, com_more_perms_than_target FROM com_command")
       commands = await cursor.fetchall()
       await close_conn(connection, cursor)
       parameter = message_list[1]

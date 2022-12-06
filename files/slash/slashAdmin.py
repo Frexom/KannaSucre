@@ -15,7 +15,7 @@ class slashAdmin(commands.Cog):
         if not interaction.user.bot :
             if interaction.user.guild_permissions.manage_guild:
                 connection, cursor = await get_conn("./files/ressources/bot.db")
-                await cursor.execute("UPDATE guilds SET guild_prefix = ? WHERE guild_id = ?", (prefix, interaction.guild.id))
+                await cursor.execute("UPDATE dis_guild SET guild_prefix = ? WHERE guild_id = ?", (prefix, interaction.guild.id))
                 t = Translator(interaction.guild.id, loadStrings=True)
                 content = t.getLocalString("newPrefix", [("prefix", str(prefix))])
                 await interaction.response.send_message(content = content)
@@ -66,7 +66,7 @@ class slashAdmin(commands.Cog):
                     await interaction.response.send_message(content = content)
 
                 connection, cursor = await get_conn("./files/ressources/bot.db")
-                await cursor.execute("UPDATE guilds SET guild_welcome_channel_id = ? WHERE guild_id=?", (channel, interaction.guild.id))
+                await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ? WHERE guild_id=?", (channel, interaction.guild.id))
                 await connection.commit()
                 await close_conn(connection, cursor)
             else:
@@ -84,7 +84,7 @@ class slashAdmin(commands.Cog):
         if not interaction.user.bot:
             if interaction.user.guild_permissions.manage_guild:
                 connection, cursor = await get_conn("./files/ressources/bot.db")
-                await cursor.execute("UPDATE guilds SET guild_locale = ? WHERE guild_id = ?", (language.value, interaction.guild.id))
+                await cursor.execute("UPDATE dis_guild SET guild_locale = ? WHERE guild_id = ?", (language.value, interaction.guild.id))
                 await connection.commit()
 
                 t = Translator(interaction.guild.id, loadStrings = True)

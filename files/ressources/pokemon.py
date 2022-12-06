@@ -30,14 +30,14 @@ def get_shiny():
 
 def get_pokemon_id(rarity: int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
-    cursor.execute("SELECT poke_id FROM pokedex WHERE poke_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
+    cursor.execute("SELECT dex_id FROM poke_dex WHERE dex_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
     temp = cursor.fetchone()
     close_static_conn(connection, cursor)
     return temp[0]
 
 def get_pokemon_alt(poke_id:int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
-    cursor.execute("SELECT DISTINCT pokelink_alt FROM pokelink WHERE poke_id = ?", (poke_id, ))
+    cursor.execute("SELECT DISTINCT form_alt FROM poke_form WHERE dex_id = ?", (poke_id, ))
     alt = cursor.fetchall()
     close_static_conn(connection, cursor)
     if len(alt) == 1:
@@ -47,7 +47,7 @@ def get_pokemon_alt(poke_id:int):
 
 def get_pokemon_genre(poke_id: int, poke_alt: int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
-    cursor.execute("SELECT pokelink_sex FROM pokelink WHERE poke_id = ? AND pokelink_alt = ?", (poke_id, poke_alt))
+    cursor.execute("SELECT form_sex FROM poke_form WHERE dex_id = ? AND form_alt = ?", (poke_id, poke_alt))
     data = cursor.fetchall()
     close_static_conn(connection, cursor)
     if len(data) == 1:
@@ -58,28 +58,28 @@ def get_pokemon_genre(poke_id: int, poke_alt: int):
 def get_pokemon_link(poke_id:int, poke_alt:int, poke_genre:str, shiny:bool):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
     if shiny:
-        cursor.execute("SELECT pokelink_shiny FROM pokelink WHERE poke_id = ? and pokelink_alt = ? and pokelink_sex = ?", (poke_id, poke_alt, poke_genre))
+        cursor.execute("SELECT form_shiny FROM poke_form WHERE dex_id = ? and form_alt = ? and form_sex = ?", (poke_id, poke_alt, poke_genre))
     else:
-        cursor.execute("SELECT pokelink_normal FROM pokelink WHERE poke_id = ? and pokelink_alt = ? and pokelink_sex = ?", (poke_id, poke_alt, poke_genre))
+        cursor.execute("SELECT form_normal FROM poke_form WHERE dex_id = ? and form_alt = ? and form_sex = ?", (poke_id, poke_alt, poke_genre))
     temp = cursor.fetchone()
     close_static_conn(connection, cursor)
     return temp[0]
 
 def get_current_link(poke_id: int, poke_alt: int, poke_genre: str):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
-    cursor.execute("SELECT COUNT(*) FROM pokelink WHERE poke_id =? and pokelink_alt <= ? and pokelink_sex <= ?", (poke_id, poke_alt, poke_genre))
+    cursor.execute("SELECT COUNT(*) FROM poke_form WHERE dex_id =? and form_alt <= ? and form_sex <= ?", (poke_id, poke_alt, poke_genre))
     temp = cursor.fetchone()
     return temp[0]
 
 def get_devolution(poke_id : int, poke_alt:int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
-    cursor.execute("SELECT evo_pre, evo_pre_alt, evo_method FROM evolutions WHERE evo_post = ? AND evo_post_alt = ?", (poke_id, poke_alt))
+    cursor.execute("SELECT evo_pre, evo_pre_alt, evo_method FROM poke_evolution WHERE evo_post = ? AND evo_post_alt = ?", (poke_id, poke_alt))
     temp = cursor.fetchone()
     return None if temp == [] else temp
 
 def get_evolutions(poke_id: int, poke_alt: int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
-    cursor.execute("SELECT DISTINCT evo_post, evo_post_alt, poke_name, pokelink_label  FROM evolutions JOIN pokedex ON evo_post = pokedex.poke_id JOIN pokelink ON evo_post = pokelink.poke_id and evo_post_alt = pokelink_alt WHERE evo_pre = ? and evo_pre_alt = ?", (poke_id, poke_alt))
+    cursor.execute("SELECT DISTINCT evo_post, evo_post_alt, dex_name, form_label  FROM poke_evolution JOIN poke_dex ON evo_post = poke_dex.dex_id JOIN poke_form ON evo_post = poke_form.dex_id and evo_post_alt = form_alt WHERE evo_pre = ? and evo_pre_alt = ?", (poke_id, poke_alt))
     temp = cursor.fetchall()
     if temp == []:
         return None
@@ -123,7 +123,7 @@ class Pokemon:
 
     def update_properties(self):
         connection, cursor = get_static_conn("./files/ressources/bot.db")
-        cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_sex, pokelink_label FROM pokedex JOIN pokelink USING(poke_id) WHERE poke_id = ? AND pokelink_alt = ?", (self.id, self.alt))
+        cursor.execute("SELECT form_normal, form_shiny, form_sex, form_label FROM poke_dex JOIN poke_form USING(dex_id) WHERE dex_id = ? AND form_alt = ?", (self.id, self.alt))
         temp = cursor.fetchone()
 
         self.name = self.translator.getLocalPokeString("name"+str(self.id))
@@ -132,10 +132,10 @@ class Pokemon:
         self.shiny_link = temp[1]
         self.genre = temp[2]
         self.label = temp[3]
-        cursor.execute("SELECT COUNT(*) FROM pokelink WHERE poke_id = ?", (self.id, ))
+        cursor.execute("SELECT COUNT(*) FROM poke_form WHERE dex_id = ?", (self.id, ))
         self.pokelinks = cursor.fetchone()
         self.pokelinks = self.pokelinks[0]
-        cursor.execute("SELECT MAX(pokelink_alt) FROM pokelink WHERE poke_id = ?", (self.id, ))
+        cursor.execute("SELECT MAX(form_alt) FROM poke_form WHERE dex_id = ?", (self.id, ))
         self.pokealts = cursor.fetchone()
         self.pokealts = self.pokealts[0]
         self.devolution = get_devolution(self.id, self.alt)
@@ -149,7 +149,7 @@ class Pokemon:
             if self.genre == "f":
                 try:
                     self.genre = "m"
-                    cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_label FROM pokelink WHERE poke_id = ? AND pokelink_alt = ? AND pokelink_sex = ?", (self.id, self.alt, self.genre))
+                    cursor.execute("SELECT form_normal, form_shiny, form_label FROM poke_form WHERE dex_id = ? AND form_alt = ? AND form_sex = ?", (self.id, self.alt, self.genre))
                     temp = cursor.fetchone()
                     self.link = temp[0]
                     self.shiny_link = temp[1]
@@ -165,7 +165,7 @@ class Pokemon:
                     self.alt += 1
                 else:
                     self.alt = 0
-                cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_sex, pokelink_label FROM pokelink WHERE poke_id = ? AND pokelink_alt = ?", (self.id, self.alt))
+                cursor.execute("SELECT form_normal, form_shiny, form_sex, form_label FROM poke_form WHERE dex_id = ? AND form_alt = ?", (self.id, self.alt))
                 temp = cursor.fetchone()
                 self.link = temp[0]
                 self.shiny_link = temp[1]
@@ -183,7 +183,7 @@ class Pokemon:
             if self.genre == "m":
                 try:
                     self.genre = "f"
-                    cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_label FROM pokelink WHERE poke_id = ? AND pokelink_alt = ? AND pokelink_sex = ?", (self.id, self.alt, self.genre))
+                    cursor.execute("SELECT form_normal, form_shiny, form_label FROM poke_form WHERE dex_id = ? AND form_alt = ? AND form_sex = ?", (self.id, self.alt, self.genre))
                     temp = cursor.fetchone()
                     self.link = temp[0]
                     self.shiny_link = temp[1]
@@ -199,7 +199,7 @@ class Pokemon:
                     self.alt -= 1
                 else:
                     self.alt = self.pokealts
-                cursor.execute("SELECT pokelink_normal, pokelink_shiny, pokelink_sex, pokelink_label FROM pokelink WHERE poke_id = ? AND pokelink_alt = ? ORDER BY pokelink_sex DESC", (self.id, self.alt))
+                cursor.execute("SELECT form_normal, form_shiny, form_sex, form_label FROM poke_form WHERE dex_id = ? AND form_alt = ? ORDER BY form_sex DESC", (self.id, self.alt))
                 temp = cursor.fetchone()
                 self.link = temp[0]
                 self.shiny_link = temp[1]
@@ -312,13 +312,13 @@ class Pokedex():
 
         rarities = ["Common", "Uncommon", "Rare", "Super rare", "Legendary"]
 
-        cursor.execute("SELECT COUNT(distinct poke_id), poke_rarity FROM pokemon_obtained JOIN pokedex USING(poke_id) WHERE user_id = ? GROUP BY poke_rarity ORDER BY poke_rarity", (self.user.id,))
+        cursor.execute("SELECT COUNT(distinct dex_id), dex_rarity FROM poke_obtained JOIN poke_dex USING(dex_id) WHERE user_id = ? GROUP BY dex_rarity ORDER BY dex_rarity", (self.user.id,))
         obtained = cursor.fetchall()
 
-        cursor.execute("SELECT COUNT(*) FROM pokemon_obtained WHERE is_shiny = 1 AND user_id = ?", (self.user.id,))
+        cursor.execute("SELECT COUNT(*) FROM poke_obtained WHERE is_shiny = 1 AND user_id = ?", (self.user.id,))
         shiny = cursor.fetchone()
 
-        cursor.execute("SELECT COUNT(*) FROM pokedex GROUP BY poke_rarity")
+        cursor.execute("SELECT COUNT(*) FROM poke_dex GROUP BY dex_rarity")
         totals = cursor.fetchall()
         close_static_conn(connection, cursor)
 
@@ -341,9 +341,9 @@ class Pokedex():
     def __get_pokedex_embed(self):
 
         connection, cursor = get_static_conn("./files/ressources/bot.db")
-        cursor.execute("SELECT DISTINCT poke_id, poke_name, is_shiny FROM pokedex JOIN pokemon_obtained USING(poke_id) WHERE user_id = ? ORDER BY poke_id;", (self.user.id, ))
+        cursor.execute("SELECT DISTINCT dex_id, dex_name, is_shiny FROM poke_dex JOIN poke_obtained USING(dex_id) WHERE user_id = ? ORDER BY dex_id;", (self.user.id, ))
         Pokemons = cursor.fetchall()
-        cursor.execute("SELECT COUNT(DISTINCT poke_id) FROM pokemon_obtained WHERE user_id = ?;", (self.user.id, ))
+        cursor.execute("SELECT COUNT(DISTINCT dex_id) FROM poke_obtained WHERE user_id = ?;", (self.user.id, ))
         number_of_pokemons = cursor.fetchone()
         number_of_pokemons = number_of_pokemons[0]
 
@@ -382,7 +382,7 @@ class Pokedex():
 
     def __get_shiny_embed(self):
         connection, cursor = get_static_conn("./files/ressources/bot.db")
-        cursor.execute("SELECT DISTINCT poke_id, poke_name FROM pokemon_obtained JOIN pokedex USING(poke_id) WHERE is_shiny = 1 AND user_id = ? ORDER BY poke_id", (self.user.id,))
+        cursor.execute("SELECT DISTINCT dex_id, dex_name FROM poke_obtained JOIN poke_dex USING(dex_id) WHERE is_shiny = 1 AND user_id = ? ORDER BY dex_id", (self.user.id,))
         shinies = cursor.fetchall()
 
         close_static_conn(connection, cursor)

@@ -66,14 +66,14 @@ async def hug(ctx):
 async def stand(ctx):
   if not ctx.author.bot :
     connection, cursor = await get_conn("./files/ressources/bot.db")
-    await cursor.execute("SELECT stand_id FROM user_stand WHERE user_id = ?", (ctx.author.id, ))
+    await cursor.execute("SELECT stand_id FROM sta_user WHERE user_id = ?", (ctx.author.id, ))
     stand_id = await cursor.fetchone()
     if stand_id == None:
       stand_id = random.randint(1, 32)
-      await cursor.execute("INSERT INTO user_stand(user_id, stand_id) VALUES(?, ?)", (ctx.author.id, stand_id))
+      await cursor.execute("INSERT INTO sta_user(user_id, stand_id) VALUES(?, ?)", (ctx.author.id, stand_id))
     else:
       stand_id = stand_id[0]
-    await cursor.execute("SELECT stand_name, stand_link FROM stands WHERE stand_id = ?", (stand_id, ))
+    await cursor.execute("SELECT stand_name, stand_link FROM sta_stand WHERE stand_id = ?", (stand_id, ))
     stand = await cursor.fetchone()
     await connection.commit()
     await close_conn(connection, cursor)
