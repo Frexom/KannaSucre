@@ -79,7 +79,7 @@ class slashPoke(commands.Cog):
 
                 #Pokemon already captured but shiny
                 elif (is_obtained[3] == 0 and pokemon.shiny):
-                    await cursor.execute("UPDATE poke_obtained SET is_shiny = 1 WHERE user_id = ? and dex_id = ?", (userID, pokemon.id))
+                    await cursor.execute("UPDATE poke_obtained SET is_shiny = 1 WHERE user_id = ? and dex_id = ? and form_alt = ?", (userID, pokemon.id, pokemon.alt))
                     desc = pokeRarity + form_string + shiny_string
 
                 #Pokemon already captured
