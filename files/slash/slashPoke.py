@@ -24,7 +24,7 @@ class slashPoke(commands.Cog):
             await interaction.response.defer()
 
             connection, cursor = await get_conn("./files/ressources/bot.db")
-            await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (userID, ))
+            await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM dis_user WHERE user_id =?", (userID, ))
             data = await cursor.fetchone()
 
             last_roll = data[0]
@@ -36,23 +36,23 @@ class slashPoke(commands.Cog):
             if time_since > 7200 or pity >= 1:
                 if time_since < 7200:
                     pity -= 1
-                    await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity, userID))
+                    await cursor.execute("UPDATE dis_user SET user_pity = ? WHERE user_id = ?", (pity, userID))
                 else:
-                    await cursor.execute("UPDATE users SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
+                    await cursor.execute("UPDATE dis_user SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
                 await connection.commit()
 
                 pokemon = Pokemon(guildID = interaction.guild.id)
 
-                await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (userID, pokemon.id, pokemon.alt ))
+                await cursor.execute("SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?", (userID, pokemon.id, pokemon.alt ))
                 is_obtained = await cursor.fetchone()
 
                 #Second chance
                 if(is_obtained):
                         pokemon = Pokemon(guildID = interaction.guild.id)
 
-                await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ? AND pokelink_alt = ?", (userID, pokemon.id, pokemon.alt ))
+                await cursor.execute("SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?", (userID, pokemon.id, pokemon.alt ))
                 is_obtained = await cursor.fetchone()
-                await cursor.execute("SELECT * FROM pokemon_obtained WHERE user_id = ? AND poke_id = ?", (userID, pokemon.id))
+                await cursor.execute("SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ?", (userID, pokemon.id))
                 is_pokedex = await cursor.fetchone()
 
 
@@ -74,12 +74,12 @@ class slashPoke(commands.Cog):
 
                 #New Pokémon
                 if is_obtained == None:
-                    await cursor.execute("INSERT INTO pokemon_obtained (user_id, poke_id, pokelink_alt, is_shiny, date) VALUES (?, ?, ?, ?, ?)", (userID, pokemon.id, pokemon.alt, int(pokemon.shiny), now))
+                    await cursor.execute("INSERT INTO poke_obtained (user_id, dex_id, form_alt, is_shiny, date) VALUES (?, ?, ?, ?, ?)", (userID, pokemon.id, pokemon.alt, int(pokemon.shiny), now))
                     desc = pokeRarity + form_string + shiny_string
 
                 #Pokemon already captured but shiny
                 elif (is_obtained[3] == 0 and pokemon.shiny):
-                    await cursor.execute("UPDATE pokemon_obtained SET is_shiny = 1 WHERE user_id = ? and poke_id = ?", (userID, pokemon.id))
+                    await cursor.execute("UPDATE poke_obtained SET is_shiny = 1 WHERE user_id = ? and dex_id = ?", (userID, pokemon.id))
                     desc = pokeRarity + form_string + shiny_string
 
                 #Pokemon already captured
@@ -88,7 +88,7 @@ class slashPoke(commands.Cog):
                     pokeAlready += t.getLocalString("pokeAlready", [])
                     pokeExtraRolls = t.getLocalString("pokeExtraRolls", [("number", pokemon.rarity[0]*0.25)])
                     desc = pokeRarity + shiny_string + pokeAlready + "\n" +pokeExtraRolls
-                    await cursor.execute("UPDATE users SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon.rarity[0], userID))
+                    await cursor.execute("UPDATE dis_user SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon.rarity[0], userID))
 
                 await connection.commit()
                 title = t.getLocalString("pokeCatch", [("user", userName), ("pokeName", pokemon.name)])
@@ -223,7 +223,7 @@ class slashPoke(commands.Cog):
         t = Translator(interaction.guild.id, loadStrings = True)
 
         connection, cursor = await get_conn("./files/ressources/bot.db")
-        await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM users WHERE user_id =?", (interaction.user.id, ))
+        await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM dis_user WHERE user_id =?", (interaction.user.id, ))
         data = await cursor.fetchone()
         last_roll = data[0]
         pity = data[1]
@@ -330,7 +330,7 @@ class slashPoke(commands.Cog):
             await interaction.response.defer()
 
             connection, cursor = await get_conn("./files/ressources/bot.db")
-            await cursor.execute("SELECT COUNT(DISTINCT poke_id), user_id FROM pokemon_obtained GROUP BY user_id LIMIT 10")
+            await cursor.execute("SELECT COUNT(DISTINCT dex_id), user_id FROM poke_obtained GROUP BY user_id LIMIT 10")
             result = await cursor.fetchall()
             await close_conn(connection, cursor)
             result_list = []

@@ -45,7 +45,7 @@ class slashUtilities(commands.Cog):
             connection, cursor = await get_conn("./files/ressources/bot.db")
             if command == None:
                 categories = ["__Admin commands :__ \n\n", "\n\n__Moderation commands :__ \n\n", "\n\n__Utilities commands :__ \n\n", "\n\n__Miscellaneous/Fun commands :__ \n\n"]
-                await cursor.execute("SELECT com_name, com_short, cat_category FROM commands ORDER BY cat_category, com_name")
+                await cursor.execute("SELECT com_name, com_short, cat_category FROM com_command ORDER BY cat_category, com_name")
                 commands = await cursor.fetchall()
                 await close_conn(connection, cursor)
                 content = ""
@@ -60,7 +60,7 @@ class slashUtilities(commands.Cog):
                 embed.add_field(name="** **", value=content)
                 await interaction.response.send_message(embed=embed)
             else:
-                await cursor.execute("SELECT com_name, com_desc, com_use_example, com_user_perms, com_bot_perms, com_more_perms_than_target FROM commands")
+                await cursor.execute("SELECT com_name, com_desc, com_use_example, com_user_perms, com_bot_perms, com_more_perms_than_target FROM com_command")
                 commands = await cursor.fetchall()
                 await close_conn(connection, cursor)
                 successful = False
