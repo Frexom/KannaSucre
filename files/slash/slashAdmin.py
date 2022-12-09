@@ -14,13 +14,17 @@ class slashAdmin(commands.Cog):
     async def prefix(self, interaction: discord.Interaction, prefix: str):
         if not interaction.user.bot :
             if interaction.user.guild_permissions.manage_guild:
-                connection, cursor = await get_conn("./files/ressources/bot.db")
-                await cursor.execute("UPDATE dis_guild SET guild_prefix = ? WHERE guild_id = ?", (prefix, interaction.guild.id))
                 t = Translator(interaction.guild.id, loadStrings=True)
-                content = t.getLocalString("newPrefix", [("prefix", str(prefix))])
-                await interaction.response.send_message(content = content)
-                await connection.commit()
-                await close_conn(connection, cursor)
+                if ' ' not in prefix:
+                    connection, cursor = await get_conn("./files/ressources/bot.db")
+                    await cursor.execute("UPDATE dis_guild SET guild_prefix = ? WHERE guild_id = ?", (prefix, interaction.guild.id))
+                    content = t.getLocalString("newPrefix", [("prefix", str(prefix))])
+                    await interaction.response.send_message(content = content)
+                    await connection.commit()
+                    await close_conn(connection, cursor)
+                else:
+                    content = t.getLocalString("prefixNoSpace", [])
+                    await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "prefix", "manage guild")
 
@@ -126,13 +130,16 @@ class slashAdmin(commands.Cog):
     async def toggleLevels(self, interaction: discord.Interaction, toggle:int):
         if not interaction.user.bot:
             if interaction.user.guild_permissions.manage_guild:
+                t = Translator(interaction.guild.id, loadStrings=True)
                 connection, cursor = await get_conn("./files/ressources/bot.db")
                 await cursor.execute("UPDATE dis_guild SET guilds_level_enabled = ? WHERE guild_id = ?", (toggle, interaction.guild.id))
                 await connection.commit()
 
                 if toggle == 1:
-                    await interaction.response.send_message("The level feature is now enabled!")
+                    content = t.getLocalString("togglelevelsEnabled", [])
+                    await interaction.response.send_message(content = content)
                 else:
-                    await interaction.response.send_message("The level feature is now disabled.")
+                    content = t.getLocalString("togglelevelsDisabled", [])
+                    await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "announce", "manage guild")

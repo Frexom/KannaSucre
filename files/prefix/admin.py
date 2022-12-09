@@ -120,16 +120,19 @@ async def toggleLevels(ctx):
         if ctx.author.guild_permissions.manage_guild:
             message = ctx.message.content.split(" ")
             toggle = message[1]
-            if(toggle.isdigit() and (toggle == 0 or toggle == 1)):
+            if(toggle.isnumeric() and (toggle == "0" or toggle == "1")):
                 toggle = int(toggle)
                 connection, cursor = await get_conn("./files/ressources/bot.db")
                 await cursor.execute("UPDATE dis_guild SET guilds_level_enabled = ? WHERE guild_id = ?", (toggle, ctx.guild.id))
                 await connection.commit()
 
+                t = Translator(ctx.guild.id, loadStrings=True)
                 if toggle == 1:
-                    await ctx.send("The level feature is now enabled!")
+                    content = t.getLocalString("togglelevelsEnabled", [])
+                    await ctx.send(content = content)
                 else:
-                    await ctx.send("The level feature is now disabled.")
+                    content = t.getLocalString("togglelevelsDisabled", [])
+                    await ctx.send(content = content)
             else:
                 prefix = str(await get_pre(ctx))
                 await ctx.send("```" + str(prefix) + "togglelevels 0 or 1```")
