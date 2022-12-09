@@ -115,3 +115,24 @@ class slashAdmin(commands.Cog):
                     await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "announce", "manage guild")
+
+
+    @app_commands.command(name = "togglelevels", description = "Enable or disable the level feature.")
+    @app_commands.choices(toggle=[
+        app_commands.Choice(name="Disable", value=0)
+        ,app_commands.Choice(name="Enable", value=1)
+    ])
+    @app_commands.describe(toggle="Weather activating the level feature or not.")
+    async def toggleLevels(self, interaction: discord.Interaction, toggle:int):
+        if not interaction.user.bot:
+            if interaction.user.guild_permissions.manage_guild:
+                connection, cursor = await get_conn("./files/ressources/bot.db")
+                await cursor.execute("UPDATE dis_guild SET guilds_level_enabled = ? WHERE guild_id = ?", (toggle, interaction.guild.id))
+                await connection.commit()
+
+                if toggle == 1:
+                    await interaction.response.send_message("The level feature is now enabled!")
+                else:
+                    await interaction.response.send_message("The level feature is now disabled.")
+            else:
+                await missing_perms(interaction, "announce", "manage guild")
