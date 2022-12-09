@@ -92,7 +92,7 @@ async def on_message(message):
 		connection, cursor = await get_conn("./files/ressources/bot.db")
 
 		#Levels
-		await cursor.execute("SELECT guilds_level_enabled FROM dis_guild WHERE guild_id = ?", (message.guild.id, ))
+		await cursor.execute("SELECT guild_levels_enabled FROM dis_guild WHERE guild_id = ?", (message.guild.id, ))
 		enabled = await cursor.fetchone()
 		if enabled[0] == 1:
 			await cursor.execute("SELECT user_xp, user_level FROM dis_user WHERE user_id = ?", (message.author.id, ))
@@ -107,7 +107,7 @@ async def on_message(message):
 				await message.channel.send("Congratulations <@" + str(message.author.id) + ">, you are now level " + str(user_level) + "!")
 			else:
 				await cursor.execute("UPDATE dis_user SET user_xp = ? WHERE user_id = ?", (user_xp, message.author.id))
-		
+
 		await connection.commit()
 		await close_conn(connection, cursor)
 

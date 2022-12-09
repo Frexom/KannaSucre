@@ -132,7 +132,7 @@ class slashAdmin(commands.Cog):
             if interaction.user.guild_permissions.manage_guild:
                 t = Translator(interaction.guild.id, loadStrings=True)
                 connection, cursor = await get_conn("./files/ressources/bot.db")
-                await cursor.execute("UPDATE dis_guild SET guilds_level_enabled = ? WHERE guild_id = ?", (toggle, interaction.guild.id))
+                await cursor.execute("UPDATE dis_guild SET guild_levels_enabled = ? WHERE guild_id = ?", (toggle, interaction.guild.id))
                 await connection.commit()
 
                 if toggle == 1:

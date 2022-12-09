@@ -123,7 +123,7 @@ async def toggleLevels(ctx):
             if(toggle.isnumeric() and (toggle == "0" or toggle == "1")):
                 toggle = int(toggle)
                 connection, cursor = await get_conn("./files/ressources/bot.db")
-                await cursor.execute("UPDATE dis_guild SET guilds_level_enabled = ? WHERE guild_id = ?", (toggle, ctx.guild.id))
+                await cursor.execute("UPDATE dis_guild SET guild_levels_enabled = ? WHERE guild_id = ?", (toggle, ctx.guild.id))
                 await connection.commit()
 
                 t = Translator(ctx.guild.id, loadStrings=True)
