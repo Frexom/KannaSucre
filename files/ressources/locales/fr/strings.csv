@@ -60,4 +60,7 @@ supportServer&Une question sur KannaSucre? Besoin d'aiide avec une commande? Voi
 channelGuild&Ce salon n'est pas sur ce serveur!
 announceAuthor&*Message envoyé par {user} :*\n
 announceLink&Envoyé!\nCliquez ici pour voir le message :
-goodbye&{memberName} a quitté le serveur. :(
+goodbye&{memberName} a quitté le serveur :(
+prefixNoSpace&Il ne peut pas y avoir d'espace dans le prefix!
+togglelevelsEnabled&La fonctionnalité de niveaux est activée!
+togglelevelsDisabled&La fonctionnalité de niveaux est déactivée.

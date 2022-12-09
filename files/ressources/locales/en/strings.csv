@@ -61,3 +61,6 @@ channelGuild&This channel isn't on this server!
 announceAuthor&*Message sent by {user} :*\n
 announceLink&Done!\n Click here to go to message :
 goodbye&{memberName} left the server. :(
+prefixNoSpace&There can't be a space character in the prefix!
+togglelevelsEnabled&The level feature is now enabled!
+togglelevelsDisabled&The level feature is now disabled.
