@@ -92,18 +92,22 @@ async def on_message(message):
 		connection, cursor = await get_conn("./files/ressources/bot.db")
 
 		#Levels
-		await cursor.execute("SELECT user_xp, user_level FROM dis_user WHERE user_id = ?", (message.author.id, ))
-		user_leveling = await cursor.fetchone()
-		user_xp = user_leveling[0]
-		user_level = user_leveling[1]
-		user_xp += random.randint(30,50)
-		if user_xp > 500*user_level:
-			user_xp -= 500*user_level
-			user_level +=1
-			await cursor.execute("UPDATE dis_user SET user_xp = ?, user_level = ? WHERE user_id = ?", (user_xp, user_level, message.author.id))
-			await message.channel.send("Congratulations <@" + str(message.author.id) + ">, you are now level " + str(user_level) + "!")
-		else:
-			await cursor.execute("UPDATE dis_user SET user_xp = ? WHERE user_id = ?", (user_xp, message.author.id))
+		await cursor.execute("SELECT guilds_level_enabled FROM dis_guild WHERE guild_id = ?", (message.guild.id, ))
+		enabled = await cursor.fetchone()
+		if enabled[0] == 1:
+			await cursor.execute("SELECT user_xp, user_level FROM dis_user WHERE user_id = ?", (message.author.id, ))
+			user_leveling = await cursor.fetchone()
+			user_xp = user_leveling[0]
+			user_level = user_leveling[1]
+			user_xp += random.randint(30,50)
+			if user_xp > 500*user_level:
+				user_xp -= 500*user_level
+				user_level +=1
+				await cursor.execute("UPDATE dis_user SET user_xp = ?, user_level = ? WHERE user_id = ?", (user_xp, user_level, message.author.id))
+				await message.channel.send("Congratulations <@" + str(message.author.id) + ">, you are now level " + str(user_level) + "!")
+			else:
+				await cursor.execute("UPDATE dis_user SET user_xp = ? WHERE user_id = ?", (user_xp, message.author.id))
+		
 		await connection.commit()
 		await close_conn(connection, cursor)
 
