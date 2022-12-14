@@ -34,14 +34,14 @@ async def poke(ctx):
             await cursor.execute("UPDATE dis_user SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
         await connection.commit()
 
-        pokemon = Pokemon(guildID = ctx.guild.id)
+        pokemon = Pokemon(interaction = ctx)
 
         await cursor.execute("SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?", (userID, pokemon.id, pokemon.alt ))
         is_obtained = await cursor.fetchone()
 
         #Second chance
         if(is_obtained):
-                pokemon = Pokemon(guildID = ctx.guild.id)
+                pokemon = Pokemon(interaction = ctx)
 
         await cursor.execute("SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?", (userID, pokemon.id, pokemon.alt ))
         is_obtained = await cursor.fetchone()
@@ -123,7 +123,7 @@ async def pokeinfo(ctx):
                 return
 
 
-            pokemon = Pokemon(guildID = ctx.guild.id, pokeID = poke_id)
+            pokemon = Pokemon(interaction = ctx, pokeID = poke_id)
             buttonView = pokeView(90)
 
         #Callback definition, and buttons generation
