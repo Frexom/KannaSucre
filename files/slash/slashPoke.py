@@ -32,7 +32,6 @@ class slashPoke(commands.Cog):
             now = time.time()
             time_since = int(now - last_roll)
 
-            t = Translator(interaction.guild.id, loadStrings = True)
             if time_since > 7200 or pity >= 1:
                 if time_since < 7200:
                     pity -= 1
@@ -41,14 +40,14 @@ class slashPoke(commands.Cog):
                     await cursor.execute("UPDATE dis_user SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
                 await connection.commit()
 
-                pokemon = Pokemon(guildID = interaction.guild.id)
+                pokemon = Pokemon(interaction = interaction)
 
                 await cursor.execute("SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?", (userID, pokemon.id, pokemon.alt ))
                 is_obtained = await cursor.fetchone()
 
                 #Second chance
                 if(is_obtained):
-                        pokemon = Pokemon(guildID = interaction.guild.id)
+                        pokemon = Pokemon(interaction = interaction)
 
                 await cursor.execute("SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?", (userID, pokemon.id, pokemon.alt ))
                 is_obtained = await cursor.fetchone()
@@ -62,15 +61,15 @@ class slashPoke(commands.Cog):
                 link = pokemon.link
 
 
-                pokeRarity = t.getLocalString("pokeRarity", [("rarity", pokemon.rarity[1])])
+                pokeRarity = bot.translator.getLocalString(interaction, "pokeRarity", [("rarity", pokemon.rarity[1])])
                 if pokemon.shiny:
                     shiny_string = "\n"
-                    shiny_string += t.getLocalString("isShiny", [])
+                    shiny_string += bot.translator.getLocalString(interaction, "isShiny", [])
 
                 #New Form
                 if(is_obtained == None and (is_pokedex)):
                     form_string = "\n"
-                    form_string += t.getLocalString("pokeNewForm", [])
+                    form_string += bot.translator.getLocalString(interaction, "pokeNewForm", [])
 
                 #New Pokémon
                 if is_obtained == None:
@@ -85,13 +84,13 @@ class slashPoke(commands.Cog):
                 #Pokemon already captured
                 else:
                     pokeAlready = "\n"
-                    pokeAlready += t.getLocalString("pokeAlready", [])
-                    pokeExtraRolls = t.getLocalString("pokeExtraRolls", [("number", pokemon.rarity[0]*0.25)])
+                    pokeAlready += bot.translator.getLocalString(interaction, "pokeAlready", [])
+                    pokeExtraRolls = bot.translator.getLocalString(interaction, "pokeExtraRolls", [("number", pokemon.rarity[0]*0.25)])
                     desc = pokeRarity + shiny_string + pokeAlready + "\n" +pokeExtraRolls
                     await cursor.execute("UPDATE dis_user SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon.rarity[0], userID))
 
                 await connection.commit()
-                title = t.getLocalString("pokeCatch", [("user", userName), ("pokeName", pokemon.name)])
+                title = bot.translator.getLocalString(interaction, "pokeCatch", [("user", userName), ("pokeName", pokemon.name)])
                 e = discord.Embed(title = title, description = desc)
                 e.set_image(url=link)
                 await interaction.followup.send(content = link, embed = e)
@@ -101,11 +100,11 @@ class slashPoke(commands.Cog):
                 if time_left > 3600:
                     time_left -= 3600
                     time_left = int(time_left/60)
-                    content = t.getLocalString("rollsHours", [("user", userName), ("hours", 1), ("minutes", time_left), ("number", pity)])
+                    content = bot.translator.getLocalString(interaction, "rollsHours", [("user", userName), ("hours", 1), ("minutes", time_left), ("number", pity)])
                 else:
                     time_left += 60
                     time_left = int(time_left/60)
-                    content = t.getLocalString("rollsMinutes", [("user", userName), ("minutes", time_left), ("number", pity)])
+                    content = bot.translator.getLocalString(interaction, "rollsMinutes", [("user", userName), ("minutes", time_left), ("number", pity)])
                 await interaction.followup.send(content = content)
             await close_conn(connection, cursor)
 
@@ -114,25 +113,23 @@ class slashPoke(commands.Cog):
     @app_commands.command(name = "pokeinfo", description = "Shows a pokemon's details!")
     @app_commands.describe(id="The pokemon's pokedex ID.", name="The pokemon's name.")
     async def pokeinfo(self, interaction: discord.Interaction, id: int = None, name: str = None):
-        t = Translator(interaction.guild.id, loadStrings = True, loadPoke = True)
-
         if not interaction.user.bot:
             if id is not None or name is not None:
                 if name is not None:
-                    poke_id = t.getPokeIdByName(name.lower())
+                    poke_id = bot.translator.getPokeIdByName(interaction, name.lower())
                 else:
                     poke_id = id
 
                 #If poke_id is Illegal
                 if poke_id > poke_count or poke_id <= 0 :
-                    title = t.getLocalString("pokeinfoNotFound", [])
-                    description = t.getLocalString("pokeinfoNoSuch", [])
+                    title = bot.translator.getLocalString(interaction, "pokeinfoNotFound", [])
+                    description = bot.translator.getLocalString(interaction, "pokeinfoNoSuch", [])
                     e = discord.Embed(title = title, description = description)
                     await interaction.response.send_message(embed = e)
                     return
 
 
-                pokemon = Pokemon(guildID = interaction.guild.id, pokeID = poke_id)
+                pokemon = Pokemon(interaction = interaction, pokeID = poke_id)
                 buttonView = pokeView(90)
                 buttonView.setMessage(interaction)
 
@@ -179,7 +176,7 @@ class slashPoke(commands.Cog):
                     await interaction.response.defer()
                     if pokemon.evolutions is not None:
                         if len(pokemon.evolutions) > 1:
-                            dropdown = PokeDropdown(pokemon, buttonView)
+                            dropdown = PokeDropdown(interaction, pokemon, buttonView)
 
                             evoView = pokeView(90)
                             evoView.setMessage(buttonView.message)
@@ -214,13 +211,12 @@ class slashPoke(commands.Cog):
                 await interaction.response.send_message(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed(), view = buttonView)
 
             else:
-                content = t.getLocalString("pokeinfoInput", [])
+                content = bot.translator.getLocalString(interaction, "pokeinfoInput", [])
                 await interaction.response.send_message(content = content)
 
 
     @app_commands.command(name = "rolls", description = "Displays how much pokerolls you have, and when your next free roll will be.")
     async def rolls(self, interaction: discord.Interaction):
-        t = Translator(interaction.guild.id, loadStrings = True)
 
         connection, cursor = await get_conn("./files/ressources/bot.db")
         await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM dis_user WHERE user_id =?", (interaction.user.id, ))
@@ -232,17 +228,17 @@ class slashPoke(commands.Cog):
         time_left = int(7200 - time_since)
         userName = interaction.user.display_name
         if time_left <= 0:
-            content = t.getLocalString("rollsAvailable", [("user", userName), ("number", pity)])
+            content = bot.translator.getLocalString(interaction, "rollsAvailable", [("user", userName), ("number", pity)])
             await interaction.response.send_message(content = content)
         elif time_left > 3600:
             time_left -= 3600
             time_left = int(time_left/60)
-            content = t.getLocalString("rollsHours", [("user", userName), ("hours", 1), ("minutes", time_left), ("number", pity)])
+            content = bot.translator.getLocalString(interaction, "rollsHours", [("user", userName), ("hours", 1), ("minutes", time_left), ("number", pity)])
             await interaction.response.send_message(content = content)
         else:
             time_left += 60
             time_left = int(time_left/60)
-            content = t.getLocalString("rollsMinutes", [("user", userName), ("minutes", time_left), ("number", pity)])
+            content = bot.translator.getLocalString(interaction, "rollsMinutes", [("user", userName), ("minutes", time_left), ("number", pity)])
             await interaction.response.send_message(content = content)
         await close_conn(connection, cursor)
 
@@ -253,8 +249,6 @@ class slashPoke(commands.Cog):
     @app_commands.describe(user = "The user you want to see the pokedex of.", page="The pokedex's page you want to see.")
     async def pokedex(self, interaction: discord.Interaction, user: discord.User = None, page: int = 1):
         if not interaction.user.bot :
-            t = Translator(interaction.guild.id, loadStrings = True)
-
             if user is None:
                 user = interaction.user
             if not user.bot:
@@ -262,7 +256,7 @@ class slashPoke(commands.Cog):
                 closedView.setMessage(interaction)
                 openedView = pokeView(90)
                 openedView.setMessage(interaction)
-                pokedex = Pokedex(interaction.guild.id, user, page-1)
+                pokedex = Pokedex(interaction, user, page-1)
 
                 open = discord.ui.Button(label = "Open", emoji = "🌐")
                 async def openCallback(interaction):
@@ -317,7 +311,7 @@ class slashPoke(commands.Cog):
 
                 await interaction.response.send_message(embed=pokedex.embed, view = closedView)
             else:
-                content = t.getLocalString("commandBot", [])
+                content = bot.translator.getLocalString(interaction, "commandBot", [])
                 await interaction.response.send_message(content = content)
 
     @app_commands.command(name = "pokerank", description = "Displays the bot's top 10 best pokemon trainers!")

@@ -2,9 +2,10 @@ from pokemon import *
 from bot import *
 
 class PokeDropdown(discord.ui.Select):
-    def __init__(self, pokemon: Pokemon, buttonView: discord.ui.View):
+    def __init__(self, interaction, pokemon: Pokemon, buttonView: discord.ui.View):
         self.pokemon = pokemon
         self.buttonView = buttonView
+        self.interaction = interaction
 
         noLabel = ["Normal", "Male", "Female"]
         options = []
@@ -15,7 +16,7 @@ class PokeDropdown(discord.ui.Select):
             label = evo[2] if evo[3] in noLabel else evo[3] + " " + evo[2]
             options.append(discord.SelectOption(label = label, value = i ))
             i += 1
-        placeholder = self.pokemon.translator.getLocalString("chooseEvolution", [])
+        placeholder = bot.translator.getLocalString(self.interaction, "chooseEvolution", [])
         super().__init__(placeholder = placeholder, options = options, min_values = 1, max_values = 1)
 
     async def callback(self, interaction: discord.Interaction):

@@ -29,8 +29,7 @@ async def on_command_error(ctx, error):
 		return
 	elif isinstance(error, discord.errors.Forbidden):
 		try:
-			t = Translator(ctx.guild.id, loadStrings=True)
-			content = t.getLocalString("kannaMissPerms", [])
+			content = bot.translator.getLocalString(ctx, "kannaMissPerms", [])
 			await ctx.channel.send(content = content)
 			return
 		except Exception as e:
@@ -49,8 +48,7 @@ async def on_member_join(member):
 	if channel_ID != 0:
 		welcome_channel: discord.TextChannel = bot.get_channel(channel_ID)
 		if welcome_channel is not None:
-			t = Translator(member.guild.id, loadStrings=True)
-			content = t.getLocalString("welcome", [("memberID", str(member.id))])
+			content = bot.translator.getLocalString(member, "welcome", [("memberID", str(member.id))])
 			await welcome_channel.send(content = content)
 
 	if not member.bot:
@@ -67,13 +65,13 @@ async def on_member_remove(member):
 	connection, cursor = await get_conn("./files/ressources/bot.db")
 	await cursor.execute("SELECT guild_welcome_channel_ID FROM dis_guild WHERE guild_id = ?", (member.guild.id, ))
 	channel_ID = await cursor.fetchone()
+	await close_conn(connection, cursor)
+
 	if channel_ID[0] != 0:
 		welcome_channel: discord.TextChannel = bot.get_channel(channel_ID[0])
 		if welcome_channel is not None:
-			t = Translator(member.guild.id, loadStrings=True)
-			content = t.getLocalString("goodbye", [("memberName", member.name+"#"+member.discriminator)])
+			content = bot.translator.getLocalString(member, "goodbye", [("memberName", member.name+"#"+member.discriminator)])
 			await welcome_channel.send(content = content)
-	await close_conn(connection, cursor)
 
 
 @bot.event

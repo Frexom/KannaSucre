@@ -51,13 +51,12 @@ async def hug(ctx):
         "https://images-ext-1.discordapp.net/external/2TAL2AoHlWYA2U4lStmtWb8CCo0S417XnedHFaz9uaw/%3Fitemid%3D19674705/https/media1.tenor.com/images/f7b6be96e8ebb23319b43304da0e1118/tenor.gif"
     ]
 
-    t = Translator(ctx.guild.id, loadStrings=True)
     if ctx.author == user or user == bot.user:
-        title = t.getLocalString("hugLonely", [("user", ctx.author.display_name)])
+        title = bot.translator.getLocalString(ctx, "hugLonely", [("user", ctx.author.display_name)])
         e =  discord.Embed(title=title)
         e.set_image(url="https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif")
     else:
-        title = t.getLocalString("hugUser", [("user", user.display_name), ("otherUser", ctx.author.display_name)])
+        title = bot.translator.getLocalString(ctx, "hugUser", [("user", user.display_name), ("otherUser", ctx.author.display_name)])
         e = discord.Embed(title=title)
         e.set_image(url=str(hugList[random.randint(0, len(hugList) - 1)]))
     await ctx.send(embed=e)
@@ -77,8 +76,7 @@ async def stand(ctx):
     stand = await cursor.fetchone()
     await connection.commit()
     await close_conn(connection, cursor)
-    t = Translator(ctx.guild.id, loadStrings = True)
-    title = t.getLocalString("userStand", [("user", ctx.author.display_name), ("standName", stand[0])])
+    title = bot.translator.getLocalString(ctx, "userStand", [("user", ctx.author.display_name), ("standName", stand[0])])
     e = discord.Embed(title = title, colour=discord.Colour(0x635f))
     e.set_image(url=stand[1])
     await ctx.send(embed = e)

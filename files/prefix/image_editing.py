@@ -52,6 +52,5 @@ async def level(ctx):
       image.save("./files/LevelCommand/Users/stats" + str(user.id) + ".png")
       await ctx.send(file = discord.File("./files/LevelCommand/Users/stats" + str(user.id) + ".png"))
     else:
-      t = Translator(ctx.guild.id, loadStrings=True)
-      content = t.getLocalString("commandBot", [])
+      content = bot.translator.getLocalString(ctx, "commandBot", [])
       await ctx.send(content = content)

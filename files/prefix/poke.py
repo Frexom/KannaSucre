@@ -26,7 +26,6 @@ async def poke(ctx):
     now = time.time()
     time_since = int(now - last_roll)
 
-    t = Translator(ctx.guild.id, loadStrings = True)
     if time_since > 7200 or pity >= 1:
         if time_since < 7200:
             pity -= 1
@@ -56,15 +55,15 @@ async def poke(ctx):
         link = pokemon.link
 
 
-        pokeRarity = t.getLocalString("pokeRarity", [("rarity", pokemon.rarity[1])])
+        pokeRarity = bot.translator.getLocalString(ctx, "pokeRarity", [("rarity", pokemon.rarity[1])])
         if pokemon.shiny:
             shiny_string = "\n"
-            shiny_string += t.getLocalString("isShiny", [])
+            shiny_string += bot.translator.getLocalString(ctx, "isShiny", [])
 
         #New Form
         if(is_obtained == None and (is_pokedex)):
             form_string = "\n"
-            form_string += t.getLocalString("pokeNewForm", [])
+            form_string += t.getLocalString(ctx, "pokeNewForm", [])
 
         #New Pokémon
         if is_obtained == None:
@@ -79,13 +78,13 @@ async def poke(ctx):
         #Pokemon already captured
         else:
             pokeAlready = "\n"
-            pokeAlready += t.getLocalString("pokeAlready", [])
-            pokeExtraRolls = t.getLocalString("pokeExtraRolls", [("number", pokemon.rarity[0]*0.25)])
+            pokeAlready += bot.translator.getLocalString(ctx, "pokeAlready", [])
+            pokeExtraRolls = bot.translator.getLocalString(ctx, "pokeExtraRolls", [("number", pokemon.rarity[0]*0.25)])
             desc = pokeRarity + shiny_string + pokeAlready + "\n" +pokeExtraRolls
             await cursor.execute("UPDATE dis_user SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon.rarity[0], userID))
 
         await connection.commit()
-        title = t.getLocalString("pokeCatch", [("user", userName), ("pokeName", pokemon.name)])
+        title = bot.translator.getLocalString(ctx, "pokeCatch", [("user", userName), ("pokeName", pokemon.name)])
         e = discord.Embed(title = title, description = desc)
         e.set_image(url=link)
         await ctx.send(content = link, embed = e)
@@ -95,11 +94,11 @@ async def poke(ctx):
         if time_left > 3600:
             time_left -= 3600
             time_left = int(time_left/60)
-            content = t.getLocalString("rollsHours", [("user", userName), ("hours", 1), ("minutes", time_left), ("number", pity)])
+            content = bot.translator.getLocalString(ctx, "rollsHours", [("user", userName), ("hours", 1), ("minutes", time_left), ("number", pity)])
         else:
             time_left += 60
             time_left = int(time_left/60)
-            content = t.getLocalString("rollsMinutes", [("user", userName), ("minutes", time_left), ("number", pity)])
+            content = bot.translator.getLocalString(ctx, "rollsMinutes", [("user", userName), ("minutes", time_left), ("number", pity)])
         await ctx.send(content = content)
     await close_conn(connection, cursor)
 
@@ -115,12 +114,10 @@ async def pokeinfo(ctx):
             else:
                 poke_id = int(message[1])
 
-            t = Translator(ctx.guild.id, loadStrings = True, loadPoke = True)
-
             #If poke_id is Illegal
             if poke_id > poke_count or poke_id <= 0 :
-                title = t.getLocalString("pokeinfoNotFound", [])
-                description = t.getLocalString("pokeinfoNoSuch", [])
+                title = bot.translator.getLocalString(ctx, "pokeinfoNotFound", [])
+                description = bot.translator.getLocalString(ctx, "pokeinfoNoSuch", [])
                 e = discord.Embed(title = title, description = description)
                 await ctx.send(embed = e)
                 return
@@ -171,7 +168,7 @@ async def pokeinfo(ctx):
                 nonlocal pokemon, buttonView
                 if pokemon.evolutions is not None:
                     if len(pokemon.evolutions) > 1:
-                        dropdown = PokeDropdown(pokemon, buttonView)
+                        dropdown = PokeDropdown(ctx, pokemon, buttonView)
 
                         evoView = pokeView(90)
                         evoView.setMessage(buttonView.message)
@@ -208,7 +205,7 @@ async def pokeinfo(ctx):
             buttonView.setMessage(message)
 
         else:
-            content = t.getLocalString("pokeinfoInput", [])
+            content = bot.translator.getLocalString(ctx, "pokeinfoInput", [])
             await ctx.response.send_message(content = content)
 
 
@@ -222,20 +219,19 @@ async def rolls(ctx):
     time_since = int(now - last_roll)
     time_left = int(7200 - time_since)
     userName = ctx.author.display_name or ctx.author.name
-    t = Translator(ctx.guild.id, loadStrings = True)
 
     if time_left <= 0:
-        content = t.getLocalString("rollsAvailable", [("user", userName), ("number", pity)])
+        content = bot.translator.getLocalString(ctx, "rollsAvailable", [("user", userName), ("number", pity)])
         await ctx.send(content = content)
     elif time_left > 3600:
         time_left -= 3600
         time_left = int(time_left/60)
-        content = t.getLocalString("rollsHours", [("user", userName), ("hours", 1), ("minutes", time_left), ("number", pity)])
+        content = bot.translator.getLocalString(ctx, "rollsHours", [("user", userName), ("hours", 1), ("minutes", time_left), ("number", pity)])
         await ctx.send(content = content)
     else:
         time_left += 60
         time_left = int(time_left/60)
-        content = t.getLocalString("rollsMinutes", [("user", userName), ("minutes", time_left), ("number", pity)])
+        content = bot.translator.getLocalString(ctx, "rollsMinutes", [("user", userName), ("minutes", time_left), ("number", pity)])
         await ctx.send(content = content)
     await close_conn(connection, cursor)
 
@@ -252,11 +248,9 @@ async def pokedex(ctx):
                 if page < 1 or page > int(poke_count/20)+1:
                     page = 1
 
-            t = Translator(ctx.guild.id, loadStrings = True)
-
             closedView = pokeView(90)
             openedView = pokeView(90)
-            pokedex = Pokedex(ctx.guild.id, user, page-1)
+            pokedex = Pokedex(ctx, user, page-1)
 
             open = discord.ui.Button(label = "Open", emoji = "🌐")
             async def openCallback(interaction: discord.Interaction):
@@ -313,7 +307,7 @@ async def pokedex(ctx):
             closedView.setMessage(message)
             openedView.setMessage(message)
         else:
-            content = t.getLocalString("commandBot", [])
+            content = bot.translator.getLocalString(ctx, "commandBot", [])
             await ctx.send(content = content)
 
 
