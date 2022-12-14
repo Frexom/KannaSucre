@@ -102,7 +102,8 @@ async def on_message(message):
 				user_xp -= 500*user_level
 				user_level +=1
 				await cursor.execute("UPDATE dis_user SET user_xp = ?, user_level = ? WHERE user_id = ?", (user_xp, user_level, message.author.id))
-				await message.channel.send("Congratulations <@" + str(message.author.id) + ">, you are now level " + str(user_level) + "!")
+				content = bot.translator.getLocalString(message, "levelUp", [("user", message.author.mention), ("number", str(user_level))])
+				await message.channel.send(content = content)
 			else:
 				await cursor.execute("UPDATE dis_user SET user_xp = ? WHERE user_id = ?", (user_xp, message.author.id))
 

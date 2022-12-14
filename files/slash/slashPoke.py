@@ -134,11 +134,14 @@ class slashPoke(commands.Cog):
                 buttonView.setMessage(interaction)
 
             #Callback definition, and buttons generation
-                evolveButton = discord.ui.Button(label = "Evolve⠀", style = discord.ButtonStyle.secondary, emoji = "⏫", row = 1)
+                label = bot.translator.getLocalString(interaction, "buttonEvolve", [])
+                evolveButton = discord.ui.Button(label = label, style = discord.ButtonStyle.secondary, emoji = "⏫", row = 1)
                 prev = discord.ui.Button(label = " ", style = discord.ButtonStyle.primary, emoji = "⬅️", row = 2)
-                shinyButton = discord.ui.Button(label = "⠀Shiny", style = discord.ButtonStyle.secondary, emoji = "✨", row = 2)
+                label = bot.translator.getLocalString(interaction, "buttonShiny", [])
+                shinyButton = discord.ui.Button(label = label, style = discord.ButtonStyle.secondary, emoji = "✨", row = 2)
                 next = discord.ui.Button(label = " ", style = discord.ButtonStyle.primary, emoji = "➡️", row = 2)
-                devolveButton = discord.ui.Button(label = "Devolve", style = discord.ButtonStyle.secondary, emoji = "⏬", row = 3)
+                label = bot.translator.getLocalString(interaction, "buttonDevolve", [])
+                devolveButton = discord.ui.Button(label = label, style = discord.ButtonStyle.secondary, emoji = "⏬", row = 3)
 
                 filler1 = discord.ui.Button(label = "⠀⠀⠀", row = 1, disabled = True)
                 filler2 = discord.ui.Button(label = "⠀⠀⠀", row = 1, disabled = True)
@@ -258,7 +261,8 @@ class slashPoke(commands.Cog):
                 openedView.setMessage(interaction)
                 pokedex = Pokedex(interaction, user, page-1)
 
-                open = discord.ui.Button(label = "Open", emoji = "🌐")
+                label = bot.translator.getLocalString(interaction, "buttonOpen", [])
+                open = discord.ui.Button(label = label, emoji = "🌐")
                 async def openCallback(interaction):
                     nonlocal openedView, pokedex
                     pokedex.open()
@@ -267,7 +271,8 @@ class slashPoke(commands.Cog):
                 open.callback = openCallback
 
 
-                shinies = discord.ui.Button(label = "Shinies", emoji = "✨")
+                label = bot.translator.getLocalString(interaction, "buttonShinies", [])
+                shinies = discord.ui.Button(label = label, emoji = "✨")
                 async def shiniesCallback(interaction):
                     nonlocal openedView, pokedex
                     pokedex.toggleShiny()
@@ -277,8 +282,8 @@ class slashPoke(commands.Cog):
                 shinies.callback = shiniesCallback
 
 
-
-                close = discord.ui.Button(label = "Close", emoji = "🌐")
+                label = bot.translator.getLocalString(interaction, "buttonClose", [])
+                close = discord.ui.Button(label = label, emoji = "🌐")
                 async def closeCallback(interaction):
                     nonlocal closedView, pokedex
                     pokedex.close()
@@ -341,7 +346,9 @@ class slashPoke(commands.Cog):
                     ranking += 1;
                     description += str(ranking) + "-" + user.name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
                 i += 1
-            embed=discord.Embed(title= "KannaSucre's Pokerank", colour=discord.Colour(0x635f))
+            title = bot.translator.getLocalString(interaction, "pokerank", [])
+            embed=discord.Embed(title = title, colour=discord.Colour(0x635f))
             embed.set_thumbnail(url=bot.user.avatar)
-            embed.add_field(name="Ranking :", value=description)
+            name = bot.translator.getLocalString(interaction, "pokerankRanking", [])
+            embed.add_field(name=name, value=description)
             await interaction.followup.send(embed=embed)
