@@ -127,11 +127,14 @@ async def pokeinfo(ctx):
             buttonView = pokeView(90)
 
         #Callback definition, and buttons generation
-            evolveButton = discord.ui.Button(label = "Evolve⠀", style = discord.ButtonStyle.secondary, emoji = "⏫", row = 1)
+            label = bot.translator.getLocalString(ctx, "buttonEvolve", [])
+            evolveButton = discord.ui.Button(label = label, style = discord.ButtonStyle.secondary, emoji = "⏫", row = 1)
             prev = discord.ui.Button(label = " ", style = discord.ButtonStyle.primary, emoji = "⬅️", row = 2)
-            shinyButton = discord.ui.Button(label = "⠀Shiny", style = discord.ButtonStyle.secondary, emoji = "✨", row = 2)
+            label = bot.translator.getLocalString(ctx, "buttonShiny", [])
+            shinyButton = discord.ui.Button(label = label, style = discord.ButtonStyle.secondary, emoji = "✨", row = 2)
             next = discord.ui.Button(label = " ", style = discord.ButtonStyle.primary, emoji = "➡️", row = 2)
-            devolveButton = discord.ui.Button(label = "Devolve", style = discord.ButtonStyle.secondary, emoji = "⏬", row = 3)
+            label = bot.translator.getLocalString(ctx, "buttonDevolve", [])
+            devolveButton = discord.ui.Button(label = label, style = discord.ButtonStyle.secondary, emoji = "⏬", row = 3)
 
             filler1 = discord.ui.Button(label = "⠀⠀⠀", row = 1, disabled = True)
             filler2 = discord.ui.Button(label = "⠀⠀⠀", row = 1, disabled = True)
@@ -252,7 +255,8 @@ async def pokedex(ctx):
             openedView = pokeView(90)
             pokedex = Pokedex(ctx, user, page-1)
 
-            open = discord.ui.Button(label = "Open", emoji = "🌐")
+            label = bot.translator.getLocalString(ctx, "buttonOpen", [])
+            open = discord.ui.Button(label = label, emoji = "🌐")
             async def openCallback(interaction: discord.Interaction):
                 nonlocal openedView, pokedex
                 pokedex.open()
@@ -261,7 +265,8 @@ async def pokedex(ctx):
             open.callback = openCallback
 
 
-            shinies = discord.ui.Button(label = "Shinies", emoji = "✨")
+            label = bot.translator.getLocalString(ctx, "buttonShinies", [])
+            shinies = discord.ui.Button(label = label, emoji = "✨")
             async def shiniesCallback(interaction: discord.Interaction):
                 nonlocal openedView, pokedex
                 pokedex.toggleShiny()
@@ -272,7 +277,8 @@ async def pokedex(ctx):
 
 
 
-            close = discord.ui.Button(label = "Close", emoji = "🌐")
+            label = bot.translator.getLocalString(ctx, "buttonClose", [])
+            close = discord.ui.Button(label = label, emoji = "🌐")
             async def closeCallback(interaction: discord.Interaction):
                 nonlocal closedView, pokedex
                 pokedex.close()
@@ -337,7 +343,10 @@ async def pokerank(ctx):
             ranking += 1;
             description += str(ranking) + "-" + user.name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
         i += 1
-    embed=discord.Embed(title= "KannaSucre's Pokerank", colour=discord.Colour(0x635f))
+
+    title = bot.translator.getLocalString(ctx, "pokerank", [])
+    embed=discord.Embed(title = title, colour=discord.Colour(0x635f))
     embed.set_thumbnail(url=bot.user.avatar)
-    embed.add_field(name="Ranking :", value=description)
+    name = bot.translator.getLocalString(ctx, "pokerankRanking", [])
+    embed.add_field(name = name, value=description)
     await ctx.send(embed=embed)

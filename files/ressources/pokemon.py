@@ -216,12 +216,12 @@ class Pokemon:
         if(self.genre == "m"):
             poke_sex = "\u2642"
 
-
+        formString = bot.translator.getLocalString(self.interaction, "pokeForm", [("form", self.label)])
         if(self.shiny):
-            e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + ":sparkles: " + poke_sex, description = self.label + " form")
+            e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + ":sparkles: " + poke_sex, description = formString)
             e.set_image(url=self.shiny_link)
         else:
-            e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + poke_sex, description = self.label + " form")
+            e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + poke_sex, description = formString)
             e.set_image(url=self.link)
 
         e.add_field(name = bot.translator.getLocalString(self.interaction, "description", []) + " :", value=self.description)
@@ -249,7 +249,8 @@ class Pokemon:
             method += "."
 
             e.add_field(name = name + " :", value = evolved + " " + method, inline=False)
-        e.set_footer(text = "page " + str(self.current_link) + "/" + str(self.pokelinks))
+        text = bot.translator.getLocalString(self.interaction, "page", [("current", str(self.current_link)), ("total", str(self.pokelinks))])
+        e.set_footer(text = text)
         return e
 
     def devolve(self):
@@ -308,7 +309,14 @@ class Pokedex():
     def __get_closed_pokedex(self):
         connection, cursor = get_static_conn("./files/ressources/bot.db")
 
-        rarities = ["Common", "Uncommon", "Rare", "Super rare", "Legendary"]
+        rarities = []
+
+        rarities.append(bot.translator.getLocalString(self.interaction, "common", []))
+        rarities.append(bot.translator.getLocalString(self.interaction, "uncommon", []))
+        rarities.append(bot.translator.getLocalString(self.interaction, "rare", []))
+        rarities.append(bot.translator.getLocalString(self.interaction, "superRare", []))
+        rarities.append(bot.translator.getLocalString(self.interaction, "legendary", []))
+
 
         cursor.execute("SELECT COUNT(distinct dex_id), dex_rarity FROM poke_obtained JOIN poke_dex USING(dex_id) WHERE user_id = ? GROUP BY dex_rarity ORDER BY dex_rarity", (self.user.id,))
         obtained = cursor.fetchall()
@@ -374,7 +382,8 @@ class Pokedex():
         embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
         embed.add_field(name="Pokémons :", value=list_pokemons, inline=True)
 
-        embed.set_footer(text = "page " + str(self.page+1) + "/" + str(int(poke_count/20)+1))
+        text = bot.translator.getLocalString(self.interaction, "page", [("current", str(self.page+1)), ("total", str(int(poke_count/20)+1))])
+        embed.set_footer(text = text)
         return embed
 
 
@@ -388,7 +397,7 @@ class Pokedex():
         self.page = (self.page) % (int(len(shinies)/20)+1)
 
         if shinies == []:
-            list_pokemons = "No pokemons."
+            list_pokemons = bot.translator.getLocalString(self.interaction, "noPoke", [])
         else:
             list_pokemons = ""
             list_index = 0
@@ -400,8 +409,11 @@ class Pokedex():
                     list_pokemons += str(shinies[i][0]) + " - " + shinies[i][1] + ":sparkles:\n"
                 count += 1
 
-        embed=discord.Embed(title = str(self.user.name) + "'s shiny Pokémons", description = str(len(shinies)) + "/" + str(poke_count) + " shiny pokemons")
+        title = bot.translator.getLocalString(self.interaction, "userShiny", [("user", self.user.display_name)])
+        shinyString = bot.translator.getLocalString(self.interaction, "shinyPoke", [])
+        embed=discord.Embed(title = title, description = str(len(shinies)) + "/" + str(poke_count) + " " + shinyString)
         embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
-        embed.add_field(name="Pokemons :", value=list_pokemons, inline=True)
-        embed.set_footer(text = "page " + str(self.page+1) + "/" + str(int(len(shinies)/20)+1))
+        embed.add_field(name="Pokémons :", value=list_pokemons, inline=True)
+        text = bot.translator.getLocalString(self.interaction, "page", [("current", str(self.page+1)), ("total", str(int(len(shinies)/20)+1))])
+        embed.set_footer(text = text)
         return embed

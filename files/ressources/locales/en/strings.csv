@@ -29,8 +29,6 @@ banNoReason&You have been banned from **{guild}**.\nNo reason given.
 userBanned&User banned.
 welcomeDisabled&Welcome feature disabled, use `/welcome channel : ...` to restore it.
 welcomeChannel&Welcome messages will be sent in <#{channel}>.
-announcementsDisabled&Announcements feature disabled, use `/announcements channel : ...` to restore it.
-announcementsChannel&Announcements messages will now be sent in <#{channel}>.
 kannaMissPerms&I don't have enough permissions to do that!
 kannaError&There was an error, it will be reported to staff.
 hugLonely&{user}, I see you're lonely, take my hug! ❤️
@@ -64,3 +62,13 @@ goodbye&{memberName} left the server. :(
 prefixNoSpace&There can't be a space character in the prefix!
 togglelevelsEnabled&The level feature is now enabled!
 togglelevelsDisabled&The level feature is now disabled.
+levelUp&Congratulations {user}, you are now level {number}!
+buttonEvolve&Evolve
+buttonDevolve&Devolve
+buttonShiny&Shiny
+buttonOpen&Open
+buttonShinies&Shinies
+buttonClose&Close
+pokerank&KannaSucre's pokérank :
+pokerankRanking&Ranking :
+pokeForm&{form} form

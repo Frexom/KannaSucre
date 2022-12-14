@@ -29,8 +29,6 @@ banNoReason&Vous avez été banni⋅e de **{guild}**.\nAucune raison n'a été d
 userBanned&Utilisateur banni.
 welcomeDisabled&Les messages de bienvenue et de départ sont désactivés, utilisez `/welcome channel : ...` pour les rétablir.
 welcomeChannel&Les messages de bienvenue seront maintenant envoyés dans <#{channel}>.
-announcementsDisabled&Messages d'annonces de KannaSucre désactivés, utilisez `/announcements channel : ...` pour les rétablir.
-announcementsChannel&Les messages d'annonces seront maintenant envoyés dans <#{channel}>.
 kannaMissPerms&Je n'ai pas assez de permissions pour faire cela !
 kannaError&Une erreur est survenue, elle sera signalée au programmeur.
 hugLonely&{user}, on dirait que tu te sens seul⋅e, prends mon câlin! ❤️
@@ -64,3 +62,13 @@ goodbye&{memberName} a quitté le serveur :(
 prefixNoSpace&Il ne peut pas y avoir d'espace dans le prefix!
 togglelevelsEnabled&La fonctionnalité de niveaux est activée!
 togglelevelsDisabled&La fonctionnalité de niveaux est déactivée.
+levelUp&Félicitations {user}, tu es passé niveau {number}!
+buttonEvolve&Évoluer
+buttonDevolve&Dés-évoluer
+buttonShiny&Chromatique
+buttonOpen&Ouvrir
+buttonShinies&Chromatiques
+buttonClose&Refermer
+pokerank&Pokéclassement de KannaSucre :
+pokerankRanking&Classemment :
+pokeForm&Forme {form}
