@@ -102,9 +102,10 @@ async def syncCommands(ctx: discord.ext.commands.Context, guilds: commands.Greed
 @bot.command(name="rules")
 @commands.is_owner()
 async def preview(ctx):
-    e = discord.Embed(title = "KannaSucre Headquarters rules", description = "Please note that any violation of those rules will be likely to result in a ban, if justified.\n\n\n")
+    e = discord.Embed(title = ctx.guild.name + " rules", description = "Please note that any violation of those rules will be likely to result in a ban, if justified.\n\n\n")
     e.add_field(name = "Rule :one: : Respect", inline = False, value="Respect eachother, everyone here is considered equal, regardless of their gender, sexuality and origin. Do not discrimiate, discomfort or insult anyone here.\n\n\n")
     e.add_field(name = "Rule :two: : NSFW/Spam", inline = False, value="NSFW and spam are here strictly prohibed, this server must be able to welcome people regardless of their age.\n\n\n")
     e.add_field(name = "Rule :three: : Channels", inline = False, value="Respect the use of each channel, you can read a channel's description to see what is allowed and what isn't.")
+    e.add_field(name = "Rule :four: : Profile", inline = False, value="No offensive profile picture or name. No one should be seeing offensive or sensitive content while clicking your profile.")
     e.set_thumbnail(url=ctx.guild.icon.url)
     await ctx.channel.send(embed = e)
