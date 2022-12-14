@@ -11,9 +11,8 @@ class slashUtilities(commands.Cog):
     @app_commands.describe(max="The largest number included.")
     async def dice(self, interaction: discord.Interaction, max: int = 6):
         if not interaction.user.bot:
-            t = Translator(interaction.guild.id, loadStrings = True)
             number = str(random.randint(1, max))
-            content = t.getLocalString("diceRoll", [("randomNumber", number), ("maxNumber", max)])
+            content = bot.translator.getLocalString(interaction, "diceRoll", [("randomNumber", number), ("maxNumber", max)])
             await interaction.response.send_message(content = content)
 
 
@@ -21,8 +20,7 @@ class slashUtilities(commands.Cog):
     async def servericon(self, interaction: discord.Interaction):
         if not interaction.user.bot :
             if(interaction.guild.icon is None):
-                t = Translator(interaction.guild.id, loadStrings = True)
-                content = t.getLocalString("servericon", [])
+                content = bot.translator.getLocalString(interaction, "servericon", [])
                 await interaction.response.send_message(content = content)
             else:
                 await interaction.response.send_message(content = interaction.guild.icon.url)
@@ -34,8 +32,7 @@ class slashUtilities(commands.Cog):
         if not interaction.user.bot :
             if member == None:
                 member = interaction.user
-            t = Translator(interaction.guild.id, loadStrings = True)
-            content = t.getLocalString("usericon", [])
+            content = bot.translator.getLocalString(interaction, "usericon", [])
             await interaction.response.send_message(member.display_avatar.url or content)
 
     @app_commands.command(name="help", description="Get some help about the commands!")
@@ -89,5 +86,5 @@ class slashUtilities(commands.Cog):
         if not interaction.user.bot:
             link = os.environ['SUPPORTSERVERLINK']
             t = Translator(interaction.guild.id, loadStrings=True)
-            content = t.getLocalString("supportServer", [])
+            content = bot.translator.getLocalString(interaction, "supportServer", [])
             await interaction.response.send_message(content + link)

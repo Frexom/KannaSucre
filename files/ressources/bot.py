@@ -20,3 +20,5 @@ default_intents.messages = True
 default_intents.message_content = True
 bot = commands.Bot(command_prefix=get_pre, intents=default_intents)
 bot.remove_command('help')
+
+bot.translator = Translator()

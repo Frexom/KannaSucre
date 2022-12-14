@@ -6,19 +6,18 @@ poke_count = 905
 
 
 
-def get_rarity(guildID: int):
-    t = Translator(guildID, loadStrings = True)
+def get_rarity(interaction):
     rand = random.randint(1, 100)
     if rand == 100:
-        return [5, t.getLocalString("legendary", [])]
+        return [5, bot.translator.getLocalString(interaction, "legendary", [])]
     elif rand >= 95 and rand <= 99:
-        return [4, t.getLocalString("superRare", [])]
+        return [4, bot.translator.getLocalString(interaction, "superRare", [])]
     elif rand >= 80 and rand <=94:
-        return [3, t.getLocalString("rare", [])]
+        return [3, bot.translator.getLocalString(interaction, "rare", [])]
     elif rand >= 55 and rand <=79:
-        return [2, t.getLocalString("uncommon", [])]
+        return [2, bot.translator.getLocalString(interaction, "uncommon", [])]
     else:
-        return [1, t.getLocalString("common", [])]
+        return [1, bot.translator.getLocalString(interaction, "common", [])]
 
 
 
@@ -98,9 +97,8 @@ def get_evolutions(poke_id: int, poke_alt: int):
 
 
 class Pokemon:
-    def __init__(self, guildID: int, pokeID: int = None):
-        self.guildID = guildID
-        self.translator = Translator(self.guildID, loadStrings = True, loadPoke = True, loadPokeEvos = True)
+    def __init__(self, interaction, pokeID: int = None):
+        self.interaction = interaction
 
         if pokeID is not None:
             if pokeID <= poke_count and pokeID > 0:
@@ -113,10 +111,10 @@ class Pokemon:
             else:
                 raise ValueError(f"Poke_id must be between 0 and {poke_count}.")
         else:
-            self.rarity = get_rarity(guildID)
+            self.rarity = get_rarity(interaction)
             self.shiny = get_shiny()
             self.id = get_pokemon_id(self.rarity[0])
-            self.name = self.translator.getLocalPokeString("name"+str(self.id))
+            self.name = bot.translator.getLocalPokeString(interaction, "name"+str(self.id))
             self.alt = get_pokemon_alt(self.id)
             self.genre = get_pokemon_genre(self.id, self.alt)
             self.link = get_pokemon_link(self.id, self.alt, self.genre, self.shiny)
@@ -126,8 +124,8 @@ class Pokemon:
         cursor.execute("SELECT form_normal, form_shiny, form_sex, form_label FROM poke_dex JOIN poke_form USING(dex_id) WHERE dex_id = ? AND form_alt = ?", (self.id, self.alt))
         temp = cursor.fetchone()
 
-        self.name = self.translator.getLocalPokeString("name"+str(self.id))
-        self.description = self.translator.getLocalPokeString("desc"+str(self.id))
+        self.name = bot.translator.getLocalPokeString(self.interaction, "name"+str(self.id))
+        self.description = bot.translator.getLocalPokeString(self.interaction, "desc"+str(self.id))
         self.link = temp[0]
         self.shiny_link = temp[1]
         self.genre = temp[2]
@@ -226,27 +224,27 @@ class Pokemon:
             e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + poke_sex, description = self.label + " form")
             e.set_image(url=self.link)
 
-        e.add_field(name = self.translator.getLocalString("description", []) + " :", value=self.description)
+        e.add_field(name = bot.translator.getLocalString(self.interaction, "description", []) + " :", value=self.description)
         if(self.devolution is not None):
-            evolved = self.translator.getLocalString("evolvedBy", [])
-            name = self.translator.getLocalString("evolution", [])
+            evolved = bot.translator.getLocalString(self.interaction, "evolvedBy", [])
+            name = bot.translator.getLocalString(self.interaction, "evolution", [])
             method = ""
             arguments = self.devolution[2].split()
 
             if(arguments[0] == "friend" or arguments[0] == "trade" or arguments[0][:4] == "spec"):
-                method = self.translator.getLocalPokeEvo(arguments[0], {})
+                method = bot.translator.getLocalPokeEvo(self.interaction, arguments[0], {})
             elif(arguments[0] == "item"):
-                item = self.translator.getLocalPokeEvo(arguments[1], {})
-                method = self.translator.getLocalPokeEvo(arguments[0], [("item", item)])
+                item = bot.translator.getLocalPokeEvo(self.interaction, arguments[1], {})
+                method = bot.translator.getLocalPokeEvo(self.interaction, arguments[0], [("item", item)])
             elif(arguments[0] == "tradeItem"):
-                item = self.translator.getLocalPokeEvo(arguments[1], {})
-                method = self.translator.getLocalPokeEvo(arguments[0], [("item", item)])
+                item = bot.translator.getLocalPokeEvo(self.interaction, arguments[1], {})
+                method = bot.translator.getLocalPokeEvo(self.interaction, arguments[0], [("item", item)])
             elif(arguments[0] == "level"):
-                method = self.translator.getLocalPokeEvo(arguments[0], [("level", str(arguments[1]))])
+                method = bot.translator.getLocalPokeEvo(self.interaction, arguments[0], [("level", str(arguments[1]))])
 
             if(arguments[-1] == "Day" or arguments[-1] == "Night"):
                 method += " "
-                method += self.translator.getLocalPokeEvo(arguments[-1], [])
+                method += bot.translator.getLocalPokeEvo(self.interaction, arguments[-1], [])
 
             method += "."
 
@@ -270,12 +268,12 @@ class Pokemon:
 
 
 class Pokedex():
-    def __init__(self, guildID: int, user: discord.User, page: int = 0):
+    def __init__(self, interaction, user: discord.User, page: int = 0):
+        self.interaction = interaction
         self.page = page
         self.user = user
         self.shiny = False
         self.embed = self.__get_closed_pokedex()
-        self.translator = Translator(guildID, loadPoke = True, loadStrings = True)
 
     def next(self):
         self.page += 1
@@ -352,7 +350,7 @@ class Pokedex():
         self.page = (self.page) % (int(poke_count/20)+1)
 
         if Pokemons == [] :
-            list_pokemons = self.translator.getLocalString("noPoke", [])
+            list_pokemons = bot.translator.getLocalString(self.interaction, "noPoke", [])
         else:
             list_pokemons = ""
             list_index = 0
@@ -361,7 +359,7 @@ class Pokedex():
             for i in range(self.page*20, self.page*20+20):
                 if i < poke_count:
                     if Pokemons[list_index][0] == i+1:
-                        pokeName = self.translator.getLocalPokeString("name"+str(Pokemons[list_index][0]))
+                        pokeName = bot.translator.getLocalPokeString(self.interaction, "name"+str(Pokemons[list_index][0]))
 
                         if Pokemons[list_index][2]:
                             list_pokemons += str(i+1) + " - " + pokeName + ":sparkles:\n"
@@ -371,7 +369,7 @@ class Pokedex():
                             list_index += 1
                     else:
                         list_pokemons += str(i+1) + " - --------\n"
-        title = self.translator.getLocalString("userPokedex", [("user", self.user.name)])
+        title = bot.translator.getLocalString(self.interaction, "userPokedex", [("user", self.user.name)])
         embed=discord.Embed(title = title, description = str(number_of_pokemons) + "/" + str(poke_count) + " Pokémons")
         embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
         embed.add_field(name="Pokémons :", value=list_pokemons, inline=True)

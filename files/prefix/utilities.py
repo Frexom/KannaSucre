@@ -12,8 +12,7 @@ async def dice(ctx):
         if len(words) > 1 and words[1].isdecimal() and int(words[1]) > 0:
             max = ctx.message.content.split(" ")[1]
             number = random.randint(1, int(max))
-            t = Translator(ctx.guild.id, loadStrings = True)
-            content = t.getLocalString("diceRoll", [("randomNumber", number), ("maxNumber", max)])
+            content = bot.translator.getLocalString(ctx, "diceRoll", [("randomNumber", number), ("maxNumber", max)])
             await ctx.send(content = content)
         else:
             prefix = str(await get_pre(ctx))
@@ -26,8 +25,7 @@ async def servericon(ctx):
         if(ctx.guild.icon is not None):
             await ctx.send(ctx.guild.icon.url)
         else:
-            t = Translator(ctx.guild.id, loadStrings = True)
-            content = t.getLocalString("servericon", [])
+            content = bot.translator.getLocalString(ctx, "servericon", [])
             await ctx.send(content = content)
 
 
@@ -38,16 +36,14 @@ async def usericon(ctx):
         if(user.display_avatar is not None):
             await ctx.send(user.display_avatar.url)
         else:
-            t = Translator(ctx.guild.id, loadStrings = True)
-            content = t.getLocalString("servericon", [])
+            content = bot.translator.getLocalString(ctx, "servericon", [])
             await ctx.send(content)
 
 @bot.command(name="supportserver")
 async def supportserver(ctx):
     if not ctx.author.bot:
         link = os.environ['SUPPORTSERVERLINK']
-        t = Translator(ctx.guild.id, loadStrings=True)
-        content = t.getLocalString("supportServer", [])
+        content = bot.translator.getLocalString(ctx, "supportServer", [])
         await ctx.channel.send(content + link)
 
 

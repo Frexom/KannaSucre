@@ -14,8 +14,7 @@ async def prefix(ctx):
         prefix = prefix[1]
         connection, cursor = await get_conn("./files/ressources/bot.db")
         await cursor.execute("UPDATE dis_guild SET guild_prefix = ? WHERE guild_id = ?", (prefix, ctx.guild.id))
-        t = Translator(ctx.guild.id, loadStrings=True)
-        content = t.getLocalString("newPrefix", [("prefix", str(prefix))])
+        content = bot.translator.getLocalString(ctx, "newPrefix", [("prefix", str(prefix))])
         await ctx.send(content = content)
         await connection.commit()
         await close_conn(connection, cursor)
@@ -32,7 +31,6 @@ async def ban(ctx):
     if ctx.author.guild_permissions.ban_members:
       reason = ctx.message.content.split(" ")
       if len(ctx.message.mentions) > 0 or (len(reason) > 1 and reason[1].isdecimal() and len(reason[1]) > 15):
-        t = Translator(ctx.guild.id, loadStrings = True)
         if reason[1].isdecimal():
           member = ctx.guild.get_member(int(reason[1]))
         else:
@@ -41,10 +39,10 @@ async def ban(ctx):
           reason = ' '.join(reason[2:])
           if not member.bot:
             if reason != "":
-              content = t.getLocalString("banReason", [("guild", ctx.guild.name), ("reason", reason)])
+              content = bot.translator.getLocalString(ctx, "banReason", [("guild", ctx.guild.name), ("reason", reason)])
               await member.send(content = content)
             else:
-              content = t.getLocalString("banNoReason", [("guild", ctx.guild.name)])
+              content = bot.translator.getLocalString(ctx, "banNoReason", [("guild", ctx.guild.name)])
               await member.send(content = content)
           await member.ban()
           await ctx.message.add_reaction("\u2705")
@@ -61,7 +59,6 @@ async def ban(ctx):
 async def welcome(ctx):
     if not ctx.author.bot :
         if ctx.author.guild_permissions.manage_guild:
-            t = Translator(ctx.guild.id, loadStrings = True)
             connection, cursor = await get_conn("./files/ressources/bot.db")
             message = ctx.message.content.split(" ")
             if len(ctx.message.channel_mentions) > 0 or len(message) > 1 and message[1] == str(0):
@@ -81,10 +78,10 @@ async def welcome(ctx):
                 welcome = welcome[0]
                 prefix = str(await get_pre(ctx))
                 if welcome != 0 :
-                    content = t.getLocalString("welcomeChannel", [("channel", str(welcome))])
+                    content = bot.translator.getLocalString(ctx, "welcomeChannel", [("channel", str(welcome))])
                     await ctx.send(content = content)
                 else :
-                    content = t.getLocalString("welcomeDisabled", [])
+                    content = bot.translator.getLocalString(ctx, "welcomeDisabled", [])
                     await ctx.send(content = content)
         else:
             await missing_perms(ctx, "welcome", "manage guild")
@@ -96,17 +93,16 @@ async def announce(ctx):
         message = ctx.message.content.split(" ")
         channel = ctx.message.channel_mentions
         if(len(channel) >= 1 and len(message) >= 3):
-            t = Translator(ctx.guild.id, loadStrings=True)
             channel = channel[0]
             if(channel.guild.id == ctx.guild.id):
                 if ctx.author.id == int(os.environ['OWNER_ID']):
                     authorCredit = ""
                 else:
-                    authorCredit = t.getLocalString("announceAuthor", [("user", ctx.author.mention)])
+                    authorCredit = bot.translator.getLocalString(ctx, "announceAuthor", [("user", ctx.author.mention)])
 
                 await channel.send(authorCredit + str(' '.join(message[2:])))
             else:
-                content = t.getLocalString("channelGuild", [])
+                content = bot.translator.getLocalString(ctx, "channelGuild", [])
                 await ctx.send(content = content)
         else:
             prefix = str(await get_pre(ctx))
@@ -126,12 +122,11 @@ async def toggleLevels(ctx):
                 await cursor.execute("UPDATE dis_guild SET guild_levels_enabled = ? WHERE guild_id = ?", (toggle, ctx.guild.id))
                 await connection.commit()
 
-                t = Translator(ctx.guild.id, loadStrings=True)
                 if toggle == 1:
-                    content = t.getLocalString("togglelevelsEnabled", [])
+                    content = bot.translator.getLocalString(ctx, "togglelevelsEnabled", [])
                     await ctx.send(content = content)
                 else:
-                    content = t.getLocalString("togglelevelsDisabled", [])
+                    content = bot.translator.getLocalString(ctx, "togglelevelsDisabled", [])
                     await ctx.send(content = content)
             else:
                 prefix = str(await get_pre(ctx))

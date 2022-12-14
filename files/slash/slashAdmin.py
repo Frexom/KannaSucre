@@ -14,16 +14,15 @@ class slashAdmin(commands.Cog):
     async def prefix(self, interaction: discord.Interaction, prefix: str):
         if not interaction.user.bot :
             if interaction.user.guild_permissions.manage_guild:
-                t = Translator(interaction.guild.id, loadStrings=True)
                 if ' ' not in prefix:
                     connection, cursor = await get_conn("./files/ressources/bot.db")
                     await cursor.execute("UPDATE dis_guild SET guild_prefix = ? WHERE guild_id = ?", (prefix, interaction.guild.id))
-                    content = t.getLocalString("newPrefix", [("prefix", str(prefix))])
+                    content = bot.translator.getLocalString(interaction, "newPrefix", [("prefix", str(prefix))])
                     await interaction.response.send_message(content = content)
                     await connection.commit()
                     await close_conn(connection, cursor)
                 else:
-                    content = t.getLocalString("prefixNoSpace", [])
+                    content = bot.translator.getLocalString(interaction, "prefixNoSpace", [])
                     await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "prefix", "manage guild")
@@ -35,16 +34,14 @@ class slashAdmin(commands.Cog):
             if interaction.user.guild_permissions.ban_members:
                 if not user.guild_permissions.ban_members:
 
-                    t = Translator(interaction.guild.id, loadStrings = True)
-
                     if reason is not None:
-                        content = t.getLocalString("banReason", [("guild", interaction.guild.name), ("reason", reason)])
+                        content = bot.translator.getLocalString(interaction, "banReason", [("guild", interaction.guild.name), ("reason", reason)])
                         await user.send(content = content)
                     else:
-                        content = t.getLocalString("banNoReason", [("guild", interaction.guild.name)])
+                        content = bot.translator.getLocalString(interaction, "banNoReason", [("guild", interaction.guild.name)])
                         await user.send(content = content)
                     await user.ban(reason = (reason or "No reason given.") + " / Triggered by " + interaction.user.name)
-                    content = t.getLocalString("userBanned", [])
+                    content = bot.translator.getLocalString(interaction, "userBanned", [])
                     await interaction.response.send_message(content = content)
                 else:
                     await lack_perms(interaction, "ban")
@@ -58,15 +55,13 @@ class slashAdmin(commands.Cog):
         if not interaction.user.bot :
             if interaction.user.guild_permissions.manage_guild:
 
-                t = Translator(interaction.guild.id, loadStrings=True)
-
                 if channel is None:
                     channel = 0
-                    content = t.getLocalString("welcomeDisabled", [])
+                    content = bot.translator.getLocalString(interaction, "welcomeDisabled", [])
                     await interaction.response.send_message(content = content)
                 else:
                     channel = channel.id
-                    content = t.getLocalString("welcomeChannel", [("channel", channel)])
+                    content = bot.translator.getLocalString(interaction, "welcomeChannel", [("channel", channel)])
                     await interaction.response.send_message(content = content)
 
                 connection, cursor = await get_conn("./files/ressources/bot.db")
@@ -91,8 +86,7 @@ class slashAdmin(commands.Cog):
                 await cursor.execute("UPDATE dis_guild SET guild_locale = ? WHERE guild_id = ?", (language.value, interaction.guild.id))
                 await connection.commit()
 
-                t = Translator(interaction.guild.id, loadStrings = True)
-                content = t.getLocalString("newLanguage", [])
+                content = bot.translator.getLocalString(interaction, "newLanguage", [])
                 await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "language", "manage guild")
@@ -104,18 +98,17 @@ class slashAdmin(commands.Cog):
     async def announce(self, interaction : discord.Interaction, channel : discord.TextChannel, message: str):
         if not interaction.user.bot:
             if interaction.user.guild_permissions.manage_guild:
-                t = Translator(interaction.guild.id, loadStrings=True)
                 if interaction.user.id == int(os.environ['OWNER_ID']):
                     authorCredit = ""
                 else:
-                    authorCredit = t.getLocalString("announceAuthor", [("user", interaction.user.mention)])
+                    authorCredit = bot.translator.getLocalString(interaction, "announceAuthor", [("user", interaction.user.mention)])
 
                 if(channel.guild.id == interaction.guild.id):
                     message = await channel.send(authorCredit+message)
-                    content = t.getLocalString("announceLink", [])
+                    content = bot.translator.getLocalString(interaction, "announceLink", [])
                     await interaction.response.send_message(content + message.jump_url)
                 else:
-                    content = t.getLocalString("channelGuild", [])
+                    content = bot.translator.getLocalString(interaction, "channelGuild", [])
                     await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "announce", "manage guild")
@@ -130,16 +123,15 @@ class slashAdmin(commands.Cog):
     async def toggleLevels(self, interaction: discord.Interaction, toggle:int):
         if not interaction.user.bot:
             if interaction.user.guild_permissions.manage_guild:
-                t = Translator(interaction.guild.id, loadStrings=True)
                 connection, cursor = await get_conn("./files/ressources/bot.db")
                 await cursor.execute("UPDATE dis_guild SET guild_levels_enabled = ? WHERE guild_id = ?", (toggle, interaction.guild.id))
                 await connection.commit()
 
                 if toggle == 1:
-                    content = t.getLocalString("togglelevelsEnabled", [])
+                    content = bot.translator.getLocalString(interaction, "togglelevelsEnabled", [])
                     await interaction.response.send_message(content = content)
                 else:
-                    content = t.getLocalString("togglelevelsDisabled", [])
+                    content = bot.translator.getLocalString(interaction, "togglelevelsDisabled", [])
                     await interaction.response.send_message(content = content)
             else:
                 await missing_perms(interaction, "announce", "manage guild")

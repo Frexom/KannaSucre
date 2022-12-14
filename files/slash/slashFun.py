@@ -53,14 +53,13 @@ class slashFun(commands.Cog):
                 "https://images-ext-1.discordapp.net/external/2TAL2AoHlWYA2U4lStmtWb8CCo0S417XnedHFaz9uaw/%3Fitemid%3D19674705/https/media1.tenor.com/images/f7b6be96e8ebb23319b43304da0e1118/tenor.gif"
           ]
 
-          t = Translator(interaction.guild.id, loadStrings=True)
           if interaction.user == user:
-              title = t.getLocalString("hugLonely", [("user", interaction.user.display_name)])
+              title = bot.translator.getLocalString(interaction, "hugLonely", [("user", interaction.user.display_name)])
               e = discord.Embed(title=title)
               link = "https://media1.tenor.com/images/1506349f38bf33760d45bde9b9b263a4/tenor.gif"
               e.set_image(url=link)
           else:
-              title = t.getLocalString("hugUser", [("user", user.display_name), ("otherUser", interaction.user.display_name)])
+              title = bot.translator.getLocalString(interaction, "hugUser", [("user", user.display_name), ("otherUser", interaction.user.display_name)])
               e = discord.Embed(title=title)
               link = str(hugList[random.randint(0, len(hugList) - 1)])
               e.set_image(url= link)
@@ -69,21 +68,20 @@ class slashFun(commands.Cog):
 
     @app_commands.command(name="stand", description = "Displays your assigned JJBA stand, your stand is bounded to you and won't change.")
     async def stand(self, interaction: discord.Interaction):
-      if not interaction.user.bot :
-        connection, cursor = await get_conn("./files/ressources/bot.db")
-        await cursor.execute("SELECT stand_id FROM sta_user WHERE user_id = ?", (interaction.user.id, ))
-        stand_id = await cursor.fetchone()
-        if stand_id == None:
-          stand_id = random.randint(1, 32)
-          await cursor.execute("INSERT INTO sta_user(user_id, stand_id) VALUES(?, ?)", (interaction.user.id, stand_id))
-        else:
-          stand_id = stand_id[0]
-        await cursor.execute("SELECT stand_name, stand_link FROM sta_stand WHERE stand_id = ?", (stand_id, ))
-        stand = await cursor.fetchone()
-        await connection.commit()
-        await close_conn(connection, cursor)
-        t = Translator(interaction.guild.id, loadStrings = True)
-        title = t.getLocalString("userStand", [("user", interaction.user.display_name), ("standName", stand[0])])
-        e = discord.Embed(title = title, colour=discord.Colour(0x635f))
-        e.set_image(url=stand[1])
-        await interaction.response.send_message (content = stand[1], embed = e)
+        if not interaction.user.bot :
+            connection, cursor = await get_conn("./files/ressources/bot.db")
+            await cursor.execute("SELECT stand_id FROM sta_user WHERE user_id = ?", (interaction.user.id, ))
+            stand_id = await cursor.fetchone()
+            if stand_id == None:
+                stand_id = random.randint(1, 32)
+                await cursor.execute("INSERT INTO sta_user(user_id, stand_id) VALUES(?, ?)", (interaction.user.id, stand_id))
+                await connection.commit()
+            else:
+                stand_id = stand_id[0]
+                await cursor.execute("SELECT stand_name, stand_link FROM sta_stand WHERE stand_id = ?", (stand_id, ))
+                stand = await cursor.fetchone()
+            await close_conn(connection, cursor)
+            title = bot.translator.getLocalString(interaction, "userStand", [("user", interaction.user.display_name), ("standName", stand[0])])
+            e = discord.Embed(title = title, colour=discord.Colour(0x635f))
+            e.set_image(url=stand[1])
+            await interaction.response.send_message (content = stand[1], embed = e)

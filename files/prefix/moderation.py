@@ -18,8 +18,7 @@ async def prune(ctx):
                     mess_count = 0
                     for channel in ctx.guild.text_channels:
                         mess_count += len(await channel.purge(limit = 200, check = checkUser))
-                    t = Translator(ctx.guild.id, loadStrings = True)
-                    content = t.getLocalString("pruneUser", [("number", str(mess_count)), ("user", user.name), ("guild", ctx.guild.name)])
+                    content = bot.translator.getLocalString(ctx, "pruneUser", [("number", str(mess_count)), ("user", user.name), ("guild", ctx.guild.name)])
                     await ctx.send(content = content, delete_after=5)
                     await ctx.author.send(content = content)
                 else:
@@ -38,13 +37,12 @@ async def clear(ctx):
             number = ctx.message.content.split(" ")
             if len(number) > 1 and number[1].isdecimal():
                 number = int(number[1]) +1
-                t = Translator(ctx.guild.id, loadStrings=True)
                 if number < 52:
                     mess_count = len(await ctx.channel.purge(limit = number))
-                    content = t.getLocalString("clearMessages", [("number", mess_count)])
+                    content = bot.translator.getLocalString(ctx, "clearMessages", [("number", mess_count)])
                     await ctx.send(content = content, delete_after=5)
                 else:
-                    content = t.getLocalString("clearMore", [])
+                    content = bot.translator.getLocalString(ctx, "clearMore", [])
                     await ctx.send(content = content)
             else:
                 prefix = str(await get_pre(ctx))
@@ -65,12 +63,11 @@ async def kick(ctx):
                     member = ctx.message.mentions[0]
                     reason = ' '.join(reason[2:])
                 if not member.guild_permissions.kick_members:
-                    t = Translator(ctx.guild.id, loadStrings = True)
                     if reason != "":
-                        content = t.getLocalString("kickReason", [("guild", ctx.guild.name), ("reason", reason)])
+                        content = bot.translator.getLocalString(ctx, "kickReason", [("guild", ctx.guild.name), ("reason", reason)])
                         await member.send(content = content)
                     else:
-                        content = t.getLocalString("kickNoReason", [("guild", ctx.guild.name)])
+                        content = bot.translator.getLocalString(ctx, "kickNoReason", [("guild", ctx.guild.name)])
                         await member.send(content = content)
                     await member.kick()
                     await ctx.message.add_reaction("\u2705")

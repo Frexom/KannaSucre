@@ -1,119 +1,116 @@
+import discord
 import csv
+import os
+
 from connection import *
 
 
 class Translator():
-    def __init__(self, guildID:int, loadStrings:bool = False, loadPoke: bool = False, loadPokeEvos: bool = False):
-        connection, cursor = get_static_conn("./files/ressources/bot.db")
-        cursor.execute("SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (guildID,))
-        locale = cursor.fetchone()
-        self.locale = locale[0]
-        close_static_conn(connection, cursor)
+    def __init__(self):
+        self.locales = {}
+        self.strings = {}
+        self.poke = {}
+        self.evolutions = {}
 
-        self.strings = None
-        self.poke = None
-        self.evolutions = None
+        self.loadStrings()
+        self.loadPoke()
+        self.loadPokeEvos()
 
-        if(loadStrings):
-            self.loadStrings()
-        if(loadPoke):
-            self.loadPoke()
-        if(loadPokeEvos):
-            self.loadPokeEvos()
 
     def loadStrings(self):
-        if(self.strings is None):
-            file = './files/ressources/locales/{}/strings.csv'.format(self.locale)
+        subfolders = [ f.name for f in os.scandir("./files/ressources/locales") if f.is_dir() ]
+        for folder in subfolders:
+            file = './files/ressources/locales/{}/strings.csv'.format(folder)
             with open(file) as f:
                 reader = csv.reader(f, delimiter ="&")
-                self.strings = list(reader)
-        else:
-            raise ValueError("strings.csv already loaded!")
-
+                self.strings[folder] = list(reader)
 
     def loadPoke(self):
-        if(self.poke is None):
-            file = './files/ressources/locales/{}/poke.csv'.format(self.locale)
+        subfolders = [ f.name for f in os.scandir("./files/ressources/locales") if f.is_dir() ]
+        for folder in subfolders:
+            file = './files/ressources/locales/{}/poke.csv'.format(folder)
             with open(file) as f:
                 reader = csv.reader(f, delimiter ="&")
-                self.poke = list(reader)
-        else:
-            raise ValueError("poke.csv already loaded!")
+                self.poke[folder] = list(reader)
 
     def loadPokeEvos(self):
-        if(self.evolutions is None):
-            file = './files/ressources/locales/{}/evolutions.csv'.format(self.locale)
+        subfolders = [ f.name for f in os.scandir("./files/ressources/locales") if f.is_dir() ]
+        for folder in subfolders:
+            file = './files/ressources/locales/{}/evolutions.csv'.format(folder)
             with open(file) as f:
                 reader = csv.reader(f, delimiter ="&")
-                self.evolutions = list(reader)
+                self.evolutions[folder] = list(reader)
+
+
+    def getLocaleFromInteraction(self, interaction):
+        if interaction.guild is not None:
+            connection, cursor = get_static_conn("./files/ressources/bot.db")
+            cursor.execute("SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (interaction.guild.id,))
+            locale = cursor.fetchone()
+            close_static_conn(connection, cursor)
+            return locale[0]
         else:
-            raise ValueError("evolutions.csv already loaded!")
+            return 'en'
 
 
-    def getLocalString(self, key:str, values:list):
-        if(self.strings is not None):
-            string = None
-            for row in self.strings:
-                if(row[0] == key):
-                    string = row[1]
-                    break
 
-            if string is None:
-                raise KeyError("String {} has not been found".format(key))
+    def getLocalString(self, interaction, key:str, values:list):
+        locale = self.getLocaleFromInteraction(interaction)
+        string = None
+        for row in self.strings[locale]:
+            if(row[0] == key):
+                string = row[1]
+                break
 
-            for tuple in values:
-                string = string.replace('{'+tuple[0]+'}', str(tuple[1]))
-            string = string.replace('\\n', '\n')
-            return string
-        else:
-            raise EnvironmentError("Must load strings.csv first!")
-
-
-    def getLocalPokeString(self, key:str):
-        if(self.poke is not None):
-            string = None
-            for row in self.poke:
-                if(row[0] == key):
-                    string = row[1]
-                    return string
-
+        if string is None:
             raise KeyError("String {} has not been found".format(key))
 
-        else:
-            raise EnvironmentError("Must load poke.csv first!")
-
-    def getLocalPokeEvo(self, key:str, values:list):
-        if(self.evolutions is not None):
-            string = None
-            for row in self.evolutions:
-                if(row[0] == key):
-                    string = row[1]
-                    break
-
-            if string is None:
-                raise KeyError("String {} has not been found".format(key))
-
-            for tuple in values:
-                string = string.replace('{'+tuple[0]+'}', str(tuple[1]))
-            return string
-        else:
-            raise EnvironmentError("Must load evolutions.csv first!")
+        for tuple in values:
+            string = string.replace('{'+tuple[0]+'}', str(tuple[1]))
+        string = string.replace('\\n', '\n')
+        return string
 
 
-    def getPokeIdByName(self, name:str):
-        if(self.poke is not None):
-            for row in self.poke:
-                if(row[1].lower() == name):
-                    return int(row[0][4:])
+    def getLocalPokeString(self, interaction, key:str):
+        locale = self.getLocaleFromInteraction(interaction)
+        string = None
+        for row in self.poke[locale]:
+            if(row[0] == key):
+                string = row[1]
+                return string
 
-            if(self.locale != "en"):
-                file = './files/ressources/locales/en/poke.csv'
-                with open(file) as f:
-                    reader = csv.reader(f, delimiter ="&")
+        raise KeyError("String {} has not been found".format(key))
 
-                    for row in reader:
-                        if(row[1].lower() == name):
-                            return int(row[0][4:])
-            return 0
-        else:
-            raise EnvironmentError("Must load poke.csv first!")
+
+    def getLocalPokeEvo(self, interaction, key:str, values:list):
+        locale = self.getLocaleFromInteraction(interaction)
+        string = None
+        for row in self.evolutions[locale]:
+            if(row[0] == key):
+                string = row[1]
+                break
+
+        if string is None:
+            raise KeyError("String {} has not been found".format(key))
+
+        for tuple in values:
+            string = string.replace('{'+tuple[0]+'}', str(tuple[1]))
+        return string
+
+
+    def getPokeIdByName(self, interaction, name:str):
+        locale = self.getLocaleFromInteraction(interaction)
+
+        for row in self.poke[locale]:
+            if(row[1].lower() == name.lower()):
+                return int(row[0][4:])
+
+        if(locale != "en"):
+            file = './files/ressources/locales/en/poke.csv'
+            with open(file) as f:
+                reader = csv.reader(f, delimiter ="&")
+
+                for row in reader:
+                    if(row[1].lower() == name):
+                        return int(row[0][4:])
+        return 0
