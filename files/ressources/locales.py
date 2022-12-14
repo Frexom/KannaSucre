@@ -11,6 +11,7 @@ class Translator():
         self.strings = {}
         self.poke = {}
         self.evolutions = {}
+        self.locales = {}
 
         self.loadStrings()
         self.loadPoke()
@@ -44,11 +45,18 @@ class Translator():
 
     def getLocaleFromInteraction(self, interaction):
         if interaction.guild is not None:
-            connection, cursor = get_static_conn("./files/ressources/bot.db")
-            cursor.execute("SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (interaction.guild.id,))
-            locale = cursor.fetchone()
-            close_static_conn(connection, cursor)
-            return locale[0]
+            id = str(interaction.guild.id)
+            if( id not in self.locales.keys()):
+
+                #Database query
+                connection, cursor = get_static_conn("./files/ressources/bot.db")
+                cursor.execute("SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (interaction.guild.id,))
+                locale = cursor.fetchone()
+                close_static_conn(connection, cursor)
+                self.locales[id] = locale[0]
+                return locale[0]
+            else:
+                return self.locales[id]
         else:
             return 'en'
 
