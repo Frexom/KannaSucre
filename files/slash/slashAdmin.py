@@ -85,6 +85,7 @@ class slashAdmin(commands.Cog):
                 connection, cursor = await get_conn("./files/ressources/bot.db")
                 await cursor.execute("UPDATE dis_guild SET guild_locale = ? WHERE guild_id = ?", (language.value, interaction.guild.id))
                 await connection.commit()
+                bot.translator.updateCache(interaction.guild.id, language)
 
                 content = bot.translator.getLocalString(interaction, "newLanguage", [])
                 await interaction.response.send_message(content = content)

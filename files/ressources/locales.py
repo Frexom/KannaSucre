@@ -122,3 +122,7 @@ class Translator():
                     if(row[1].lower() == name):
                         return int(row[0][4:])
         return 0
+
+
+    def updateCache(self, guildID, locale):
+        self.locales[guildID] = locale
