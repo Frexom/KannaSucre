@@ -49,23 +49,35 @@ class slashAdmin(commands.Cog):
                 await missing_perms(interaction, "ban", "ban members")
 
 
-    @app_commands.command(name="welcome", description = "Defines welcome channel where users arrivals and departures are announced.")
+    @app_commands.command(name="welcome", description = "Defines the jion and leaves log channel, and the role to give to new members.")
     @app_commands.describe(channel="The channel you want the message to be sent.")
-    async def welcome(self, interaction: discord.Interaction, channel : discord.TextChannel = None):
+    @app_commands.describe(role="The role you want to give to new members.")
+    async def welcome(self, interaction: discord.Interaction, channel : discord.TextChannel = None, role : discord.Role = None):
         if not interaction.user.bot :
             if interaction.user.guild_permissions.manage_guild:
 
+                connection, cursor = await get_conn("./files/ressources/bot.db")
+                content = ""
+
                 if channel is None:
                     channel = 0
-                    content = bot.translator.getLocalString(interaction, "welcomeDisabled", [])
-                    await interaction.response.send_message(content = content)
+                    content += bot.translator.getLocalString(interaction, "welcomeDisabled", [])
+                    await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (0, 0, interaction.guild.id))
                 else:
                     channel = channel.id
-                    content = bot.translator.getLocalString(interaction, "welcomeChannel", [("channel", channel)])
-                    await interaction.response.send_message(content = content)
+                    content += bot.translator.getLocalString(interaction, "welcomeChannel", [("channel", channel)])
 
-                connection, cursor = await get_conn("./files/ressources/bot.db")
-                await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ? WHERE guild_id=?", (channel, interaction.guild.id))
+                    content += "\n"
+
+                    if role is not None and role.name != "@everyone":
+                        content += f"The role `@{role.name}` will be given to new members!"
+                        await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (channel, role.id, interaction.guild.id))
+                    else:
+                        content += "No role will be given to new members."
+                        await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (channel, 0, interaction.guild.id))
+
+                await interaction.response.send_message(content = content)
+
                 await connection.commit()
                 await close_conn(connection, cursor)
             else:

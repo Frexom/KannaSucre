@@ -59,30 +59,32 @@ async def ban(ctx):
 async def welcome(ctx):
     if not ctx.author.bot :
         if ctx.author.guild_permissions.manage_guild:
-            connection, cursor = await get_conn("./files/ressources/bot.db")
-            message = ctx.message.content.split(" ")
-            if len(ctx.message.channel_mentions) > 0 or len(message) > 1 and message[1] == str(0):
-                if len(ctx.message.channel_mentions) > 0:
-                    channel = ctx.message.channel_mentions[0].id
-                else:
-                    channel = 0
-                await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ? WHERE guild_id=?", (channel, ctx.guild.id))
-                await connection.commit()
-                await close_conn(connection, cursor)
 
-                await ctx.message.add_reaction("\u2705") #Validation
+            connection, cursor = await get_conn("./files/ressources/bot.db")
+            content = ""
+            message = ctx.message
+
+            if(len(message.channel_mentions) > 0):
+                channel = message.channel_mentions[0].id
+                content += bot.translator.getLocalString(ctx, "welcomeChannel", [("channel", channel)])
+                content += "\n"
+
+                if(len(message.role_mentions) > 0 and message.role_mentions[0].name != "@everyone"):
+                    role = message.role_mentions[0]
+                    content += f"The role `@{role.name}` will be given to new members!"
+                    await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (channel, role.id, ctx.guild.id))
+                else:
+                    content += "No role will be given to new members."
+                    await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (channel, 0, ctx.guild.id))
+
             else:
-                await cursor.execute("SELECT guild_welcome_channel_id FROM dis_guild WHERE guild_id = ?", (ctx.guild.id, ))
-                welcome = await cursor.fetchone()
-                await close_conn(connection, cursor)
-                welcome = welcome[0]
-                prefix = str(await get_pre(ctx))
-                if welcome != 0 :
-                    content = bot.translator.getLocalString(ctx, "welcomeChannel", [("channel", str(welcome))])
-                    await ctx.send(content = content)
-                else :
-                    content = bot.translator.getLocalString(ctx, "welcomeDisabled", [])
-                    await ctx.send(content = content)
+                content += bot.translator.getLocalString(ctx, "welcomeDisabled", [])
+                await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (0, 0, ctx.guild.id))
+
+            await connection.commit()
+            await close_conn(connection, cursor)
+
+            await ctx.send(content = content)
         else:
             await missing_perms(ctx, "welcome", "manage guild")
 

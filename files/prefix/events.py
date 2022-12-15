@@ -42,15 +42,28 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_member_join(member):
 	connection, cursor = await get_conn("./files/ressources/bot.db")
-	await cursor.execute( "SELECT guild_welcome_channel_id FROM dis_guild WHERE guild_id = ?", (member.guild.id,))
-	channel_ID = await cursor.fetchone()
-	channel_ID = channel_ID[0]
+	await cursor.execute( "SELECT guild_welcome_channel_id, guild_welcome_role_id FROM dis_guild WHERE guild_id = ?", (member.guild.id,))
+	welcomeSettings = await cursor.fetchone()
+	channel_ID = welcomeSettings[0]
+	role_ID = welcomeSettings[1]
 	if channel_ID != 0:
 		welcome_channel: discord.TextChannel = bot.get_channel(channel_ID)
 		if welcome_channel is not None:
 			content = bot.translator.getLocalString(member, "welcome", [("memberID", str(member.id))])
 			await welcome_channel.send(content = content)
 
+	if role_ID != 0:
+		welcome_role: discord.Role = member.guild.get_role(role_ID)
+		if welcome_role is not None:
+			try:
+				await member.add_roles(welcome_role, reason = "Gave welcome role")
+			except discord.errors.Forbidden as e:
+				try:
+					await member.guild.owner.send(f"__Message from **{member.guild.name}** :__\n\nI do not have enough permissions to give the new members their welcome role.\nIf you want to disable that feature, please run `/welcome` without any arguments on **{member.guild.name}**.\nIf you want the feature to work, pelease make sure my role has the `manage roles` permission, and that my role is higher than the welcome role.")
+				except Exception:
+					pass
+
+	#Insert new member in database
 	if not member.bot:
 		await cursor.execute("SELECT user_id FROM dis_user WHERE user_id = ?", (member.id, ))
 		member_id = await cursor.fetchone()
