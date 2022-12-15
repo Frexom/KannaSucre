@@ -87,6 +87,27 @@ async def welcome(ctx):
             await missing_perms(ctx, "welcome", "manage guild")
 
 
+@bot.command(name = "language")
+async def language(ctx):
+    if not ctx.author.bot:
+        if ctx.author.guild_permissions.manage_guild:
+            message = ctx.message.content.split(" ")
+            locales = ['en', 'fr']
+            if(len(message) >= 2 and message[1] in locales):
+                connection, cursor = await get_conn("./files/ressources/bot.db")
+                await cursor.execute("UPDATE dis_guild SET guild_locale = ? WHERE guild_id = ?", (message[1], ctx.guild.id))
+                await connection.commit()
+                bot.translator.updateCache(ctx.guild.id, message[1])
+
+                content = bot.translator.getLocalString(ctx, "newLanguage", [])
+                await ctx.send(content = content)
+            else:
+                prefix = str(await get_pre(ctx))
+                await ctx.send("```" + str(prefix) + "language en/fr```")
+        else:
+            await missing_perms(ctx, "language", "manage guild")
+
+
 @bot.command(name="announce")
 async def announce(ctx):
     if ctx.author.guild_permissions.manage_guild:
