@@ -57,16 +57,16 @@ async def help(ctx):
       await cursor.execute("SELECT com_name, com_short, cat_category FROM com_command ORDER BY cat_category, com_name")
       commands = await cursor.fetchall()
       await close_conn(connection, cursor)
-      content = ""
-      index = 0
-      for i in range(4):
-        content += categories[i]
-        while(index < len(commands) and commands[index][2] == i+1):
-          content += "`" + commands[index][0] +  "` : " + commands[index][1] +"\n"
-          index += 1;
+
       embed = discord.Embed(title= "Kannasucre help : ", colour=discord.Colour(0x635f))
       embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
-      embed.add_field(name="** **", value=content)
+      index = 0
+      for i in range(4):
+          content = ""
+          while(index < len(commands) and commands[index][2] == i+1):
+              content += "`" + commands[index][0] +    "` : " + commands[index][1] +"\n"
+              index += 1;
+          embed.add_field(name=categories[i], value=content, inline=False)
       await ctx.send(embed=embed)
     else:
       await cursor.execute("SELECT com_name, com_desc, com_use_example, com_user_perms, com_bot_perms, com_more_perms_than_target FROM com_command")
