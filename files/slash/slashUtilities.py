@@ -35,6 +35,15 @@ class slashUtilities(commands.Cog):
             content = bot.translator.getLocalString(interaction, "usericon", [])
             await interaction.response.send_message(member.display_avatar.url or content)
 
+
+            @app_commands.command(name="supportserver", description="Get an invite to KannaSucre's support server!")
+            async def supportServer(self, interaction: discord.Interaction):
+                if not interaction.user.bot:
+                    link = os.environ['SUPPORTSERVERLINK']
+                    t = Translator(interaction.guild.id, loadStrings=True)
+                    content = bot.translator.getLocalString(interaction, "supportServer", [])
+                    await interaction.response.send_message(content + link)
+
     @app_commands.command(name="help", description="Get some help about the commands!")
     @app_commands.describe(command="Name of the command you want the details of!")
     async def help(self, interaction = discord.Interaction, command: str = None):
@@ -45,16 +54,16 @@ class slashUtilities(commands.Cog):
                 await cursor.execute("SELECT com_name, com_short, cat_category FROM com_command ORDER BY cat_category, com_name")
                 commands = await cursor.fetchall()
                 await close_conn(connection, cursor)
-                content = ""
+
+                embed = discord.Embed(title= "Kannasucre help : ", colour=discord.Colour(0x635f))
+                embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
                 index = 0
                 for i in range(4):
-                    content += categories[i]
+                    content = ""
                     while(index < len(commands) and commands[index][2] == i+1):
                         content += "`" + commands[index][0] +    "` : " + commands[index][1] +"\n"
                         index += 1;
-                embed = discord.Embed(title= "Kannasucre help : ", colour=discord.Colour(0x635f))
-                embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
-                embed.add_field(name="** **", value=content)
+                    embed.add_field(name=categories[i], value=content, inline=False)
                 await interaction.response.send_message(embed=embed)
             else:
                 await cursor.execute("SELECT com_name, com_desc, com_use_example, com_user_perms, com_bot_perms, com_more_perms_than_target FROM com_command")
@@ -79,12 +88,3 @@ class slashUtilities(commands.Cog):
                         successful = True
                 if successful == False :
                     await interaction.response.send_message("No command named `" + parameter +"` found.")
-
-
-    @app_commands.command(name="supportserver", description="Get an invite to KannaSucre's support server!")
-    async def supportServer(self, interaction: discord.Interaction):
-        if not interaction.user.bot:
-            link = os.environ['SUPPORTSERVERLINK']
-            t = Translator(interaction.guild.id, loadStrings=True)
-            content = bot.translator.getLocalString(interaction, "supportServer", [])
-            await interaction.response.send_message(content + link)
