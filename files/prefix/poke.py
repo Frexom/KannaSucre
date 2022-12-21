@@ -63,7 +63,7 @@ async def poke(ctx):
         #New Form
         if(is_obtained == None and (is_pokedex)):
             form_string = "\n"
-            form_string += t.getLocalString(ctx, "pokeNewForm", [])
+            form_string += bot.translator.getLocalString(ctx, "pokeNewForm", [])
 
         #New Pokémon
         if is_obtained == None:
@@ -110,7 +110,7 @@ async def pokeinfo(ctx):
         if len(message) > 1:
             pokemon = message[1]
             if not pokemon.isdecimal():
-                poke_id = t.getPokeIdByName(pokemon.lower())
+                poke_id = bot.translator.getPokeIdByName(pokemon.lower())
             else:
                 poke_id = int(message[1])
 
