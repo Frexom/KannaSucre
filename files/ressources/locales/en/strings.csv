@@ -18,7 +18,7 @@ female&Female
 chooseEvolution&Choose an evolution
 description&Description
 evolution&Evolution
-evolvedBy&Has evolved by
+evolvedBy&Has evolved by 
 userPokedex&{user}'s Pokédex
 shinies&Shinies✨ :
 shinyPoke&shiny Pokémons
@@ -72,3 +72,50 @@ buttonClose&Close
 pokerank&KannaSucre's pokérank :
 pokerankRanking&Ranking :
 pokeForm&{form} form
+welcomeRole&The role `@{role}` will be given to new members!
+welcomeNoRole&No role will be given to new members.
+errorWelcomeRole&__Message from **{guild}** :__\n\nI do not have enough permissions to give the new members their welcome role.\nIf you want to disable that feature, please run `/welcome` without any arguments on **{guild}**.\nIf you want the feature to work, pelease make sure my role has the `manage roles` permission, and that my role is higher than the welcome role.
+clearShort&Clears some messages
+clearDesc&Clear a given number of messages (maximum 50).
+kickShort&Kicks a member
+kickDesc&Kicks a specified user, a reason can be given or not.
+banShort&Bans a member
+banDesc&Bans a specified user, a reason can be given or not.
+prefixShort&Changes the bot's prefix
+prefixDesc&Changes the bot prefix for this server only. Every kind of prefix can be used (even multi-characters).
+hugShort&Hugs someone!
+hugDesc&Hugs someone, that's it!
+welcomeShort&Defines the welcome channel/role.
+welcomeDesc&Defines the channel where join and leaves will be logged, and the role to give to new members
+diceShort&Rolls a dice
+diceDesc&Rolls a dice between 1 and a given number.
+usericonShort&Posts the server's icon
+usericonDesc&Posts the current server's icon in full resolution.
+pokeShort&Catches a Pokémon!
+pokeDesc&Catches a Pokémons for you, all Pokémons up to Pokémon Legends: Arceus are available!
+pokedexShort&Displays your pokedex
+pokedexDesc&Shows all the Pokémons you caught in your pokedex.
+helpShort&Shows this message
+helpDesc&Shows either all the available commands or the details of a specific commands.
+levelShort&Displays your level and XP
+levelDesc&Shows your level and XP, nothing more.
+pokerankShort&Shows the best KannaSucre Pokémon trainers!
+pokerankDesc&Displays the bot's top 10 best Pokémon trainers!
+standShort&Displays your assigned stand
+standDesc&Displays your assigned JJBA stand, your stand is bounded to you and won't change.
+usericonShort&Displays an user's icon
+usericonDesc&Display the given user's icon.
+pruneShort&Deletes an user's messages
+pruneDesc&Deletes all the mentionned user's messages among the 200 last from each channel.
+rollsShort&Show poke command personnal details.
+rollsDesc&Displays how much pokerolls you have, and when your next free roll will be.
+pokeinfoShort&Displays a Pokémon's info
+pokeinfoDesc&Displays some infos about a given Pokémon. You can use it with pokedex id, or Pokémon name!
+announceShort&Sends a custom message to a channel
+announceDesc&Sends a custom message to a defined channel, your username will be quoted.
+languageShort&Changes the bot's language!
+languageDesc&Changes the language the bot will send messages is, right now only French and English are available.
+supportserverShort&Sends an inite to KannaSucre's server!
+supportserverDesc&Sends a link to join KannaSucre's support server, to get help or give suggestions.
+togglelevelsShort&Toggles the level feature
+togglelevelsDesc&Toggles the level feature on and off. Default is off.

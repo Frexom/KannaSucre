@@ -59,7 +59,8 @@ async def on_member_join(member):
 				await member.add_roles(welcome_role, reason = "Gave welcome role")
 			except discord.errors.Forbidden as e:
 				try:
-					await member.guild.owner.send(f"__Message from **{member.guild.name}** :__\n\nI do not have enough permissions to give the new members their welcome role.\nIf you want to disable that feature, please run `/welcome` without any arguments on **{member.guild.name}**.\nIf you want the feature to work, pelease make sure my role has the `manage roles` permission, and that my role is higher than the welcome role.")
+					content = bot.translator.getLocalString(member, "errorWelcomeRole", [("guild", member.guild.name)])
+					await member.guild.owner.send(content = content)
 				except Exception:
 					pass
 

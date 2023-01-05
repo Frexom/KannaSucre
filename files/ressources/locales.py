@@ -11,7 +11,6 @@ class Translator():
         self.strings = {}
         self.poke = {}
         self.evolutions = {}
-        self.locales = {}
 
         self.loadStrings()
         self.loadPoke()
@@ -46,7 +45,7 @@ class Translator():
     def getLocaleFromInteraction(self, interaction):
         if interaction.guild is not None:
             id = str(interaction.guild.id)
-            if( id not in self.locales.keys()):
+            if(id not in self.locales.keys()):
 
                 #Database query
                 connection, cursor = get_static_conn("./files/ressources/bot.db")
@@ -125,4 +124,4 @@ class Translator():
 
 
     def updateCache(self, guildID, locale):
-        self.locales[guildID] = locale
+        self.locales[str(guildID)] = locale
