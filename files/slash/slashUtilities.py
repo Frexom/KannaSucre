@@ -50,18 +50,26 @@ class slashUtilities(commands.Cog):
         if not interaction.user.bot :
             connection, cursor = await get_conn("./files/ressources/bot.db")
             if command == None:
-                categories = ["__Admin commands :__ \n\n", "\n\n__Moderation commands :__ \n\n", "\n\n__Utilities commands :__ \n\n", "\n\n__Miscellaneous/Fun commands :__ \n\n"]
+
+                categories = []
+                categories.append(bot.translator.getLocalString(interaction, "helpCatAdmin", []))
+                categories.append(bot.translator.getLocalString(interaction, "helpCatMod", []))
+                categories.append(bot.translator.getLocalString(interaction, "helpCatUtil", []))
+                categories.append(bot.translator.getLocalString(interaction, "helpCatMisc", []))
+
                 await cursor.execute("SELECT com_name, com_short, cat_category FROM com_command ORDER BY cat_category, com_name")
                 commands = await cursor.fetchall()
                 await close_conn(connection, cursor)
 
-                embed = discord.Embed(title= "Kannasucre help : ", colour=discord.Colour(0x635f))
-                embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
+                title = bot.translator.getLocalString(interaction, "helpBigTitle", [])
+                embed = discord.Embed(title= title, colour=discord.Colour(0x635f))
+                embed.set_thumbnail(url=bot.user.avatar.url)
                 index = 0
                 for i in range(4):
                     content = ""
                     while(index < len(commands) and commands[index][2] == i+1):
-                        content += "`" + commands[index][0] +    "` : " + commands[index][1] +"\n"
+                        comShort = bot.translator.getLocalString(interaction, commands[index][0]+"Short", [])
+                        content += "`" + commands[index][0] +    "` : " + comShort +"\n"
                         index += 1;
                     embed.add_field(name=categories[i], value=content, inline=False)
                 await interaction.response.send_message(embed=embed)
@@ -73,18 +81,24 @@ class slashUtilities(commands.Cog):
                 for i in range(len(commands)):
                     if commands[i][0] == command:
                         prefix = "/"
-                        embed = discord.Embed(title= commands[i][0] + " command :", colour=discord.Colour(0x635f), description=commands[i][1])
-                        embed.set_thumbnail(url="https://images-ext-2.discordapp.net/external/ylO6nSOkZFjyT7oeHcgk6JMQLoxbz727MdJQ9tSUbOs/%3Fsize%3D256/https/cdn.discordapp.com/avatars/765255086581612575/25a75fea0a68fb814d8eada27fc7111e.png")
-                        embed.set_author(name="KannaSucre help,")
-                        embed.add_field(name="User's perms :            ", value="`" + commands[i][3] + "`", inline = True)
-                        embed.add_field(name="Kanna's perms :            ", value="`" + commands[i][4] + "`", inline = True)
+                        description = bot.translator.getLocalString(interaction, commands[i][0]+"Desc", [])
+                        title = bot.translator.getLocalString(interaction, "helpTitle", [("command", commands[i][0])])
+                        embed = discord.Embed(title= title, colour=discord.Colour(0x635f), description=description)
+                        embed.set_thumbnail(url=bot.user.avatar.url)
+                        name = bot.translator.getLocalString(interaction, "helpUserPerms", [])
+                        embed.add_field(name=name, value="`" + commands[i][3] + "`", inline = True)
+                        name = bot.translator.getLocalString(interaction, "helpKannaPerms", [])
+                        embed.add_field(name="Kanna's perms :", value="`" + commands[i][4] + "`", inline = True)
                         if commands[i][5] is not None:
-                            answer = 'no'
+                            answer = bot.translator.getLocalString(interaction, "helpNo", [])
                             if int(commands[i][5]) == 1:
-                                answer = 'yes'
-                            embed.add_field(name="Does the bot need more perms than target to run that command?", value= "```" + answer + "```", inline = False)
-                        embed.add_field(name="Example : ", value= "```" + prefix + commands[i][2] + "```", inline = False)
+                                answer = bot.translator.getLocalString(interaction, "helpYes", [])
+                            name = bot.translator.getLocalString(interaction, "helpMorePerms", [])
+                            embed.add_field(name=name, value= "```" + answer + "```", inline = False)
+                        name = bot.translator.getLocalString(interaction, "helpExample", [])
+                        embed.add_field(name=name, value= "```" + prefix + commands[i][2] + "```", inline = False)
                         await interaction.response.send_message(embed=embed)
                         successful = True
                 if successful == False :
-                    await interaction.response.send_message("No command named `" + parameter +"` found.")
+                    content = bot.translator.getLocalString(interaction, "helpNoCommand", [("name", command)])
+                    await interaction.response.send_message(content = content)

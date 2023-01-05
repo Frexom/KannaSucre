@@ -18,7 +18,7 @@ female&Female
 chooseEvolution&Choose an evolution
 description&Description
 evolution&Evolution
-evolvedBy&Has evolved by 
+evolvedBy&Has evolved by
 userPokedex&{user}'s Pokédex
 shinies&Shinies✨ :
 shinyPoke&shiny Pokémons
@@ -89,8 +89,8 @@ welcomeShort&Defines the welcome channel/role.
 welcomeDesc&Defines the channel where join and leaves will be logged, and the role to give to new members
 diceShort&Rolls a dice
 diceDesc&Rolls a dice between 1 and a given number.
-usericonShort&Posts the server's icon
-usericonDesc&Posts the current server's icon in full resolution.
+servericonShort&Posts the server's icon
+servericonDesc&Posts the current server's icon in full resolution.
 pokeShort&Catches a Pokémon!
 pokeDesc&Catches a Pokémons for you, all Pokémons up to Pokémon Legends: Arceus are available!
 pokedexShort&Displays your pokedex
@@ -119,3 +119,16 @@ supportserverShort&Sends an inite to KannaSucre's server!
 supportserverDesc&Sends a link to join KannaSucre's support server, to get help or give suggestions.
 togglelevelsShort&Toggles the level feature
 togglelevelsDesc&Toggles the level feature on and off. Default is off.
+helpTitle&KannaSucre help, {command} command :
+helpCatAdmin&__Admin commands :__
+helpCatMod&__Moderation commands :__
+helpCatUtil&__Utilities commands :__
+helpCatMisc&__Miscellaneous/Fun commands :__
+helpBigTitle&Kannasucre help :
+helpUserPerms&User's perms :
+helpKannaPerms&Kanna's perms :
+helpNo&no
+helpYes&yes
+helpMorePerms&Does the bot need more perms than target to run that command?
+helpExample&Example :
+helpNoCommand&No command named `{name}` found.

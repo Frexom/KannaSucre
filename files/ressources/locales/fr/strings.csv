@@ -71,7 +71,7 @@ buttonShinies&Chromatiques
 buttonClose&Refermer
 pokerank&Pokéclassement de KannaSucre :
 pokerankRanking&Classemment :
-pokeForm&Forme {form}
+pokeForm&Forme {forme}
 welcomeRole&Le rôle `@{role}` sera donné aux nouveaux arrivants!
 welcomeNoRole&Aucun rôle ne sera donné aux nouveaux arrivants.
 errorWelcomeRole&__Message venant de **{guild}** :__\n\nJe n'ai pas assez de permissions pour donner aux nouveaux arrivants leur rôle de bienvenue.\nSi vous voulez désactiver cette fonctionnalité, utilisez `/welcome` sans arguments sur **{guild}**.\nSi vous voulez que la fonctionnalité marche, vérifiez que mon rôle possède la permission `Gérer les rôles`, et que mon rôle est plus haut que le rôle de bienvenue.
@@ -89,8 +89,8 @@ welcomeShort&Définit le salon/rôle de bienvenue.
 welcomeDesc&Définit le salon où les arrivées et départs seront envoyés, et le rôle à donner aux nouveaux arrivants.
 diceShort&Lance un dé
 diceDesc&Lance un dé entre 1 et un nombre donné.
-usericonShort&Affiche l'icône du serveur
-usericonDesc&Affiche l'icône du serveur en haute résolution.
+servericonShort&Affiche l'icône du serveur
+servericonDesc&Affiche l'icône du serveur en haute résolution.
 pokeShort&Attrape un Pokémon!
 pokeDesc&Attrape un Pokémon pour ton Pokédex, tous les Pokémons jusqu'à Legendes Pokémon : Arceus sont disponibles!
 pokedexShort&Affiche ton Pokédex
@@ -119,3 +119,16 @@ supportserverShort&Envoie un lien d'invitation au serveur de KannaSucre!
 supportserverDesc&Envoie un lien pour rejoindre le serveur de KannaSucre, pour obtenir de l'aide ou donner des suggestions.
 togglelevelsShort&Active ou désactive les niveaux
 togglelevelsDesc&Active ou désactive la fonctionnalité de niveaux. Cette dernière est désactivée par défaut.
+helpTitle&Guide de KannaSucre, commande {command} :
+helpCatAdmin&__Commandes administrateur :__
+helpCatMod&__Commandes de modération :__
+helpCatUtil&__Commandes utilitaires :__
+helpCatMisc&__Commandes diverses :__
+helpBigTitle&Guide de KannaSucre :
+helpUserPerms&Permissions utilisateur :
+helpKannaPerms&Permissions de Kanna :
+helpNo&non
+helpYes&oui
+helpMorePerms&Est-ce que le bot a besoin de plus de permissions que la cible de la commande?
+helpExample&Example :
+helpNoCommand&Aucune commande appellée `{name}` trouvée.
