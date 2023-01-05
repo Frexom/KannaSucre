@@ -18,6 +18,7 @@ from slashModeration import *
 from slashUtilities import *
 from slashEvents import *
 from slashAdmin import *
+from slashImage import *
 from slashOwner import *
 from slashPoke import *
 from slashFun import *
@@ -32,6 +33,7 @@ async def on_ready():
         await bot.add_cog(slashModeration(bot))
         await bot.add_cog(slashUtilities(bot))
         await bot.add_cog(slashAdmin(bot))
+        await bot.add_cog(slashImage(bot))
         await bot.add_cog(slashOwner(bot))
         await bot.add_cog(slashPoke(bot))
         await bot.add_cog(slashFun(bot))
