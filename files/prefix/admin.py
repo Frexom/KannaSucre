@@ -71,10 +71,10 @@ async def welcome(ctx):
 
                 if(len(message.role_mentions) > 0 and message.role_mentions[0].name != "@everyone"):
                     role = message.role_mentions[0]
-                    content += f"The role `@{role.name}` will be given to new members!"
+                    content += bot.translator.getLocalString(interaction, "welcomeRole", [("role", role.name)])
                     await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (channel, role.id, ctx.guild.id))
                 else:
-                    content += "No role will be given to new members."
+                    content += bot.translator.getLocalString(interaction, "welcomeNoRole", [])
                     await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (channel, 0, ctx.guild.id))
 
             else:

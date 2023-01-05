@@ -70,10 +70,10 @@ class slashAdmin(commands.Cog):
                     content += "\n"
 
                     if role is not None and role.name != "@everyone":
-                        content += f"The role `@{role.name}` will be given to new members!"
+                        content += bot.translator.getLocalString(interaction, "welcomeRole", [("role", role.name)])
                         await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (channel, role.id, interaction.guild.id))
                     else:
-                        content += "No role will be given to new members."
+                        content += bot.translator.getLocalString(interaction, "welcomeNoRole", [])
                         await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (channel, 0, interaction.guild.id))
 
                 await interaction.response.send_message(content = content)
@@ -97,7 +97,7 @@ class slashAdmin(commands.Cog):
                 connection, cursor = await get_conn("./files/ressources/bot.db")
                 await cursor.execute("UPDATE dis_guild SET guild_locale = ? WHERE guild_id = ?", (language.value, interaction.guild.id))
                 await connection.commit()
-                bot.translator.updateCache(interaction.guild.id, language)
+                bot.translator.updateCache(interaction.guild.id, language.value)
 
                 content = bot.translator.getLocalString(interaction, "newLanguage", [])
                 await interaction.response.send_message(content = content)

@@ -72,3 +72,50 @@ buttonClose&Refermer
 pokerank&Pokéclassement de KannaSucre :
 pokerankRanking&Classemment :
 pokeForm&Forme {form}
+welcomeRole&Le rôle `@{role}` sera donné aux nouveaux arrivants!
+welcomeNoRole&Aucun rôle ne sera donné aux nouveaux arrivants.
+errorWelcomeRole&__Message venant de **{guild}** :__\n\nJe n'ai pas assez de permissions pour donner aux nouveaux arrivants leur rôle de bienvenue.\nSi vous voulez désactiver cette fonctionnalité, utilisez `/welcome` sans arguments sur **{guild}**.\nSi vous voulez que la fonctionnalité marche, vérifiez que mon rôle possède la permission `Gérer les rôles`, et que mon rôle est plus haut que le rôle de bienvenue.
+clearShort&Supprime des messages
+clearDesc&Supprime un nombre de message donné (maximum 50).
+kickShort&Expulse un membre
+kickDesc&Expulse un membre donné, une raison peut être spécifiée.
+banShort&Bannit un membre
+banDesc&Bannit un membre donné, une raison peut être spécifiée.
+prefixShort&Change le préfixe du bot
+prefixDesc&Change le préfix du bot pour ce serveur uniquement. Tout type de préfixe peut être utilisé (même avec plusieurs caractères).
+hugShort&Câline quelqu'un!
+hugDesc&Câline quelqu'un, c'est tout!
+welcomeShort&Définit le salon/rôle de bienvenue.
+welcomeDesc&Définit le salon où les arrivées et départs seront envoyés, et le rôle à donner aux nouveaux arrivants.
+diceShort&Lance un dé
+diceDesc&Lance un dé entre 1 et un nombre donné.
+usericonShort&Affiche l'icône du serveur
+usericonDesc&Affiche l'icône du serveur en haute résolution.
+pokeShort&Attrape un Pokémon!
+pokeDesc&Attrape un Pokémon pour ton Pokédex, tous les Pokémons jusqu'à Legendes Pokémon : Arceus sont disponibles!
+pokedexShort&Affiche ton Pokédex
+pokedexDesc&Montre ton Pokédex, avec tous les Pokémons que tu as attrapé.
+helpShort&Affiche ce message
+helpDesc&Affiche soit toutes les commandes disponibles, ou les détails d'une commande spécifique.
+levelShort&Affiche ton niveau et ton XP
+levelDesc&Affiche ton niveau et ton XP, c'est tout.
+pokerankShort&Affiche les meilleurs dresseurs Pokémons de KannaSucre!
+pokerankDesc&Affiche le top 10 des meilleurs dresseurs Pokémon du bot!
+standShort&Affiche votre stand respectif
+standDesc&Affiche ton stand de JJBA, ton stand est lié à toi et tu ne peux en changer.
+usericonShort&Affiche l'icône d'un utilisateur
+usericonDesc&Affiche l'icône d'un utilisateur donné.
+pruneShort&Supprime les messages d'un utilisateur
+pruneDesc&Supprime tous les messages d'un utilisateur donné parmi les 200 derniers message de chaque salon.
+rollsShort&Affiche vos détails pour la commande poke.
+rollsDesc&Affiche ton nombre de Pokérolls, et quand sera ton prochain Pokéroll gratuit.
+pokeinfoShort&Affiche les infos d'un Pokémon
+pokeinfoDesc&Affiche certaines infos sur un Pokémon donné. Vous pouvez utiliser la commande avec le numéro de Pokédex, ou le nom du Pokémon!
+announceShort&Envoie un message personnalisé dans un salon
+announceDesc&Envoie un message personnalisé dans un salon donné, votre nom d'utilisateur sera cité.
+languageShort&Change la langue du bot!
+languageDesc&Change la langue dans laquelle le bot enverra ses messages, pour le moment, uniquement Anglais et Français sont disponibles.
+supportserverShort&Envoie un lien d'invitation au serveur de KannaSucre!
+supportserverDesc&Envoie un lien pour rejoindre le serveur de KannaSucre, pour obtenir de l'aide ou donner des suggestions.
+togglelevelsShort&Active ou désactive les niveaux
+togglelevelsDesc&Active ou désactive la fonctionnalité de niveaux. Cette dernière est désactivée par défaut.
