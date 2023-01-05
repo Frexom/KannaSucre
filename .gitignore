@@ -3,6 +3,7 @@ files/LevelCommand/Users
 files/LevelCommand/stats*.png
 *.db
 useful
+reminder.help
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
