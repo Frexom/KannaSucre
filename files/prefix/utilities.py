@@ -1,5 +1,6 @@
 from mentions import *
 from prefix import *
+from perms import *
 from bot import *
 
 sys.path.append("../ressources")
@@ -21,12 +22,15 @@ async def dice(ctx):
 
 @bot.command(name="servericon")
 async def servericon(ctx):
-    if not ctx.author.bot :
-        if(ctx.guild.icon is not None):
-            await ctx.send(ctx.guild.icon.url)
+    if not ctx.author.bot:
+        if(ctx.guild is not None):
+            if(ctx.guild.icon is not None):
+                await ctx.send(ctx.guild.icon.url)
+            else:
+                content = bot.translator.getLocalString(ctx, "servericon", [])
+                await ctx.send(content = content)
         else:
-            content = bot.translator.getLocalString(ctx, "servericon", [])
-            await ctx.send(content = content)
+            await dmUnavailable(ctx, "servericon")
 
 
 @bot.command(name="usericon")

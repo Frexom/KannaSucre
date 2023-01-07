@@ -1,3 +1,4 @@
+from perms import *
 from bot import *
 
 sys.path.append("../ressources")
@@ -19,16 +20,19 @@ class slashUtilities(commands.Cog):
     @app_commands.command(name = "servericon", description = "Shows the server's icon!")
     async def servericon(self, interaction: discord.Interaction):
         if not interaction.user.bot :
-            if(interaction.guild.icon is None):
-                content = bot.translator.getLocalString(interaction, "servericon", [])
-                await interaction.response.send_message(content = content)
+            if(interaction.guild is not None):
+                if(interaction.guild.icon is None):
+                    content = bot.translator.getLocalString(interaction, "servericon", [])
+                    await interaction.response.send_message(content = content)
+                else:
+                    await interaction.response.send_message(content = interaction.guild.icon.url)
             else:
-                await interaction.response.send_message(content = interaction.guild.icon.url)
+                await dmUnavailable(interaction, "servericon")
 
 
     @app_commands.command(name = "usericon", description = "Shows an user's avatar!")
     @app_commands.describe(member = "The user you want to see the avatar of!")
-    async def usericon(self, interaction: discord.Interaction, member:discord.Member = None):
+    async def usericon(self, interaction: discord.Interaction, member: Union[discord.Member, discord.User] = None):
         if not interaction.user.bot :
             if member == None:
                 member = interaction.user
@@ -36,13 +40,12 @@ class slashUtilities(commands.Cog):
             await interaction.response.send_message(member.display_avatar.url or content)
 
 
-            @app_commands.command(name="supportserver", description="Get an invite to KannaSucre's support server!")
-            async def supportServer(self, interaction: discord.Interaction):
-                if not interaction.user.bot:
-                    link = os.environ['SUPPORTSERVERLINK']
-                    t = Translator(interaction.guild.id, loadStrings=True)
-                    content = bot.translator.getLocalString(interaction, "supportServer", [])
-                    await interaction.response.send_message(content + link)
+    @app_commands.command(name="supportserver", description="Get an invite to KannaSucre's support server!")
+    async def supportServer(self, interaction: discord.Interaction):
+        if not interaction.user.bot:
+            link = os.environ['SUPPORTSERVERLINK']
+            content = bot.translator.getLocalString(interaction, "supportServer", [])
+            await interaction.response.send_message(content + link)
 
     @app_commands.command(name="help", description="Get some help about the commands!")
     @app_commands.describe(command="Name of the command you want the details of!")
