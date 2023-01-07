@@ -10,7 +10,7 @@ class slashFun(commands.Cog):
 
     @app_commands.command(name = "hug", description = "Lets you hug someone!")
     @app_commands.describe(user = "The user you want to hug!")
-    async def hug(self, interaction: discord.Interaction, user: discord.Member):
+    async def hug(self, interaction: discord.Interaction, user: Union[discord.Member, discord.User]):
       if not interaction.user.bot :
           hugList = [
                 "https://media1.tenor.com/images/89272929c73eefcca4b5f0ec8fe30316/tenor.gif",

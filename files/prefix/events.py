@@ -104,8 +104,11 @@ async def on_message(message):
 		connection, cursor = await get_conn("./files/ressources/bot.db")
 
 		#Levels
-		await cursor.execute("SELECT guild_levels_enabled FROM dis_guild WHERE guild_id = ?", (message.guild.id, ))
-		enabled = await cursor.fetchone()
+		if(message.guild is not None):
+			await cursor.execute("SELECT guild_levels_enabled FROM dis_guild WHERE guild_id = ?", (message.guild.id, ))
+			enabled = await cursor.fetchone()
+		else:
+			enabled = [1]
 		if enabled[0] == 1:
 			await cursor.execute("SELECT user_xp, user_level FROM dis_user WHERE user_id = ?", (message.author.id, ))
 			user_leveling = await cursor.fetchone()
