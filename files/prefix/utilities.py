@@ -64,48 +64,49 @@ async def help(ctx):
             categories.append(bot.translator.getLocalString(ctx, "helpCatUtil", []))
             categories.append(bot.translator.getLocalString(ctx, "helpCatMisc", []))
 
-            await cursor.execute("SELECT com_name, com_short, cat_category FROM com_command ORDER BY cat_category, com_name")
+            await cursor.execute("SELECT com_name, cat_category FROM com_command ORDER BY cat_category, com_name")
             commands = await cursor.fetchall()
             await close_conn(connection, cursor)
 
             title = bot.translator.getLocalString(ctx, "helpBigTitle", [])
-            embed = discord.Embed(title=title, colour=discord.Colour(0x635f))
+            embed = discord.Embed(title= title, colour=discord.Colour(0x635f))
             embed.set_thumbnail(url=bot.user.avatar.url)
             index = 0
             for i in range(4):
                 content = ""
-                while(index < len(commands) and commands[index][2] == i+1):
+                while(index < len(commands) and commands[index][1] == i+1):
                     comShort = bot.translator.getLocalString(ctx, commands[index][0]+"Short", [])
                     content += "`" + commands[index][0] +    "` : " + comShort +"\n"
-                    index += 1;
+                    index += 1
                 embed.add_field(name=categories[i], value=content, inline=False)
             await ctx.send(embed=embed)
         else:
-            await cursor.execute("SELECT com_name, com_desc, com_use_example, com_user_perms, com_bot_perms, com_more_perms_than_target FROM com_command")
+            command = message_list[1]
+            await cursor.execute("SELECT com_name, com_use_example, com_user_perms, com_bot_perms, com_more_perms_than_target FROM com_command")
             commands = await cursor.fetchall()
             await close_conn(connection, cursor)
-            parameter = message_list[1]
             successful = False
             for i in range(len(commands)):
-                if commands[i][0] == parameter:
-                    prefix = str(await get_pre(ctx))
+                if commands[i][0] == command:
+                    prefix = "/"
+                    description = bot.translator.getLocalString(ctx, commands[i][0]+"Desc", [])
                     title = bot.translator.getLocalString(ctx, "helpTitle", [("command", commands[i][0])])
-                    embed = discord.Embed(title= title, colour=discord.Colour(0x635f), description=commands[i][1])
+                    embed = discord.Embed(title= title, colour=discord.Colour(0x635f), description=description)
                     embed.set_thumbnail(url=bot.user.avatar.url)
                     name = bot.translator.getLocalString(ctx, "helpUserPerms", [])
-                    embed.add_field(name=name, value="`" + commands[i][3] + "`", inline = True)
+                    embed.add_field(name=name, value="`" + commands[i][2] + "`", inline = True)
                     name = bot.translator.getLocalString(ctx, "helpKannaPerms", [])
-                    embed.add_field(name=name, value="`" + commands[i][4] + "`", inline = True)
-                    if commands[i][5] is not None:
+                    embed.add_field(name="Kanna's perms :", value="`" + commands[i][3] + "`", inline = True)
+                    if commands[i][4] is not None:
                         answer = bot.translator.getLocalString(ctx, "helpNo", [])
-                        if int(commands[i][5]) == 1:
+                        if int(commands[i][4]) == 1:
                             answer = bot.translator.getLocalString(ctx, "helpYes", [])
                         name = bot.translator.getLocalString(ctx, "helpMorePerms", [])
                         embed.add_field(name=name, value= "```" + answer + "```", inline = False)
                     name = bot.translator.getLocalString(ctx, "helpExample", [])
-                    embed.add_field(name=name, value= "```" + prefix + commands[i][2] + "```", inline = False)
+                    embed.add_field(name=name, value= "```" + prefix + commands[i][1] + "```", inline = False)
                     await ctx.send(embed=embed)
                     successful = True
             if successful == False :
-                content = bot.translator.getLocalString(ctx, "helpNoCommand", [("name", parameter)])
-                await ctx.send(content=content)
+                content = bot.translator.getLocalString(ctx, "helpNoCommand", [("name", command)])
+                await ctx.send(content = content)
