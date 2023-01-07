@@ -102,6 +102,12 @@ Install dependencies
   pip install -r requirements.txt
 ```
 
+Set the database
+
+```
+cp tmp/bot.db files/ressources/bot.db
+```
+
 Start the bot!
 
 ```bash
