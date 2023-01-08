@@ -99,6 +99,7 @@ async def syncCommands(ctx: discord.ext.commands.Context, guilds: commands.Greed
 
     await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
 
+
 @bot.command(name="rules")
 @commands.is_owner()
 async def preview(ctx):
@@ -109,3 +110,20 @@ async def preview(ctx):
     e.add_field(name = "Rule :four: : Profile", inline = False, value="No offensive profile picture or name. No one should be seeing offensive or sensitive content while clicking your profile.")
     e.set_thumbnail(url=ctx.guild.icon.url)
     await ctx.channel.send(embed = e)
+
+@bot.command(name="fetch")
+@commands.is_owner()
+async def fetch(ctx):
+    await ctx.send("Working!")
+    connection, cursor = await get_conn("./files/ressources/bot.db")
+    await cursor.execute("SELECT user_id FROM dis_user")
+    users = await cursor.fetchall()
+    for user in users:
+        userObj = await bot.fetch_user(user[0])
+        if(userObj is not None):
+            print(userObj.name)
+            await cursor.execute("UPDATE dis_user SET user_name = ? WHERE user_id = ?", (userObj.name, userObj.id))
+    await connection.commit()
+    await close_conn(connection, cursor)
+    print("Done!")
+    await ctx.send("Done!")

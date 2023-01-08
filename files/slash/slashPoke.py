@@ -323,29 +323,22 @@ class slashPoke(commands.Cog):
     async def pokerank(self, interaction: discord.Interaction):
         if not interaction.user.bot :
 
-            def sort_on_pokemon(e):
-                return e[0]
-
             await interaction.response.defer()
 
             connection, cursor = await get_conn("./files/ressources/bot.db")
-            await cursor.execute("SELECT COUNT(DISTINCT dex_id), user_id FROM poke_obtained GROUP BY user_id LIMIT 10")
+            await cursor.execute("SELECT COUNT(DISTINCT dex_id) as nbPoke, user_name  FROM poke_obtained JOIN dis_user USING(user_id) GROUP BY user_id ORDER BY nbPoke desc limit 10")
             result = await cursor.fetchall()
             await close_conn(connection, cursor)
             result_list = []
             for i in range(len(result)):
                 result_list.append([result[i][0], result[i][1]])
-            result_list.sort(reverse=True, key=sort_on_pokemon)
             description = ""
-            limit = 10
             i = 0
-            ranking = 0
-            while i != len(result_list) and ranking < 10:
-                user = await bot.fetch_user(result_list[i][1])
-                if user != None:
-                    ranking += 1;
-                    description += str(ranking) + "-" + user.name + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
-                i += 1
+            limit = 10
+            while i != len(result_list) and i < 10:
+                description += str(i+1) + "- " + result_list[i][1] + " - " + str(result_list[i][0]) + "/" + str(poke_count) + "\n"
+                i += 1;
+
             title = bot.translator.getLocalString(interaction, "pokerank", [])
             embed=discord.Embed(title = title, colour=discord.Colour(0x635f))
             embed.set_thumbnail(url=bot.user.avatar)
