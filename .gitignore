@@ -2,6 +2,7 @@
 files/LevelCommand/Users
 files/LevelCommand/stats*.png
 *.db
+*.db-journal
 useful
 reminder.help
 

@@ -14,9 +14,13 @@ async def setup_func(guild):
 		await cursor.execute("INSERT INTO dis_guild(guild_id, guild_prefix, guild_locale) VALUES(?, '!', 'en')", (guild.id, ))
 	for user in guild.members :
 		if not user.bot:
-			await cursor.execute("SELECT user_id FROM dis_user WHERE user_id = ?", (user.id, ))
-			if await cursor.fetchone() == None:
-				await cursor.execute("INSERT INTO dis_user(user_id) VALUES(?)", (user.id, ))
+			await cursor.execute("SELECT user_id, user_name FROM dis_user WHERE user_id = ?", (user.id, ))
+			userInfos = await cursor.fetchone()
+			if userInfos == None:
+				await cursor.execute("INSERT INTO dis_user(user_id, user_name) VALUES(?, ?)", (user.id, user.name))
+			elif(user.name != userInfos[1]):
+				await cursor.execute("UPDATE dis_user SET user_name = ? where user_id = ?", (user.name, user.id))
+
 	await connection.commit()
 	await close_conn(connection, cursor)
 
@@ -42,7 +46,7 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_member_join(member):
 	connection, cursor = await get_conn("./files/ressources/bot.db")
-	await cursor.execute( "SELECT guild_welcome_channel_id, guild_welcome_role_id FROM dis_guild WHERE guild_id = ?", (member.guild.id,))
+	await cursor.execute("SELECT guild_welcome_channel_id, guild_welcome_role_id FROM dis_guild WHERE guild_id = ?", (member.guild.id,))
 	welcomeSettings = await cursor.fetchone()
 	channel_ID = welcomeSettings[0]
 	role_ID = welcomeSettings[1]
@@ -66,10 +70,12 @@ async def on_member_join(member):
 
 	#Insert new member in database
 	if not member.bot:
-		await cursor.execute("SELECT user_id FROM dis_user WHERE user_id = ?", (member.id, ))
+		await cursor.execute("SELECT user_id, user_name FROM dis_user WHERE user_id = ?", (member.id, ))
 		member_id = await cursor.fetchone()
 		if member_id == None:
-			await cursor.execute("INSERT INTO dis_user(user_id) VALUES(?)", (int(member.id), ))
+			await cursor.execute("INSERT INTO dis_user(user_id, user_name) VALUES(?)", (member.id, member.name))
+			if(member.name != member_id[1]):
+				await cursor.execute("UPDATE dis_user SET user_name = ? WHERE user_id = ?", (member.name, member.id))
 			await connection.commit()
 	await close_conn(connection, cursor)
 
@@ -129,3 +135,11 @@ async def on_message(message):
 
 		#Runs commands if it exists
 		await bot.process_commands(message)
+
+@bot.event
+async def on_user_update(before: discord.User, after: discord.User):
+	if(before.name != after.name):
+		connection, cursor = await get_conn("./files/ressources/bot.db")
+		await cursor.execute("UPDATE dis_user SET user_name = ? WHERE user_id = ?", (after.name, before.id))
+		await connection.commit()
+		await close_conn(connection, cursor)
