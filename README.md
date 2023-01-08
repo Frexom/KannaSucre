@@ -104,8 +104,8 @@ Install dependencies
 
 Set the database
 
-```
-cp tmp/bot.db files/ressources/bot.db
+```bash
+  cp tmp/bot.db files/ressources/bot.db
 ```
 
 Start the bot!
