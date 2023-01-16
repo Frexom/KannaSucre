@@ -143,3 +143,12 @@ async def on_user_update(before: discord.User, after: discord.User):
 		await cursor.execute("UPDATE dis_user SET user_name = ? WHERE user_id = ?", (after.name, before.id))
 		await connection.commit()
 		await close_conn(connection, cursor)
+
+
+@bot.event
+async def on_command_completion(ctx):
+	if(not ctx.author.bot):
+		connection, cursor = await get_conn("./files/ressources/bot.db")
+		await cursor.execute("INSERT INTO com_history (com_name, user_id, date) VALUES (?,?,?)", (ctx.command.name, ctx.author.id, time.time() ))
+		await connection.commit()
+		await close_conn(connection, cursor)
