@@ -141,6 +141,7 @@ class slashAdmin(commands.Cog):
             else:
                 await dmUnavailable(interaction, "announce")
 
+
     @app_commands.command(name = "togglelevels", description = "Enable or disable the level feature.")
     @app_commands.choices(toggle=[
         app_commands.Choice(name="Disable", value=0)
@@ -165,3 +166,59 @@ class slashAdmin(commands.Cog):
                     await missing_perms(interaction, "togglelevels", "manage guild")
             else:
                 await dmUnavailable(interaction, "togglelevels")
+
+    @app_commands.command(name = "giveaway", description = "Creates a new giveaway!")
+    @app_commands.describe(channel="The channel to send the giveaway message.")
+    @app_commands.describe(prize="The prize to win.")
+    @app_commands.describe(days="The number of days the giveaway will last.")
+    @app_commands.describe(hours="The number of hours the giveaway will last.")
+    @app_commands.describe(minutes="The number of minutes the giveaway will last.")
+    @app_commands.describe(role="The required role to enter the giveaway.")
+    async def slashGiveaway(self, interaction: discord.Interaction, channel: discord.TextChannel, prize: str, days: int = 0, hours: int = 0, minutes: int = 0, role: discord.Role = None):
+        if not interaction.user.bot:
+            if(interaction.guild is not None):
+                if(interaction.user.guild_permissions.manage_guild):
+                    #Convert to seconds
+                    duration = days*24*60*60 + hours*60*60 + minutes*60
+                    if(duration != 0):
+
+                        #Check if channel on guild
+                        channelOnGuild = False
+                        for checkChannel in interaction.guild.text_channels:
+                            if(checkChannel.id == channel.id):
+                                channelOnGuild = True
+
+                        #If channel is found
+                        if(channelOnGuild):
+                            embed = GiveawayEmbed(interaction, duration, prize, role)
+
+
+                            #Try sending the giveaway
+                            try:
+                                givMess = await channel.send(embed = embed, view = giveawayView())
+                            #If channel not reachable
+                            except discord.errors.Forbidden:
+                                content = "I don't have the permission to send messages in this channel :/"
+                                await interaction.response.send_message(content = content)
+
+                            content = "The giveaway was created!"
+                            await interaction.response.send_message(content = content)
+
+                            connection, cursor = await get_conn("./files/ressources/bot.db")
+                            if(role != None and role.name != "@everyone"):
+                                await cursor.execute("INSERT INTO giv_giveaway(giv_message_id, giv_prize, giv_channel_id, giv_end_date, giv_role_id) VALUES (?,?,?,?,?)", (givMess.id, prize, channel.id, time.time()+duration, role.id))
+                            else:
+                                await cursor.execute("INSERT INTO giv_giveaway(giv_message_id, giv_prize, giv_channel_id, giv_end_date, giv_role_id) VALUES (?,?,?,?,?)", (givMess.id, prize, channel.id, time.time()+duration, 0))
+                            await connection.commit()
+                            await close_conn(connection, cursor)
+
+                        else:
+                            content = bot.translator.getLocalString(interaction, "channelGuild", [])
+                            await interaction.response.send_message(content = content)
+                    else:
+                        content = "Please input a duration."
+                        await interaction.response.send_message(content=content)
+                else:
+                    await missing_perms(interaction, "giveaway", "manage guild")
+            else:
+                await dmUnavailable(interaction, "giveaway")
