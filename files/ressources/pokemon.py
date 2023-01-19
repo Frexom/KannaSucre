@@ -1,9 +1,7 @@
 from connection import *
 from bot import *
 
-poke_count = 905
-
-
+poke_count = 1008
 
 
 def get_rarity(interaction):

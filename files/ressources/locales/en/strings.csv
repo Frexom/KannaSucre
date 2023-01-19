@@ -132,3 +132,5 @@ helpYes&yes
 helpMorePerms&Does the bot need more perms than target to run that command?
 helpExample&Example :
 helpNoCommand&No command named `{name}` found.
+giveawayDesc&Creates a new giveaway on a defined channel lasting a defined time!
+giveawayShort&Creates a new giveaway!

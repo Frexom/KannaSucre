@@ -71,7 +71,7 @@ buttonShinies&Chromatiques
 buttonClose&Refermer
 pokerank&Pokéclassement de KannaSucre :
 pokerankRanking&Classemment :
-pokeForm&Forme {forme}
+pokeForm&Forme {form}
 welcomeRole&Le rôle `@{role}` sera donné aux nouveaux arrivants!
 welcomeNoRole&Aucun rôle ne sera donné aux nouveaux arrivants.
 errorWelcomeRole&__Message venant de **{guild}** :__\n\nJe n'ai pas assez de permissions pour donner aux nouveaux arrivants leur rôle de bienvenue.\nSi vous voulez désactiver cette fonctionnalité, utilisez `/welcome` sans arguments sur **{guild}**.\nSi vous voulez que la fonctionnalité marche, vérifiez que mon rôle possède la permission `Gérer les rôles`, et que mon rôle est plus haut que le rôle de bienvenue.
@@ -132,3 +132,5 @@ helpYes&oui
 helpMorePerms&Est-ce que le bot a besoin de plus de permissions que la cible de la commande?
 helpExample&Example :
 helpNoCommand&Aucune commande appellée `{name}` trouvée.
+giveawayDesc&Creates a new giveaway on a defined channel lasting a defined time!
+giveawayShort&Creates a new giveaway!
