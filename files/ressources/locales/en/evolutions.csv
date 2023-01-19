@@ -51,22 +51,22 @@ spec853&learning Taunt
 spec869&spinning around holding Sweet
 spec892A&beating the Tower of Darkness
 spec892B&beating the Tower of Water
-ThunderStone&Thunder Stone
-IceStone&Ice Stone
-MoonStone&Moon Stone
-FireStone&Fire Stone
-LeafStone&Leaf Stone
-SunStone&Sun Stone
-WaterStone&Water Stone
-GalaricaCuff&Galarica Cuff
-GalaricaWreath&Galarica Wreath
-BlackAugurite&Black Augurite
-ShinyStone&Shiny Stone
-DuskStone&Dusk Stone
-RazorClaw&Razor Claw
-TartApple&Tart Apple
-SweetApple&Sweet Apple
-CrackedPot&Cracked Pot
+ThunderStone&a Thunder Stone
+IceStone&an Ice Stone
+MoonStone&a Moon Stone
+FireStone&a Fire Stone
+LeafStone&a Leaf Stone
+SunStone&a Sun Stone
+WaterStone&a Water Stone
+GalaricaCuff&a Galarica Cuff
+GalaricaWreath&a Galarica Wreath
+BlackAugurite&a Black Augurite
+ShinyStone&a Shiny Stone
+DuskStone&a Dusk Stone
+RazorClaw&a Razor Claw
+TartApple&a Tart Apple
+SweetApple&a Sweet Apple
+CrackedPot&a Cracked Pot
 item&using {item}
 level&reaching level {level}
 Day&at daytime
@@ -74,17 +74,28 @@ Night&at nighttime
 friend&reaching high friendship
 trade&being traded
 tradeItem&being traded while holding {item}
-DeepSeaScale&Deep Sea Scale
-DeepSeaTooth&Deep Sea Tooth
-DragonScale&Dragon Scale
-DubiousDisc&Dubious Disc
-Electrizer&Electrizer
-KingsRock&Kings Rock
-Magmarizer&Magmarizer
-MetalCoat&Metal Coat
-PrismScale&Prism Scale
-Protector&Protector
-ReaperCloth&Reaper Cloth
-Sachet&Sachet
-Upgrade&Upgrade
-WhippedDream&Whipped Dream
+DeepSeaScale&a Deep Sea Scale
+DeepSeaTooth&a Deep Sea Tooth
+DragonScale&a Dragon Scale
+DubiousDisc&a Dubious Disc
+Electrizer&an Electrizer
+KingsRock&a Kings Rock
+Magmarizer&a Magmarizer
+MetalCoat&a Metal Coat
+PrismScale&a Prism Scale
+Protector&a Protector
+ReaperCloth&a Reaper Cloth
+Sachet&a Sachet
+Upgrade&an Upgrade
+WhippedDream&a Whipped Dream
+spec1000&collecting 999 Ghimmigoul coins
+spec923&walking 1000 steps in Let's Go mode
+spec947&walking 1000 steps in Let's Go mode
+spec954&walking 1000 steps in Let's Go mode
+spec964&reaching level 38 while in multiplayer
+spec979&using Rage Fist 20 times
+spec981&learning Twin Beam
+spec982&leaning Hyper Drill
+spec983&defeating 3 Bisharp that are holding Leader's Crest
+MaliciousArmor&Malicious Armor
+AuspiciousArmor&Auspicious Armor
