@@ -1,5 +1,7 @@
 from discord.ext import commands
 import discord
+import datetime
+import time
 
 from locales import *
 from prefix import *
