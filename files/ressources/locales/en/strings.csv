@@ -24,6 +24,7 @@ shinies&Shinies✨ :
 shinyPoke&shiny Pokémons
 noPoke&No Pokémons.
 newPrefix&My prefix for this server now is `{prefix}` :)
+giveawayRole&Required role :
 banReason&You have been banned from **{guild}**.\nReason : `{reason}`.
 banNoReason&You have been banned from **{guild}**.\nNo reason given.
 userBanned&User banned.
@@ -134,3 +135,21 @@ helpExample&Example :
 helpNoCommand&No command named `{name}` found.
 giveawayDesc&Creates a new giveaway on a defined channel lasting a defined time!
 giveawayShort&Creates a new giveaway!
+giveawayCreated&The giveaway was created!
+giveawayNoDuration&Please input a duration.
+giveawayStarted&A new giveaway has started!
+giveawayDuration&Duration :
+giveawayDays&{days} days
+giveawayHours&{hours} hours
+giveawayMinutes&{minutes} minutes
+giveawayEnds&Ends on :
+giveawayNone&None
+giveawayPrize&Prize :
+giveawayRegister&Register!
+giveawayAlreadyRegistered&You already registered for the giveaway!
+giveawayRegistered&You have successfully registered for the giveaway!
+giveawayMissRole&I'm sorry, but you miss the required role to enter this giveaway.
+giveawayEnded&This giveaway does not exist, it has probably ended!
+giveawayRole&Required role :
+giveawayLost&This giveaway ended, but no one entered it :/
+giveawayWon&The giveaway has ended with **{number}** people taking part in it!\nCongratulation to <@{userId}> who won `{prize}`!
