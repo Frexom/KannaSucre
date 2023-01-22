@@ -73,7 +73,7 @@ async def on_member_join(member):
 		await cursor.execute("SELECT user_id, user_name FROM dis_user WHERE user_id = ?", (member.id, ))
 		member_id = await cursor.fetchone()
 		if member_id == None:
-			await cursor.execute("INSERT INTO dis_user(user_id, user_name) VALUES(?)", (member.id, member.name))
+			await cursor.execute("INSERT INTO dis_user(user_id, user_name) VALUES(?, ?)", (member.id, member.name))
 			if(member.name != member_id[1]):
 				await cursor.execute("UPDATE dis_user SET user_name = ? WHERE user_id = ?", (member.name, member.id))
 			await connection.commit()
