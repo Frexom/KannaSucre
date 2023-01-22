@@ -190,18 +190,18 @@ class slashAdmin(commands.Cog):
 
                         #If channel is found
                         if(channelOnGuild):
-                            embed = GiveawayEmbed(interaction, duration, prize, role)
+                            embed = GiveawayEmbed(interaction, duration, prize, role, bot.translator)
 
 
                             #Try sending the giveaway
                             try:
-                                givMess = await channel.send(embed = embed, view = giveawayView())
+                                givMess = await channel.send(embed = embed, view = giveawayView(translator=bot.translator, interaction=interaction))
                             #If channel not reachable
                             except discord.errors.Forbidden:
-                                content = "I don't have the permission to send messages in this channel :/"
+                                content = bot.translator.getLocalString(interaction, "kannaMissPerms", [])
                                 await interaction.response.send_message(content = content)
 
-                            content = "The giveaway was created!"
+                            content = bot.translator.getLocalString(interaction, "giveawayCreated", [])
                             await interaction.response.send_message(content = content)
 
                             connection, cursor = await get_conn("./files/ressources/bot.db")
@@ -216,7 +216,7 @@ class slashAdmin(commands.Cog):
                             content = bot.translator.getLocalString(interaction, "channelGuild", [])
                             await interaction.response.send_message(content = content)
                     else:
-                        content = "Please input a duration."
+                        content = bot.translator.getLocalString(interaction, "giveawayNoDuration", [])
                         await interaction.response.send_message(content=content)
                 else:
                     await missing_perms(interaction, "giveaway", "manage guild")

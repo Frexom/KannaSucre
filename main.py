@@ -64,7 +64,10 @@ async def checkEndedGiveaways():
     SELECT giv_message_id, giv_channel_id, giv_prize,
     (
         SELECT user_id FROM giv_entry WHERE giv_giveaway.giv_message_id = giv_message_id ORDER BY RANDOM() LIMIT 1
-    ) as giv_winner
+    ) as giv_winner,
+	(
+        SELECT COUNT(*) FROM giv_entry WHERE giv_giveaway.giv_message_id = giv_message_id
+    ) as giv_count
     FROM giv_giveaway WHERE giv_ended = 0 and giv_end_date < STRFTIME('%s')
     """)
     giveaways = await cursor.fetchall()
@@ -74,9 +77,9 @@ async def checkEndedGiveaways():
         message = await channel.fetch_message(giveaway[0])
 
         if(giveaway[3] is None):
-            content = "This giveaway ended, but no one entered it :/"
+            content = bot.translator.getLocalString(channel, "giveawayLost", [])
         else:
-            content = "The giveaway has ended!\nCongratulation to <@"+str(giveaway[3])+"> who won `"+giveaway[2]+"`!"
+            content = bot.translator.getLocalString(channel, "giveawayWon", [("number", str(giveaway[4])), ("userId", str(giveaway[3])), ("prize", str(giveaway[2]))])
         await channel.send(content = content, reference=message)
         await cursor.execute("UPDATE giv_giveaway SET giv_ended = 1 WHERE giv_message_id = ?", (giveaway[0], ))
 
