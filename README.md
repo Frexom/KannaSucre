@@ -114,6 +114,17 @@ Start the bot!
   python3 main.py
 ```
 
+## Keeping the bot updated
+To keep the bot updated, wait for a new version ot release for the bot to be in a stable state. If the database has been changed in the newer version, just update yours with the sql scripts in /tmp/versions :
+
+```bash
+  sqlite3 files/ressources/bot.db < tmp/versions/version.sql
+```
+
+If you're multiple releases late, make sure to use every SQL script on your database, in chronological order.
+
+Note: Performed database updates can be checked in the db_updates table!
+
 
 ## Important links
 
