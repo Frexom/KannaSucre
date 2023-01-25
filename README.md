@@ -8,7 +8,7 @@
 </div>
 
 
-This repository is the source code of a Discord bot created from scratch my myself. It can do a variety of things, and I'm updating it regulary by adding new commands, languages, etc...
+This repository is the source code of a Discord bot created from scratch by myself. It can do a variety of things, and I'm updating it regulary by adding new commands, languages, etc...
 At the moment, the bot is available in English and French, but i'm looking for foreign people to help me translate the bot!
 
 ## Commands
@@ -136,6 +136,10 @@ Top.gg bot page : <a href="https://top.gg/bot/765255086581612575">
 Support Server invite : [Click here](https://discord.gg/68UVAfGY85)
 
 KannaSucre Crowdin project : [Click here](https://crowdin.com/project/kannasucre)
+
+Shiny Sugimori sprites : [Click here](https://www.deviantart.com/tonofdirt726)<br>
+(Thank you a lot for letting me use them!)
+
 ## Authors
 
 - [@frexom](https://www.github.com/ferxom) (The owner of this repo)
