@@ -128,9 +128,31 @@ class slashOwner(commands.Cog):
         else:
             await interaction.response.send_message("You don't have the permission to use that.")
 
+
     @app_commands.command(name="guildcount", description="Shows how many guilds the bot is in.")
     @app_commands.guilds(int(os.environ['TESTGUILDID']))
     async def guildCount(self, interaction: discord.Interaction):
-        guilds = len(bot.guilds)
-        content = "KannaSucre is in {} guilds., {} more to be verified!".format(guilds, 75-guilds)
-        await interaction.response.send_message(content = content)
+        if await bot.is_owner(interaction.user):
+            guilds = len(bot.guilds)
+            content = "KannaSucre is in {} guilds., {} more to be verified!".format(guilds, 75-guilds)
+            await interaction.response.send_message(content = content)
+        else:
+            await interaction.response.send_message("You don't have the permission to use that.")
+
+
+
+    @app_commands.command(name="status", description="Changes the status of the bot!")
+    @app_commands.describe(activity="The new status!")
+    @app_commands.choices(status=[
+        app_commands.Choice(name="Online", value="online")
+        ,app_commands.Choice(name="DoNotDisturb", value="dnd")
+        ,app_commands.Choice(name="Idle", value="idle")
+        ])
+    @app_commands.guilds(int(os.environ['TESTGUILDID']))
+    async def status(self, interaction: discord.Interaction,status: app_commands.Choice[str] = "online", activity:str = "Now with Slash commands!", ):
+        if await bot.is_owner(interaction.user):
+            activity = discord.Game(activity)
+            await bot.change_presence(status=status.value, activity=activity)
+            await interaction.response.send_message(content = f"Changed status to `{activity}`!")
+        else:
+            await interaction.response.send_message("You don't have the permission to use that.")

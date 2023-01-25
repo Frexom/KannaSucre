@@ -127,3 +127,17 @@ async def fetch(ctx):
     await close_conn(connection, cursor)
     print("Done!")
     await ctx.send("Done!")
+
+
+@bot.command(name="status")
+@commands.is_owner()
+async def changeStatus(ctx):
+    status = ctx.message.content[8:]
+    msg = ctx.message.content.split(" ")
+
+    if(len(msg) > 2 and (msg[1] == "online" or msg[1] == "dnd" or msg[1] == "idle")):
+        activity = discord.Game(' '.join(msg[2:]))
+        await bot.change_presence(status=msg[1], activity=activity)
+        await ctx.send(content = f"Changed status to `{activity}`!")
+    else:
+        await ctx.send(content = f"```{await get_pre(ctx)}status online/dnd/idle *activity*```")
