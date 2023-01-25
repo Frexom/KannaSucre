@@ -24,11 +24,12 @@ class slashPoke(commands.Cog):
             await interaction.response.defer()
 
             connection, cursor = await get_conn("./files/ressources/bot.db")
-            await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM dis_user WHERE user_id =?", (userID, ))
+            await cursor.execute("SELECT user_last_roll_datetime, user_pity, link_type FROM dis_user WHERE user_id =?", (userID, ))
             data = await cursor.fetchone()
 
             last_roll = data[0]
             pity = data[1]
+            linkType = data[2]
             now = time.time()
             time_since = int(now - last_roll)
 
@@ -40,14 +41,14 @@ class slashPoke(commands.Cog):
                     await cursor.execute("UPDATE dis_user SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
                 await connection.commit()
 
-                pokemon = Pokemon(interaction = interaction)
+                pokemon = Pokemon(interaction = interaction, linkType = linkType)
 
                 await cursor.execute("SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?", (userID, pokemon.id, pokemon.alt ))
                 is_obtained = await cursor.fetchone()
 
                 #Second chance
                 if(is_obtained):
-                        pokemon = Pokemon(interaction = interaction)
+                        pokemon = Pokemon(interaction = interaction, linkType = linkType)
 
                 await cursor.execute("SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?", (userID, pokemon.id, pokemon.alt ))
                 is_obtained = await cursor.fetchone()
@@ -56,38 +57,42 @@ class slashPoke(commands.Cog):
 
 
 
-                shiny_string = ""
-                form_string = ""
                 link = pokemon.link
+                desc = ""
 
+                #Pokémon form
+                if(pokemon.label != "Normal" and pokemon.label != "Female" and pokemon.label != "Male"):
+                    desc += bot.translator.getLocalString(interaction, "pokeForm", [("form", pokemon.label)])
+                    desc += "\n"
 
                 pokeRarity = bot.translator.getLocalString(interaction, "pokeRarity", [("rarity", pokemon.rarity[1])])
+
+                #isShiny
                 if pokemon.shiny:
-                    shiny_string = "\n"
-                    shiny_string += bot.translator.getLocalString(interaction, "isShiny", [])
+                    desc += "\n"
+                    desc += bot.translator.getLocalString(interaction, "isShiny", [])
 
                 #New Form
                 if(is_obtained == None and (is_pokedex)):
-                    form_string = "\n"
-                    form_string += bot.translator.getLocalString(interaction, "pokeNewForm", [])
+                    desc += "\n"
+                    desc += bot.translator.getLocalString(interaction, "pokeNewForm", [])
 
                 #New Pokémon
                 if is_obtained == None:
                     await cursor.execute("INSERT INTO poke_obtained (user_id, dex_id, form_alt, is_shiny, date) VALUES (?, ?, ?, ?, ?)", (userID, pokemon.id, pokemon.alt, int(pokemon.shiny), now))
-                    desc = pokeRarity + form_string + shiny_string
 
                 #Pokemon already captured but shiny
                 elif (is_obtained[3] == 0 and pokemon.shiny):
-                    await cursor.execute("UPDATE poke_obtained SET is_shiny = 1 WHERE user_id = ? and dex_id = ? and form_alt = ?", (userID, pokemon.id, pokemon.alt))
-                    desc = pokeRarity + form_string + shiny_string
+                    await cursor.execute("UPDATE poke_obtained SET is_shiny = 1 WHERE user_id = ? and dex_id = ?", (userID, pokemon.id))
 
                 #Pokemon already captured
                 else:
-                    pokeAlready = "\n"
-                    pokeAlready += bot.translator.getLocalString(interaction, "pokeAlready", [])
-                    pokeExtraRolls = bot.translator.getLocalString(interaction, "pokeExtraRolls", [("number", pokemon.rarity[0]*0.25)])
-                    desc = pokeRarity + shiny_string + pokeAlready + "\n" +pokeExtraRolls
+                    desc += "\n"
+                    desc += bot.translator.getLocalString(interaction, "pokeAlready", [])
+                    desc += "\n"
+                    desc += bot.translator.getLocalString(interaction, "pokeExtraRolls", [("number", pokemon.rarity[0]*0.25)])
                     await cursor.execute("UPDATE dis_user SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon.rarity[0], userID))
+
 
                 await connection.commit()
                 title = bot.translator.getLocalString(interaction, "pokeCatch", [("user", userName), ("pokeName", pokemon.name)])
@@ -129,7 +134,12 @@ class slashPoke(commands.Cog):
                     return
 
 
-                pokemon = Pokemon(interaction = interaction, pokeID = poke_id)
+                connection, cursor = await get_conn("./files/ressources/bot.db")
+                await cursor.execute("SELECT link_type FROM dis_user WHERE user_id = ?", (interaction.user.id, ))
+                linkType = await cursor.fetchone()
+                await close_conn(connection, cursor)
+                linkType = linkType[0]
+                pokemon = Pokemon(interaction = interaction, linkType = linkType, pokeID = poke_id)
                 buttonView = pokeView(90)
                 buttonView.setMessage(interaction)
 
@@ -142,11 +152,11 @@ class slashPoke(commands.Cog):
                 next = discord.ui.Button(label = " ", style = discord.ButtonStyle.primary, emoji = "➡️", row = 2)
                 label = bot.translator.getLocalString(interaction, "buttonDevolve", [])
                 devolveButton = discord.ui.Button(label = label, style = discord.ButtonStyle.secondary, emoji = "⏬", row = 3)
+                sugimori = discord.ui.Button(label = "Sprites", style = discord.ButtonStyle.success, row = 3)
 
                 filler1 = discord.ui.Button(label = "⠀⠀⠀", row = 1, disabled = True)
                 filler2 = discord.ui.Button(label = "⠀⠀⠀", row = 1, disabled = True)
                 filler3 = discord.ui.Button(label = "⠀⠀⠀", row = 3, disabled = True)
-                filler4 = discord.ui.Button(label = "⠀⠀⠀", row = 3, disabled = True)
 
 
                 async def prevCallback(interaction):
@@ -201,6 +211,25 @@ class slashPoke(commands.Cog):
                 next.callback = nextCallback
 
 
+                async def sugimoriCallback(interaction):
+                    nonlocal pokemon
+                    pokemon.switchType()
+                    await interaction.message.edit(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed())
+                    if(pokemon.linkType == 1):
+                        content = bot.translator.getLocalString(interaction, "pokeinfoSugimori", [])
+                    else:
+                        content = bot.translator.getLocalString(interaction, "pokeinfoHome", [])
+
+                    await interaction.response.send_message(content = content, ephemeral = True)
+
+                    connection, cursor = await get_conn("files/ressources/bot.db")
+                    await cursor.execute("UPDATE dis_user SET link_type = ? WHERE user_id = ?", (pokemon.linkType, interaction.user.id))
+                    await connection.commit()
+                    await close_conn(connection, cursor)
+                sugimori.callback = sugimoriCallback
+
+
+
                 buttonView.add_item(filler1)
                 buttonView.add_item(evolveButton)
                 buttonView.add_item(filler2)
@@ -209,7 +238,7 @@ class slashPoke(commands.Cog):
                 buttonView.add_item(next)
                 buttonView.add_item(filler3)
                 buttonView.add_item(devolveButton)
-                buttonView.add_item(filler4)
+                buttonView.add_item(sugimori)
 
                 await interaction.response.send_message(content = pokemon.shiny_link if pokemon.shiny else pokemon.link, embed = pokemon.get_pokeinfo_embed(), view = buttonView)
 

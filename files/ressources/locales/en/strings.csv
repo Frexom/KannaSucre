@@ -153,3 +153,5 @@ giveawayEnded&This giveaway does not exist, it has probably ended!
 giveawayRole&Required role :
 giveawayLost&This giveaway ended, but no one entered it :/
 giveawayWon&The giveaway has ended with **{number}** people taking part in it!\nCongratulation to <@{userId}> who won `{prize}`!
+pokeinfoSugimori&Warning! you have switched to Sugimori-style sprites. Those sprites are better looking, but miss a lot of alternative forms. It means you won't see the difference between Pokémon forms, but still obtain them.
+pokeinfoHome&You have switched back to HOME sprites.
