@@ -34,13 +34,14 @@ def get_pokemon_id(rarity: int):
 
 def get_pokemon_alt(poke_id:int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
-    cursor.execute("SELECT DISTINCT form_alt FROM poke_form WHERE dex_id = ?", (poke_id, ))
+    cursor.execute("SELECT DISTINCT form_alt, form_label FROM poke_form WHERE dex_id = ?", (poke_id, ))
     alt = cursor.fetchall()
     close_static_conn(connection, cursor)
     if len(alt) == 1:
-        return alt[0][0]
+        return alt[0][0], alt[0][1]
     else:
-        return alt[random.randint(0, len(alt)-1)][0]
+        index = random.randint(0, len(alt)-1)
+        return alt[index][0], alt[index][1]
 
 def get_pokemon_genre(poke_id: int, poke_alt: int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
@@ -52,12 +53,12 @@ def get_pokemon_genre(poke_id: int, poke_alt: int):
     else:
         return data[random.randint(0,len(data)-1)][0]
 
-def get_pokemon_link(poke_id:int, poke_alt:int, poke_genre:str, shiny:bool):
+def get_pokemon_link(poke_id:int, poke_alt:int, poke_genre:str, shiny:bool, linkType : int):
     connection, cursor = get_static_conn("./files/ressources/bot.db")
     if shiny:
-        cursor.execute("SELECT form_shiny FROM poke_form WHERE dex_id = ? and form_alt = ? and form_sex = ?", (poke_id, poke_alt, poke_genre))
+        cursor.execute("SELECT link_shiny FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? and form_alt = ? and form_sex = ? AND link_type = ?", (poke_id, poke_alt, poke_genre, linkType))
     else:
-        cursor.execute("SELECT form_normal FROM poke_form WHERE dex_id = ? and form_alt = ? and form_sex = ?", (poke_id, poke_alt, poke_genre))
+        cursor.execute("SELECT link_normal FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? and form_alt = ? and form_sex = ? AND link_type = ?", (poke_id, poke_alt, poke_genre, linkType))
     temp = cursor.fetchone()
     close_static_conn(connection, cursor)
     return temp[0]
@@ -95,8 +96,9 @@ def get_evolutions(poke_id: int, poke_alt: int):
 
 
 class Pokemon:
-    def __init__(self, interaction, pokeID: int = None):
+    def __init__(self, interaction: discord.Interaction, linkType: int, pokeID: int = None):
         self.interaction = interaction
+        self.linkType = linkType
 
         if pokeID is not None:
             if pokeID <= poke_count and pokeID > 0:
@@ -113,14 +115,21 @@ class Pokemon:
             self.shiny = get_shiny()
             self.id = get_pokemon_id(self.rarity[0])
             self.name = bot.translator.getLocalPokeString(interaction, "name"+str(self.id))
-            self.alt = get_pokemon_alt(self.id)
+            self.alt, self.label = get_pokemon_alt(self.id)
             self.genre = get_pokemon_genre(self.id, self.alt)
-            self.link = get_pokemon_link(self.id, self.alt, self.genre, self.shiny)
+            self.link = get_pokemon_link(self.id, self.alt, self.genre, self.shiny, self.linkType)
+
+            if(self.genre == "f"):
+                self.name += "\u2640"
+            if(self.genre == "m"):
+                self.name += "\u2642"
+
 
     def update_properties(self):
         connection, cursor = get_static_conn("./files/ressources/bot.db")
-        cursor.execute("SELECT form_normal, form_shiny, form_sex, form_label FROM poke_dex JOIN poke_form USING(dex_id) WHERE dex_id = ? AND form_alt = ?", (self.id, self.alt))
+        cursor.execute("SELECT link_normal, link_shiny, form_sex, form_label FROM poke_dex JOIN poke_form USING(dex_id) JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND link_type = ?", (self.id, self.alt, self.linkType))
         temp = cursor.fetchone()
+
 
         self.name = bot.translator.getLocalPokeString(self.interaction, "name"+str(self.id))
         self.description = bot.translator.getLocalPokeString(self.interaction, "desc"+str(self.id))
@@ -145,11 +154,12 @@ class Pokemon:
             if self.genre == "f":
                 try:
                     self.genre = "m"
-                    cursor.execute("SELECT form_normal, form_shiny, form_label FROM poke_form WHERE dex_id = ? AND form_alt = ? AND form_sex = ?", (self.id, self.alt, self.genre))
+                    cursor.execute("SELECT link_normal, link_shiny, form_label FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND form_sex = ? AND link_type = ?", (self.id, self.alt, self.genre, self.linkType))
                     temp = cursor.fetchone()
                     self.link = temp[0]
                     self.shiny_link = temp[1]
                     self.label = temp[2]
+
                 except TypeError:
                     nextAlt = True
                     pass
@@ -161,7 +171,7 @@ class Pokemon:
                     self.alt += 1
                 else:
                     self.alt = 0
-                cursor.execute("SELECT form_normal, form_shiny, form_sex, form_label FROM poke_form WHERE dex_id = ? AND form_alt = ?", (self.id, self.alt))
+                cursor.execute("SELECT link_normal, link_shiny, form_sex, form_label FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND link_type = ?", (self.id, self.alt, self.linkType))
                 temp = cursor.fetchone()
                 self.link = temp[0]
                 self.shiny_link = temp[1]
@@ -179,11 +189,12 @@ class Pokemon:
             if self.genre == "m":
                 try:
                     self.genre = "f"
-                    cursor.execute("SELECT form_normal, form_shiny, form_label FROM poke_form WHERE dex_id = ? AND form_alt = ? AND form_sex = ?", (self.id, self.alt, self.genre))
+                    cursor.execute("SELECT link_normal, link_shiny, form_label FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND form_sex = ? AND link_type = ?", (self.id, self.alt, self.genre, self.linkType))
                     temp = cursor.fetchone()
                     self.link = temp[0]
                     self.shiny_link = temp[1]
                     self.label = temp[2]
+
                 except TypeError:
                     next_alt = True
                     pass
@@ -195,7 +206,7 @@ class Pokemon:
                     self.alt -= 1
                 else:
                     self.alt = self.pokealts
-                cursor.execute("SELECT form_normal, form_shiny, form_sex, form_label FROM poke_form WHERE dex_id = ? AND form_alt = ? ORDER BY form_sex DESC", (self.id, self.alt))
+                cursor.execute("SELECT link_normal, link_shiny, form_sex, form_label FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND link_type = ? ORDER BY form_sex DESC", (self.id, self.alt, self.linkType))
                 temp = cursor.fetchone()
                 self.link = temp[0]
                 self.shiny_link = temp[1]
@@ -210,13 +221,14 @@ class Pokemon:
 
         poke_sex = ""
         if(self.genre == "f"):
-            poke_sex = "\u2640"
+            poke_sex += "\u2640"
         if(self.genre == "m"):
-            poke_sex = "\u2642"
+            poke_sex += "\u2642"
+
 
         formString = bot.translator.getLocalString(self.interaction, "pokeForm", [("form", self.label)])
         if(self.shiny):
-            e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + ":sparkles: " + poke_sex, description = formString)
+            e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + poke_sex +":sparkles: ", description = formString)
             e.set_image(url=self.shiny_link)
         else:
             e = discord.Embed(title = "N°" + str(self.id) + " : " + self.name + poke_sex, description = formString)
@@ -262,6 +274,11 @@ class Pokemon:
         self.alt = self.evolutions[choice][1]
         self.update_properties()
         self.current_link = get_current_link(self.id, self.alt, self.genre)
+
+    def switchType(self):
+        self.linkType = 0 if self.linkType == 1 else 1
+        self.update_properties()
+
 
 
 
