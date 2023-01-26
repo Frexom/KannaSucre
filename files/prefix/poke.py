@@ -59,7 +59,7 @@ async def poke(ctx):
             desc += bot.translator.getLocalString(ctx, "pokeForm", [("form", pokemon.label)])
             desc += "\n"
 
-        pokeRarity = bot.translator.getLocalString(ctx, "pokeRarity", [("rarity", pokemon.rarity[1])])
+        desc += bot.translator.getLocalString(ctx, "pokeRarity", [("rarity", pokemon.rarity[1])])
 
         #isShiny
         if pokemon.shiny:
