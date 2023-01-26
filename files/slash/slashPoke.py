@@ -65,7 +65,7 @@ class slashPoke(commands.Cog):
                     desc += bot.translator.getLocalString(interaction, "pokeForm", [("form", pokemon.label)])
                     desc += "\n"
 
-                pokeRarity = bot.translator.getLocalString(interaction, "pokeRarity", [("rarity", pokemon.rarity[1])])
+                desc += bot.translator.getLocalString(interaction, "pokeRarity", [("rarity", pokemon.rarity[1])])
 
                 #isShiny
                 if pokemon.shiny:
