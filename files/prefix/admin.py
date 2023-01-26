@@ -180,4 +180,5 @@ async def toggleLevels(ctx):
 @bot.command(name="giveaway")
 async def giveaway(ctx):
     if not ctx.author.bot:
-        await ctx.send("I'm sorry, but the giveaway command has too much arguments to be interpreted as a prefix command, try `/giveawya` instead!")
+        content = bot.translator.getLocalString(ctx, "giveawayPrefix", [])
+        await ctx.send(content = content)
