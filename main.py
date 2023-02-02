@@ -1,46 +1,23 @@
 import sys
-sys.path.append("./files/ressources")
-sys.path.append("./files/prefix")
-sys.path.append("./files/slash")
+sys.path.append("./files/resources")
+sys.path.append("./files/functions")
 
 from bot import *
 
-from image_editing import *
-from moderation import *
-from utilities import *
-from events import *
-from admin import *
-from owner import *
-from poke import *
-from fun import *
-
-from slashModeration import *
-from slashUtilities import *
-from slashEvents import *
-from slashAdmin import *
-from slashImage import *
-from slashOwner import *
-from slashPoke import *
-from slashFun import *
-
-
+from eventsFunctions import *
 
 @bot.event
 async def on_ready():
 
     #Adding cogs
-    try:
-        await bot.add_cog(slashModeration(bot))
-        await bot.add_cog(slashUtilities(bot))
-        await bot.add_cog(slashAdmin(bot))
-        await bot.add_cog(slashImage(bot))
-        await bot.add_cog(slashOwner(bot))
-        await bot.add_cog(slashPoke(bot))
-        await bot.add_cog(slashFun(bot))
+    path="files.cogs"
+    for filename in os.listdir("files/cogs/"):
+        if os.path.isfile(f"files/cogs/{filename}"):
+            await bot.load_extension(f"{path}.{filename[:-3]}")
 
     #Cog already loaded (while reconnecting)
-    except discord.errors.ClientException:
-        pass
+    #except discord.errors.ClientException:
+        #pass
 
     #Downtime database update
     for i in range(len(bot.guilds)):
@@ -59,7 +36,7 @@ async def on_ready():
 
 @tasks.loop(seconds=30)
 async def checkEndedGiveaways():
-    connection, cursor = await get_conn("./files/ressources/bot.db")
+    connection, cursor = await get_conn("./files/resources/bot.db")
     await cursor.execute("""
     SELECT giv_message_id, giv_channel_id, giv_prize,
     (
@@ -85,8 +62,6 @@ async def checkEndedGiveaways():
 
     await connection.commit()
     await close_conn(connection, cursor)
-
-
 
 
 bot.run(os.environ['TOKEN'])

@@ -5,15 +5,16 @@ from mentions import *
 from prefix import *
 from bot import *
 
-sys.path.append("../ressources")
+sys.path.append("../resources")
 
-@bot.command(name="level")
-async def level(ctx):
-    user = get_target(ctx)
+async def levelFunction(interaction: ContextAdapter, user: discord.User = None):
+    #If no user specified, user is author
+    if user is None:
+        user = interaction.getAuthor()
 
-    if not user.bot and not ctx.author.bot:
+    if not user.bot and not interaction.getAuthor().bot:
 
-        connection, cursor = await get_conn("./files/ressources/bot.db")
+        connection, cursor = await get_conn("./files/resources/bot.db")
         await cursor.execute("SELECT user_level, user_xp, (SELECT COUNT(*) FROM com_history WHERE user_id = ?) as nbCommands FROM dis_user WHERE user_id = ?;", (user.id, user.id ))
         stats = await cursor.fetchone()
         await close_conn(connection, cursor)
@@ -67,9 +68,9 @@ async def level(ctx):
 
         #Save and send file
         image.save("./files/LevelCommand/Users/stats" + str(user.id) + ".png")
-        await ctx.send(file = discord.File("./files/LevelCommand/Users/stats" + str(user.id) + ".png"))
+        await interaction.sendMessage(file = discord.File("./files/LevelCommand/Users/stats" + str(user.id) + ".png"))
 
     #If user if bot
     else:
-        content = bot.translator.getLocalString(ctx, "commandBot", [])
-        await ctx.send(content = content)
+        content = bot.translator.getLocalString(interaction, "commandBot", [])
+        await interaction.sendMessage(content = content)

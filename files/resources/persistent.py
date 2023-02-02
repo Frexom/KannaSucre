@@ -5,6 +5,7 @@ import time
 
 from locales import *
 from prefix import *
+from adapter import *
 
 class PersistentBot(commands.Bot):
     def __init__(self):
@@ -37,36 +38,37 @@ class giveawayView(discord.ui.View):
 
     @discord.ui.button(label="tmp", custom_id="register")
     async def register(self, interaction:discord.Interaction, button: discord.ui.Button):
+        interaction = ContextAdapter(interaction)
         if(self.t is not None):
-            connection, cursor = await get_conn("./files/ressources/bot.db")
-            await cursor.execute("SELECT giv_role_id FROM giv_giveaway WHERE giv_message_id = ? and giv_end_date > ?", (interaction.message.id, time.time()))
+            connection, cursor = await get_conn("./files/resources/bot.db")
+            await cursor.execute("SELECT giv_role_id FROM giv_giveaway WHERE giv_message_id = ? and giv_end_date > ?", (interaction.getMessage().id, time.time()))
             reqRole = await cursor.fetchone()
 
             #If a giveaway has been found
             if(reqRole is not None):
                 reqRole = reqRole[0]
                 isValid = False
-                for role in interaction.user.roles:
+                for role in interaction.getAuthor().roles:
                     if reqRole == 0 or role.id == reqRole:
                         isValid = True
                         break
 
                 if(isValid):
                     try:
-                        await cursor.execute("INSERT INTO giv_entry (giv_message_id, user_id) VALUES (?,?)", (interaction.message.id, interaction.user.id))
+                        await cursor.execute("INSERT INTO giv_entry (giv_message_id, user_id) VALUES (?,?)", (interaction.getMessage().id, interaction.getAuthor().id))
                         await connection.commit()
                     except sqlite3.IntegrityError:
                         content = self.t.getLocalString(interaction, "giveawayAlreadyRegistered", [])
-                        await interaction.response.send_message(content = content, ephemeral=True)
+                        await interaction.sendMessage(content = content, ephemeral=True)
                         return
                     content = self.t.getLocalString(interaction, "giveawayRegistered", [])
-                    await interaction.response.send_message(content = content, ephemeral=True)
+                    await interaction.sendMessage(content = content, ephemeral=True)
                 else:
                     content = self.t.getLocalString(interaction, "giveawayMissRole", [])
-                    await interaction.response.send_message(content=content, ephemeral=True)
+                    await interaction.sendMessage(content=content, ephemeral=True)
             else:
                 content = self.t.getLocalString(interaction, "giveawayEnded", [])
-                await interaction.response.send_message(content=content, ephemeral=True)
+                await interaction.sendMessage(content=content, ephemeral=True)
 
             await close_conn(connection, cursor)
 
@@ -103,7 +105,7 @@ class GiveawayEmbed(discord.Embed):
         name=translator.getLocalString(interaction, "giveawayPrize", [])
         self.add_field(name=name, value=f"`{prize}`", inline=False)
 
-        if(interaction.guild.icon is not None):
-            self.set_thumbnail(url=interaction.guild.icon.url)
+        if(interaction.getGuild().icon is not None):
+            self.set_thumbnail(url=interaction.getGuild().icon.url)
         else:
-            self.set_thumbnail(url=interaction.client.user.avatar.url)
+            self.set_thumbnail(url=interaction.getClientUser().avatar.url)

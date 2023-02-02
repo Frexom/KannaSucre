@@ -12,8 +12,8 @@ from typing import Union
 
 from persistent import *
 from locales import *
+from adapter import *
 from prefix import *
-
 
 load_dotenv()
 

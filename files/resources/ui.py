@@ -35,10 +35,8 @@ class pokeView(discord.ui.View):
 
     async def on_timeout(self):
         if(self.message is not None):
-            if(isinstance(self.message, discord.Interaction)):
-                await self.message.edit_original_response(view=None)
-            elif(isinstance(self.message, discord.Message)):
-                await self.message.edit(view = None)
+            if(isinstance(self.message, ContextAdapter)):
+                await self.message.editOriginal(view=None)
             else:
                 raise AttributeError("Timeout message was improperly set.")
         else:

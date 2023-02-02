@@ -2,6 +2,7 @@ import discord
 import csv
 import os
 
+from adapter import *
 from connection import *
 
 
@@ -18,38 +19,43 @@ class Translator():
 
 
     def loadStrings(self):
-        subfolders = [ f.name for f in os.scandir("./files/ressources/locales") if f.is_dir() ]
+        subfolders = [ f.name for f in os.scandir("./files/resources/locales") if f.is_dir() ]
         for folder in subfolders:
-            file = './files/ressources/locales/{}/strings.csv'.format(folder)
+            file = './files/resources/locales/{}/strings.csv'.format(folder)
             with open(file) as f:
                 reader = csv.reader(f, delimiter ="&")
                 self.strings[folder] = list(reader)
 
     def loadPoke(self):
-        subfolders = [ f.name for f in os.scandir("./files/ressources/locales") if f.is_dir() ]
+        subfolders = [ f.name for f in os.scandir("./files/resources/locales") if f.is_dir() ]
         for folder in subfolders:
-            file = './files/ressources/locales/{}/poke.csv'.format(folder)
+            file = './files/resources/locales/{}/poke.csv'.format(folder)
             with open(file) as f:
                 reader = csv.reader(f, delimiter ="&")
                 self.poke[folder] = list(reader)
 
     def loadPokeEvos(self):
-        subfolders = [ f.name for f in os.scandir("./files/ressources/locales") if f.is_dir() ]
+        subfolders = [ f.name for f in os.scandir("./files/resources/locales") if f.is_dir() ]
         for folder in subfolders:
-            file = './files/ressources/locales/{}/evolutions.csv'.format(folder)
+            file = './files/resources/locales/{}/evolutions.csv'.format(folder)
             with open(file) as f:
                 reader = csv.reader(f, delimiter ="&")
                 self.evolutions[folder] = list(reader)
 
 
     def getLocaleFromInteraction(self, interaction):
-        if interaction.guild is not None:
+        id = None
+        if(isinstance(interaction, ContextAdapter)):
+            id = str(interaction.getGuild().id)
+        elif(interaction.guild is not None):
             id = str(interaction.guild.id)
+
+        if(id is not None):
             if(id not in self.locales.keys()):
 
                 #Database query
-                connection, cursor = get_static_conn("./files/ressources/bot.db")
-                cursor.execute("SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (interaction.guild.id,))
+                connection, cursor = get_static_conn("./files/resources/bot.db")
+                cursor.execute("SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (id,))
                 locale = cursor.fetchone()
                 close_static_conn(connection, cursor)
                 self.locales[id] = locale[0]
@@ -113,7 +119,7 @@ class Translator():
                 return int(row[0][4:])
 
         if(locale != "en"):
-            file = './files/ressources/locales/en/poke.csv'
+            file = './files/resources/locales/en/poke.csv'
             with open(file) as f:
                 reader = csv.reader(f, delimiter ="&")
 
