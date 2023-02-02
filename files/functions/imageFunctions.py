@@ -14,10 +14,10 @@ async def levelFunction(interaction: ContextAdapter, user: discord.User = None):
 
     if not user.bot and not interaction.getAuthor().bot:
 
-        connection, cursor = await get_conn("./files/resources/bot.db")
+        cursor = await bot.connection.cursor()
         await cursor.execute("SELECT user_level, user_xp, (SELECT COUNT(*) FROM com_history WHERE user_id = ?) as nbCommands FROM dis_user WHERE user_id = ?;", (user.id, user.id ))
         stats = await cursor.fetchone()
-        await close_conn(connection, cursor)
+        await cursor.close()
 
         #Pasting pfp on level image
         await user.display_avatar.save(fp="./files/LevelCommand/Users/" + str(user.id) + ".png")

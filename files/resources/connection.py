@@ -1,22 +1,22 @@
 import aiosqlite3
 import sqlite3
 
-async def get_conn(path):
+async def getReadingConn(path):
   conn = await aiosqlite3.connect(path, timeout = 10)
   c = await conn.cursor()
   return conn, c
 
 
-async def close_conn(connection, cursor):
+async def closeConn(connection, cursor):
   await cursor.close()
   await connection.close()
 
 
-def get_static_conn(path):
+def getStaticReadingConn(path):
     conn = sqlite3.connect(path, timeout = 10)
     c = conn.cursor()
     return conn, c
 
-def close_static_conn(connection, cursor):
+def closeStaticConn(connection, cursor):
     cursor.close()
     connection.close()

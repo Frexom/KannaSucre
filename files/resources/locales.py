@@ -54,10 +54,10 @@ class Translator():
             if(id not in self.locales.keys()):
 
                 #Database query
-                connection, cursor = get_static_conn("./files/resources/bot.db")
+                connection, cursor = getStaticReadingConn("./files/resources/bot.db")
                 cursor.execute("SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (id,))
                 locale = cursor.fetchone()
-                close_static_conn(connection, cursor)
+                closeStaticConn(connection, cursor)
                 self.locales[id] = locale[0]
                 return locale[0]
             else:

@@ -62,6 +62,13 @@ class ContextAdapter():
         else:
             return self.context.me
 
+    def getClient(self) -> discord.Client:
+        if(self.interaction is not None):
+            return self.interaction.client
+        else:
+            return self.context.bot
+
+
     def isContext(self):
         return self.context is not None
 

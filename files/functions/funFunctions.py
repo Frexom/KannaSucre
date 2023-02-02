@@ -62,18 +62,18 @@ async def hugFunction(interaction: ContextAdapter, user: Union[discord.Member, d
 
 async def standFunction(interaction: ContextAdapter):
     if not interaction.getAuthor().bot :
-        connection, cursor = await get_conn("./files/resources/bot.db")
+        cursor = await bot.connection.cursor()
         await cursor.execute("SELECT stand_id FROM sta_user WHERE user_id = ?", (interaction.getAuthor().id, ))
         stand_id = await cursor.fetchone()
         if stand_id == None:
             stand_id = random.randint(1, 32)
             await cursor.execute("INSERT INTO sta_user(user_id, stand_id) VALUES(?, ?)", (interaction.getAuthor().id, stand_id))
-            await connection.commit()
-
-        stand_id = stand_id[0]
+            await bot.connection.commit()
+        else:
+            stand_id = stand_id[0]
         await cursor.execute("SELECT stand_name, stand_link FROM sta_stand WHERE stand_id = ?", (stand_id, ))
         stand = await cursor.fetchone()
-        await close_conn(connection, cursor)
+        await cursor.close()
         title = bot.translator.getLocalString(interaction, "userStand", [("user", interaction.getAuthor().display_name), ("standName", stand[0])])
         e = discord.Embed(title = title, colour=discord.Colour(0x635f))
         e.set_image(url=stand[1])

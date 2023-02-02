@@ -13,45 +13,50 @@ async def previewFunction(interaction : ContextAdapter, message: str):
 
 async def sqlFunction(interaction : ContextAdapter, query : str):
     if await bot.is_owner(interaction.getAuthor()):
-        connection, cursor = await get_conn("./files/resources/bot.db")
+        connection, cursor = await getReadingConn("files/resources/bot.db")
         if(query[0].lower() == "s"):
             await cursor.execute(query)
             result = await cursor.fetchall()
-            await close_conn(connection, cursor)
+            await closeConn(connection, cursor)
             if result == None:
                 await interaction.sendMessage(content="None")
             else:
                 await interaction.sendMessage(content=query + "\n" + str(result), ephemeral = True)
         else:
 
+            #Only getting rowcount, not comitting on this connection
             await cursor.execute(query)
+            rowcount = cursor.rowcount
+            await connection.rollback()
+            await closeConn(connection, cursor)
 
             sqlInteraction = interaction
             view = discord.ui.View()
 
             async def commitCallback(interaction):
-                nonlocal connection, cursor, sqlInteraction
+                nonlocal sqlInteraction, query
                 interaction = ContextAdapter(interaction)
 
-                await connection.commit()
+                cursor = await bot.connection.cursor()
+                await cursor.execute(query)
+                await bot.connection.commit()
+                await cursor.close()
                 await sqlInteraction.editOriginal(content = "Commited.", view = None)
-                await close_conn(connection, cursor)
+
             commitButton = discord.ui.Button(label = "Commit", style = discord.ButtonStyle.danger, emoji = "⛔")
             commitButton.callback = commitCallback
 
             async def rollbackCallback(interaction):
-                interaction = ContextAdapter(interaction)
-
-                await connection.rollback()
+                nonlocal sqlInteraction
                 await sqlInteraction.editOriginal(content = "Rolled-back.", view = None)
-                await close_conn(connection, cursor)
+
             rollbackButton = discord.ui.Button(label = "Rollback", style = discord.ButtonStyle.primary, emoji = "🔙")
             rollbackButton.callback = rollbackCallback
 
             view.add_item(commitButton)
             view.add_item(rollbackButton)
 
-            await interaction.sendMessage(content=query + "\n" + str(cursor.rowcount) + " rows affected, do you want to commit?", view = view, ephemeral=True)
+            await interaction.sendMessage(content=query + "\n" + str(rowcount) + " rows affected, do you want to commit?", view = view, ephemeral=True)
     else:
         await interaction.sendMessage(content="You don't have the permission to use that.")
 

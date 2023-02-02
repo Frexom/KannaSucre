@@ -10,12 +10,12 @@ async def prefixFunction(interaction: ContextAdapter, prefix: str):
         if(interaction.getGuild() is not None):
             if interaction.getAuthor().guild_permissions.manage_guild:
                 if ' ' not in prefix:
-                    connection, cursor = await get_conn("./files/resources/bot.db")
+                    cursor = await bot.connection.cursor()
                     await cursor.execute("UPDATE dis_guild SET guild_prefix = ? WHERE guild_id = ?", (prefix, interaction.getGuild().id))
                     content = bot.translator.getLocalString(interaction, "newPrefix", [("prefix", str(prefix))])
                     await interaction.sendMessage(content = content)
-                    await connection.commit()
-                    await close_conn(connection, cursor)
+                    await bot.connection.commit()
+                    await cursor.close()
                 else:
                     content = bot.translator.getLocalString(interaction, "prefixNoSpace", [])
                     await interaction.sendMessage(content = content)
@@ -52,7 +52,7 @@ async def welcomeFunction(interaction: ContextAdapter, channel : discord.TextCha
         if(interaction.getGuild() is not None):
             if interaction.getAuthor().guild_permissions.manage_guild:
 
-                connection, cursor = await get_conn("./files/resources/bot.db")
+                cursor = await bot.connection.cursor()
                 content = ""
 
                 if channel is None:
@@ -72,10 +72,10 @@ async def welcomeFunction(interaction: ContextAdapter, channel : discord.TextCha
                         content += bot.translator.getLocalString(interaction, "welcomeNoRole", [])
                         await cursor.execute("UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?", (channel, 0, interaction.getGuild().id))
 
-                await interaction.sendMessage(content = content)
+                await bot.connection.commit()
+                await cursor.close()
 
-                await connection.commit()
-                await close_conn(connection, cursor)
+                await interaction.sendMessage(content = content)
             else:
                 await missing_perms(interaction, "welcome", "manage guild")
         else:
@@ -86,9 +86,10 @@ async def languageFunction(interaction: ContextAdapter, language: app_commands.C
     if not interaction.getAuthor().bot:
         if(interaction.getGuild() is not None):
             if interaction.getAuthor().guild_permissions.manage_guild:
-                connection, cursor = await get_conn("./files/resources/bot.db")
+                cursor = await bot.connection.cursor()
                 await cursor.execute("UPDATE dis_guild SET guild_locale = ? WHERE guild_id = ?", (language, interaction.getGuild().id))
-                await connection.commit()
+                await bot.connection.commit()
+                await cursor.close()
                 bot.translator.updateCache(interaction.getGuild().id, language)
 
                 content = bot.translator.getLocalString(interaction, "newLanguage", [])
@@ -125,9 +126,10 @@ async def togglelevelsFunction(interaction: ContextAdapter, toggle:int):
     if not interaction.getAuthor().bot:
         if(interaction.getGuild() is not None):
             if interaction.getAuthor().guild_permissions.manage_guild:
-                connection, cursor = await get_conn("./files/resources/bot.db")
+                cursor = await bot.connection.cursor()
                 await cursor.execute("UPDATE dis_guild SET guild_levels_enabled = ? WHERE guild_id = ?", (toggle, interaction.getGuild().id))
-                await connection.commit()
+                await bot.connection.commit()
+                await cursor.close()
 
                 if toggle == 1:
                     content = bot.translator.getLocalString(interaction, "togglelevelsEnabled", [])
@@ -171,13 +173,13 @@ async def giveawayFunction(interaction: ContextAdapter, channel: discord.TextCha
                         content = bot.translator.getLocalString(interaction, "giveawayCreated", [])
                         await interaction.sendMessage(content = content)
 
-                        connection, cursor = await get_conn("./files/resources/bot.db")
+                        cursor = await bot.connection.cursor()
                         if(role != None and role.name != "@everyone"):
                             await cursor.execute("INSERT INTO giv_giveaway(giv_message_id, giv_prize, giv_channel_id, giv_end_date, giv_role_id) VALUES (?,?,?,?,?)", (givMess.id, prize, channel.id, time.time()+duration, role.id))
                         else:
                             await cursor.execute("INSERT INTO giv_giveaway(giv_message_id, giv_prize, giv_channel_id, giv_end_date, giv_role_id) VALUES (?,?,?,?,?)", (givMess.id, prize, channel.id, time.time()+duration, 0))
-                        await connection.commit()
-                        await close_conn(connection, cursor)
+                        await bot.connection.commit()
+                        await cursor.close()
 
                     else:
                         content = bot.translator.getLocalString(interaction, "channelGuild", [])

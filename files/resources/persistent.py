@@ -40,7 +40,7 @@ class giveawayView(discord.ui.View):
     async def register(self, interaction:discord.Interaction, button: discord.ui.Button):
         interaction = ContextAdapter(interaction)
         if(self.t is not None):
-            connection, cursor = await get_conn("./files/resources/bot.db")
+            cursor = await interaction.getClient().connection.cursor()
             await cursor.execute("SELECT giv_role_id FROM giv_giveaway WHERE giv_message_id = ? and giv_end_date > ?", (interaction.getMessage().id, time.time()))
             reqRole = await cursor.fetchone()
 
@@ -56,7 +56,7 @@ class giveawayView(discord.ui.View):
                 if(isValid):
                     try:
                         await cursor.execute("INSERT INTO giv_entry (giv_message_id, user_id) VALUES (?,?)", (interaction.getMessage().id, interaction.getAuthor().id))
-                        await connection.commit()
+                        await interaction.getClient().connection.commit()
                     except sqlite3.IntegrityError:
                         content = self.t.getLocalString(interaction, "giveawayAlreadyRegistered", [])
                         await interaction.sendMessage(content = content, ephemeral=True)
@@ -70,7 +70,7 @@ class giveawayView(discord.ui.View):
                 content = self.t.getLocalString(interaction, "giveawayEnded", [])
                 await interaction.sendMessage(content=content, ephemeral=True)
 
-            await close_conn(connection, cursor)
+            await cursor.close()
 
 
 class GiveawayEmbed(discord.Embed):

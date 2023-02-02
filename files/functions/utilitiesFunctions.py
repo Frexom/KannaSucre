@@ -40,7 +40,7 @@ async def supportserverFunction(interaction: ContextAdapter):
 
 async def helpFunction(interaction = ContextAdapter, command: str = None):
     if not interaction.getAuthor().bot :
-        connection, cursor = await get_conn("./files/resources/bot.db")
+        cursor = await bot.connection.cursor()
         if command == None:
 
             categories = []
@@ -51,7 +51,7 @@ async def helpFunction(interaction = ContextAdapter, command: str = None):
 
             await cursor.execute("SELECT com_name, cat_category FROM com_command ORDER BY cat_category, com_name")
             commands = await cursor.fetchall()
-            await close_conn(connection, cursor)
+            await cursor.close()
 
             title = bot.translator.getLocalString(interaction, "helpBigTitle", [])
             embed = discord.Embed(title= title, colour=discord.Colour(0x635f))
@@ -68,7 +68,7 @@ async def helpFunction(interaction = ContextAdapter, command: str = None):
         else:
             await cursor.execute("SELECT com_name, com_use_example, com_user_perms, com_bot_perms, com_more_perms_than_target FROM com_command")
             commands = await cursor.fetchall()
-            await close_conn(connection, cursor)
+            await cursor.close()
             successful = False
             for i in range(len(commands)):
                 if commands[i][0] == command:
