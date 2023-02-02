@@ -6,7 +6,7 @@ from bot import *
 
 
 async def setup_func(guild):
-	connection, cursor = await get_conn("./files/resources/bot.db")
+	cursor = await bot.connection.cursor()
 	await cursor.execute("SELECT guild_id FROM dis_guild WHERE guild_id = ?", (guild.id, ))
 	if await cursor.fetchone() == None:
 		await cursor.execute("INSERT INTO dis_guild(guild_id, guild_prefix, guild_locale) VALUES(?, '!', 'en')", (guild.id, ))
@@ -19,8 +19,8 @@ async def setup_func(guild):
 			elif (user.name != userInfos[1]):
 				await cursor.execute("UPDATE dis_user SET user_name = ? where user_id = ?", (user.name, user.id))
 
-	await connection.commit()
-	await close_conn(connection, cursor)
+	await bot.connection.commit()
+	await cursor.close()
 
 
 @bot.event
@@ -47,7 +47,7 @@ async def on_command_error(context, error):
 
 @bot.event
 async def on_member_join(member):
-	connection, cursor = await get_conn("./files/resources/bot.db")
+	cursor = await bot.connection.cursor()
 	await cursor.execute("SELECT guild_welcome_channel_id, guild_welcome_role_id FROM dis_guild WHERE guild_id = ?", (member.guild.id,))
 	welcomeSettings = await cursor.fetchone()
 	channel_ID = welcomeSettings[0]
@@ -80,16 +80,16 @@ async def on_member_join(member):
 			await cursor.execute("INSERT INTO dis_user(user_id, user_name) VALUES(?, ?)", (member.id, member.name))
 		elif (member.name != member_id[1]):
 			await cursor.execute("UPDATE dis_user SET user_name = ? WHERE user_id = ?", (member.name, member.id))
-		await connection.commit()
-	await close_conn(connection, cursor)
+		await bot.connection.commit()
+	await cursor.close()
 
 
 @bot.event
 async def on_member_remove(member):
-	connection, cursor = await get_conn("./files/resources/bot.db")
+	cursor = await bot.connection.cursor()
 	await cursor.execute("SELECT guild_welcome_channel_ID FROM dis_guild WHERE guild_id = ?", (member.guild.id, ))
 	channel_ID = await cursor.fetchone()
-	await close_conn(connection, cursor)
+	await cursor.close()
 
 	if channel_ID[0] != 0:
 		welcome_channel: discord.TextChannel = bot.get_channel(channel_ID[0])
@@ -112,7 +112,7 @@ async def on_message(message):
 		if message.content.lower() == "ping":
 			prefix = await get_pre(message)
 			await message.channel.send("Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" + prefix + "`")
-		connection, cursor = await get_conn("./files/resources/bot.db")
+		cursor = await bot.connection.cursor()
 
 		# Levels
 		if (message.guild is not None):
@@ -136,8 +136,8 @@ async def on_message(message):
 			else:
 				await cursor.execute("UPDATE dis_user SET user_xp = ? WHERE user_id = ?", (user_xp, message.author.id))
 
-		await connection.commit()
-		await close_conn(connection, cursor)
+		await bot.connection.commit()
+		await cursor.close()
 
 		# Runs commands if it exists
 		await bot.process_commands(message)
@@ -146,19 +146,19 @@ async def on_message(message):
 @bot.event
 async def on_user_update(before: discord.User, after: discord.User):
 	if (before.name != after.name):
-		connection, cursor = await get_conn("./files/resources/bot.db")
+		cursor = await bot.connection.cursor()
 		await cursor.execute("UPDATE dis_user SET user_name = ? WHERE user_id = ?", (after.name, before.id))
-		await connection.commit()
-		await close_conn(connection, cursor)
+		await bot.connection.commit()
+		await cursor.close()
 
 
 @bot.event
 async def on_command_completion(ctx):
 	if (not ctx.author.bot):
-		connection, cursor = await get_conn("./files/resources/bot.db")
+		cursor = await bot.connection.cursor()
 		await cursor.execute("INSERT INTO com_history (com_name, user_id, date) VALUES (?,?,?)", (ctx.command.name, ctx.author.id, time.time()))
-		await connection.commit()
-		await close_conn(connection, cursor)
+		await bot.connection.commit()
+		await cursor.close()
 
 
 @bot.tree.error
@@ -202,7 +202,7 @@ async def on_app_command_error(interaction: discord.Interaction, error: discord.
 async def on_app_command_completion(interaction: discord.Interaction, command):
     interaction = ContextAdapter(interaction)
     if (not interaction.getAuthor().bot):
-        connection, cursor = await get_conn("./files/resources/bot.db")
+        cursor = await bot.connection.cursor()
         await cursor.execute("INSERT INTO com_history (com_name, user_id, date) VALUES (?,?,?)", (command.name, interaction.getAuthor().id , time.time() ))
 
 
@@ -228,5 +228,5 @@ async def on_app_command_completion(interaction: discord.Interaction, command):
                 await cursor.execute("UPDATE dis_user SET user_xp = ? WHERE user_id = ?", (user_xp, interaction.getAuthor().id))
 
 
-        await connection.commit()
-        await close_conn(connection, cursor)
+        await bot.connection.commit()
+        await cursor.close()

@@ -26,17 +26,17 @@ def get_shiny():
     return False
 
 def get_pokemon_id(rarity: int):
-    connection, cursor = get_static_conn("./files/resources/bot.db")
+    connection, cursor = getStaticReadingConn("./files/resources/bot.db")
     cursor.execute("SELECT dex_id FROM poke_dex WHERE dex_rarity = ? ORDER BY RANDOM() LIMIT 1", (rarity, ))
     temp = cursor.fetchone()
-    close_static_conn(connection, cursor)
+    closeStaticConn(connection, cursor)
     return temp[0]
 
 def get_pokemon_alt(poke_id:int):
-    connection, cursor = get_static_conn("./files/resources/bot.db")
+    connection, cursor = getStaticReadingConn("./files/resources/bot.db")
     cursor.execute("SELECT DISTINCT form_alt, form_label FROM poke_form WHERE dex_id = ?", (poke_id, ))
     alt = cursor.fetchall()
-    close_static_conn(connection, cursor)
+    closeStaticConn(connection, cursor)
     if len(alt) == 1:
         return alt[0][0], alt[0][1]
     else:
@@ -44,39 +44,39 @@ def get_pokemon_alt(poke_id:int):
         return alt[index][0], alt[index][1]
 
 def get_pokemon_genre(poke_id: int, poke_alt: int):
-    connection, cursor = get_static_conn("./files/resources/bot.db")
+    connection, cursor = getStaticReadingConn("./files/resources/bot.db")
     cursor.execute("SELECT form_sex FROM poke_form WHERE dex_id = ? AND form_alt = ?", (poke_id, poke_alt))
     data = cursor.fetchall()
-    close_static_conn(connection, cursor)
+    closeStaticConn(connection, cursor)
     if len(data) == 1:
         return data[0][0]
     else:
         return data[random.randint(0,len(data)-1)][0]
 
 def get_pokemon_link(poke_id:int, poke_alt:int, poke_genre:str, shiny:bool, linkType : int):
-    connection, cursor = get_static_conn("./files/resources/bot.db")
+    connection, cursor = getStaticReadingConn("./files/resources/bot.db")
     if shiny:
         cursor.execute("SELECT link_shiny FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? and form_alt = ? and form_sex = ? AND link_type = ?", (poke_id, poke_alt, poke_genre, linkType))
     else:
         cursor.execute("SELECT link_normal FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? and form_alt = ? and form_sex = ? AND link_type = ?", (poke_id, poke_alt, poke_genre, linkType))
     temp = cursor.fetchone()
-    close_static_conn(connection, cursor)
+    closeStaticConn(connection, cursor)
     return temp[0]
 
 def get_current_link(poke_id: int, poke_alt: int, poke_genre: str):
-    connection, cursor = get_static_conn("./files/resources/bot.db")
+    connection, cursor = getStaticReadingConn("./files/resources/bot.db")
     cursor.execute("SELECT COUNT(*) FROM poke_form WHERE dex_id =? and form_alt <= ? and form_sex <= ?", (poke_id, poke_alt, poke_genre))
     temp = cursor.fetchone()
     return temp[0]
 
 def get_devolution(poke_id : int, poke_alt:int):
-    connection, cursor = get_static_conn("./files/resources/bot.db")
+    connection, cursor = getStaticReadingConn("./files/resources/bot.db")
     cursor.execute("SELECT evo_pre, evo_pre_alt, evo_method FROM poke_evolution WHERE evo_post = ? AND evo_post_alt = ?", (poke_id, poke_alt))
     temp = cursor.fetchone()
     return None if temp == [] else temp
 
 def get_evolutions(poke_id: int, poke_alt: int):
-    connection, cursor = get_static_conn("./files/resources/bot.db")
+    connection, cursor = getStaticReadingConn("./files/resources/bot.db")
     cursor.execute("SELECT DISTINCT evo_post, evo_post_alt, dex_name, form_label  FROM poke_evolution JOIN poke_dex ON evo_post = poke_dex.dex_id JOIN poke_form ON evo_post = poke_form.dex_id and evo_post_alt = form_alt WHERE evo_pre = ? and evo_pre_alt = ?", (poke_id, poke_alt))
     temp = cursor.fetchall()
     if temp == []:
@@ -126,7 +126,7 @@ class Pokemon:
 
 
     def update_properties(self):
-        connection, cursor = get_static_conn("./files/resources/bot.db")
+        connection, cursor = getStaticReadingConn("./files/resources/bot.db")
         cursor.execute("SELECT link_normal, link_shiny, form_sex, form_label FROM poke_dex JOIN poke_form USING(dex_id) JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND link_type = ?", (self.id, self.alt, self.linkType))
         temp = cursor.fetchone()
 
@@ -145,11 +145,11 @@ class Pokemon:
         self.pokealts = self.pokealts[0]
         self.devolution = get_devolution(self.id, self.alt)
         self.evolutions = get_evolutions(self.id, self.alt)
-        close_static_conn(connection, cursor)
+        closeStaticConn(connection, cursor)
 
     def next_alt(self):
         if self.pokelinks > 1:
-            connection, cursor = get_static_conn("./files/resources/bot.db")
+            connection, cursor = getStaticReadingConn("./files/resources/bot.db")
             nextAlt = False
             if self.genre == "f":
                 try:
@@ -180,11 +180,11 @@ class Pokemon:
             self.devolution = get_devolution(self.id, self.alt)
             self.evolutions = get_evolutions(self.id, self.alt)
             self.current_link = get_current_link(self.id, self.alt, self.genre)
-            close_static_conn(connection, cursor)
+            closeStaticConn(connection, cursor)
 
     def prev_alt(self):
         if self.pokelinks > 1:
-            connection, cursor = get_static_conn("./files/resources/bot.db")
+            connection, cursor = getStaticReadingConn("./files/resources/bot.db")
             nextAlt = False
             if self.genre == "m":
                 try:
@@ -215,7 +215,7 @@ class Pokemon:
             self.devolution = get_devolution(self.id, self.alt)
             self.evolutions = get_evolutions(self.id, self.alt)
             self.current_link = get_current_link(self.id, self.alt, self.genre)
-            close_static_conn(connection, cursor)
+            closeStaticConn(connection, cursor)
 
     def get_pokeinfo_embed(self):
 
@@ -322,7 +322,7 @@ class Pokedex():
 
 
     def __get_closed_pokedex(self):
-        connection, cursor = get_static_conn("./files/resources/bot.db")
+        connection, cursor = getStaticReadingConn("./files/resources/bot.db")
 
         rarities = []
 
@@ -341,7 +341,7 @@ class Pokedex():
 
         cursor.execute("SELECT COUNT(*) FROM poke_dex GROUP BY dex_rarity")
         totals = cursor.fetchall()
-        close_static_conn(connection, cursor)
+        closeStaticConn(connection, cursor)
 
         embed = discord.Embed(title = str(self.user.name) + "'s Pokedex")
         rarityCountStr = ""
@@ -361,14 +361,14 @@ class Pokedex():
 
     def __get_pokedex_embed(self):
 
-        connection, cursor = get_static_conn("./files/resources/bot.db")
+        connection, cursor = getStaticReadingConn("./files/resources/bot.db")
         cursor.execute("SELECT DISTINCT dex_id, dex_name, is_shiny FROM poke_dex JOIN poke_obtained USING(dex_id) WHERE user_id = ? ORDER BY dex_id;", (self.user.id, ))
         Pokemons = cursor.fetchall()
         cursor.execute("SELECT COUNT(DISTINCT dex_id) FROM poke_obtained WHERE user_id = ?;", (self.user.id, ))
         number_of_pokemons = cursor.fetchone()
         number_of_pokemons = number_of_pokemons[0]
 
-        close_static_conn(connection, cursor)
+        closeStaticConn(connection, cursor)
 
         self.page = (self.page) % (int(poke_count/20)+1)
 
@@ -403,11 +403,11 @@ class Pokedex():
 
 
     def __get_shiny_embed(self):
-        connection, cursor = get_static_conn("./files/resources/bot.db")
+        connection, cursor = getStaticReadingConn("./files/resources/bot.db")
         cursor.execute("SELECT DISTINCT dex_id, dex_name FROM poke_obtained JOIN poke_dex USING(dex_id) WHERE is_shiny = 1 AND user_id = ? ORDER BY dex_id", (self.user.id,))
         shinies = cursor.fetchall()
 
-        close_static_conn(connection, cursor)
+        closeStaticConn(connection, cursor)
 
         self.page = (self.page) % (int(len(shinies)/20)+1)
 

@@ -8,6 +8,8 @@ from eventsFunctions import *
 
 @bot.event
 async def on_ready():
+    bot.connection = await aiosqlite3.connect("files/resources/bot.db")
+
 
     #Adding cogs
     path="files.cogs"
@@ -36,7 +38,7 @@ async def on_ready():
 
 @tasks.loop(seconds=30)
 async def checkEndedGiveaways():
-    connection, cursor = await get_conn("./files/resources/bot.db")
+    cursor = await bot.connection.cursor()
     await cursor.execute("""
     SELECT giv_message_id, giv_channel_id, giv_prize,
     (
@@ -59,9 +61,9 @@ async def checkEndedGiveaways():
             content = bot.translator.getLocalString(channel, "giveawayWon", [("number", str(giveaway[4])), ("userId", str(giveaway[3])), ("prize", str(giveaway[2]))])
         await channel.send(content = content, reference=message)
         await cursor.execute("UPDATE giv_giveaway SET giv_ended = 1 WHERE giv_message_id = ?", (giveaway[0], ))
+        await bot.connection.commit()
 
-    await connection.commit()
-    await close_conn(connection, cursor)
+    await cursor.close()
 
 
 bot.run(os.environ['TOKEN'])

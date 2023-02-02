@@ -12,13 +12,14 @@ sys.path.append("../resources")
 async def pokeFunction(interaction: ContextAdapter):
     if not interaction.getAuthor().bot :
 
-        userID = interaction.getAuthor().id
-        userName = interaction.getAuthor().display_name
-
         #Not doidng it may cause bugs
         await interaction.defer()
 
-        connection, cursor = await get_conn("./files/resources/bot.db")
+        userID = interaction.getAuthor().id
+        userName = interaction.getAuthor().display_name
+
+
+        cursor = await bot.connection.cursor()
         await cursor.execute("SELECT user_last_roll_datetime, user_pity, link_type FROM dis_user WHERE user_id =?", (userID, ))
         data = await cursor.fetchone()
 
@@ -34,7 +35,6 @@ async def pokeFunction(interaction: ContextAdapter):
                 await cursor.execute("UPDATE dis_user SET user_pity = ? WHERE user_id = ?", (pity, userID))
             else:
                 await cursor.execute("UPDATE dis_user SET user_last_roll_datetime = ? WHERE user_id = ?", (now, userID))
-            await connection.commit()
 
             pokemon = Pokemon(interaction = interaction, linkType = linkType)
 
@@ -89,12 +89,12 @@ async def pokeFunction(interaction: ContextAdapter):
                 await cursor.execute("UPDATE dis_user SET user_pity = ? WHERE user_id = ?", (pity+0.25*pokemon.rarity[0], userID))
 
 
-            await connection.commit()
+            await bot.connection.commit()
             title = bot.translator.getLocalString(interaction, "pokeCatch", [("user", userName), ("pokeName", pokemon.name)])
             e = discord.Embed(title = title, description = desc)
             e.set_image(url=link)
             await interaction.followupSend(content = link, embed = e)
-            await close_conn(connection, cursor)
+            await cursor.close()
 
         else:
             await rollsFunction(interaction)
@@ -118,10 +118,10 @@ async def pokeinfoFunction(interaction: ContextAdapter, id: int = None, name: st
                 return
 
 
-            connection, cursor = await get_conn("./files/resources/bot.db")
+            cursor = await bot.connection.cursor()
             await cursor.execute("SELECT link_type FROM dis_user WHERE user_id = ?", (interaction.getAuthor().id, ))
             linkType = await cursor.fetchone()
-            await close_conn(connection, cursor)
+            await cursor.close()
             linkType = linkType[0]
             pokemon = Pokemon(interaction = interaction, linkType = linkType, pokeID = poke_id)
             buttonView = pokeView(90)
@@ -218,10 +218,10 @@ async def pokeinfoFunction(interaction: ContextAdapter, id: int = None, name: st
 
                 await interaction.sendMessage(content = content, ephemeral = True)
 
-                connection, cursor = await get_conn("files/resources/bot.db")
+                cursor = await bot.connection.cursor()
                 await cursor.execute("UPDATE dis_user SET link_type = ? WHERE user_id = ?", (pokemon.linkType, interaction.getAuthor().id))
-                await connection.commit()
-                await close_conn(connection, cursor)
+                await bot.connection.commit()
+                await cursor.close()
             sugimori.callback = sugimoriCallback
 
 
@@ -244,7 +244,7 @@ async def pokeinfoFunction(interaction: ContextAdapter, id: int = None, name: st
 
 
 async def rollsFunction(interaction: ContextAdapter):
-    connection, cursor = await get_conn("./files/resources/bot.db")
+    cursor = await bot.connection.cursor()
     await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM dis_user WHERE user_id =?", (interaction.getAuthor().id, ))
     data = await cursor.fetchone()
     last_roll = data[0]
@@ -266,7 +266,7 @@ async def rollsFunction(interaction: ContextAdapter):
         time_left = int(time_left/60)
         content = bot.translator.getLocalString(interaction, "rollsMinutes", [("user", userName), ("minutes", time_left), ("number", pity)])
         await interaction.followupSend(content = content)
-    await close_conn(connection, cursor)
+    await cursor.close()
 
 
 
@@ -354,10 +354,10 @@ async def pokerankFunction(interaction: ContextAdapter):
 
         await interaction.defer()
 
-        connection, cursor = await get_conn("./files/resources/bot.db")
+        cursor = await bot.connection.cursor()
         await cursor.execute("SELECT COUNT(DISTINCT dex_id) as nbPoke, user_name  FROM poke_obtained JOIN dis_user USING(user_id) GROUP BY user_id ORDER BY nbPoke desc limit 10")
         result = await cursor.fetchall()
-        await close_conn(connection, cursor)
+        await cursor.close()
         result_list = []
         for i in range(len(result)):
             result_list.append([result[i][0], result[i][1]])
