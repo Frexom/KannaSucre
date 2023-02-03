@@ -132,26 +132,27 @@ helpYes&oui
 helpMorePerms&Est-ce que le bot a besoin de plus de permissions que la cible de la commande?
 helpExample&Example :
 helpNoCommand&Aucune commande appellée `{name}` trouvée.
-giveawayDesc&Creates a new giveaway on a defined channel lasting a defined time!
-giveawayShort&Creates a new giveaway!
-giveawayCreated&The giveaway was created!
-giveawayNoDuration&Please input a duration.
-giveawayStarted&A new giveaway has started!
-giveawayDuration&Duration :
-giveawayDays&{days} days
-giveawayHours&{hours} hours
+giveawayDesc&Crée un nouveau giveaway dans un salon défini sur une période définie !
+giveawayShort&Crée un nouveau giveaway !
+giveawayCreated&Vous avez créé un giveaway !
+giveawayNoDuration&Veuillez renseigner la durée.
+giveawayStarted&Un nouveau giveaway a commencé !
+giveawayDuration&Durée :
+giveawayDays&{days} jours
+giveawayHours&{hours} heures
 giveawayMinutes&{minutes} minutes
-giveawayEnds&Ends on :
-giveawayNone&None
-giveawayPrize&Prize :
-giveawayRegister&Register!
-giveawayAlreadyRegistered&You already registered for the giveaway!
-giveawayRegistered&You have successfully registered for the giveaway!
-giveawayMissRole&I'm sorry, but you miss the required role to enter this giveaway.
-giveawayEnded&This giveaway does not exist, it has probably ended!
-giveawayRole&Required role :
-giveawayLost&This giveaway ended, but no one entered it :/
-giveawayWon&The giveaway has ended with **{number}** people taking part in it!\nCongratulation to <@{userId}> who won `{prize}`!
-pokeinfoSugimori&Warning! you have switched to Sugimori-style sprites. Those sprites are better looking, but miss a lot of alternative forms. It means you won't see the difference between Pokémon forms, but still obtain them.
-pokeinfoHome&You have switched back to HOME sprites.
-giveawayPrefix&I'm sorry, but the giveaway command has too much arguments to be interpreted as a prefix command, try `/giveaway` instead!
+giveawayEnds&Finit le :
+giveawayNone&Aucun
+giveawayPrize&Prix :
+giveawayRegister&Participer !
+giveawayAlreadyRegistered&Tu participes déjà à ce giveaway !
+giveawayRegistered&Ton inscription à ce giveaway a bien été prise en compte !
+giveawayMissRole&Je suis désolée, tu n'as pas le rôle requis pour participer à ce giveaway.
+giveawayEnded&Ce giveaway n'existe pas, il est probablement déjà terminé !
+giveawayRole&Rôle requis :
+giveawayLost&Ce giveaway est terminé, mais personne n'a participé :/
+giveawayWon&Ce giveaway est terminé ! **{number}** personnes ont participé ! \nFélicitations à <@{userId}> qui a remporté `{prize}` !
+pokeinfoSugimori&Attention ! Tu as activé les sprites au style Sugimori. Ces sprites sont plus beaux, mais beaucoup de formes alternatives sont manquantes. Ça signifie que tu ne verras pas la différence entre les formes des Pokémons, mais tu attraperas tout de même différentes formes.
+pokeinfoHome&Tu as réactivé les sprites HOME.
+giveawayPrefix&Je suis désolée, la commande giveaway repose sur trop de paramètres pour être utilisée sous forme d'une commande à préfixe, essayez plutôt `/giveaway` !
+clearDelete&Je supprime!
