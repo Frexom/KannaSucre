@@ -45,7 +45,7 @@ async def clearFunction(interaction: ContextAdapter, amount: int):
                     if(interaction.isContext()):
                         amount += 1
                     else:
-                        content="Deleting!" #clearDelete
+                        content = bot.translator.getLocalString(interaction, "clearDelete", [])
                         await interaction.sendMessage(content=content, ephemeral=True)
 
 
