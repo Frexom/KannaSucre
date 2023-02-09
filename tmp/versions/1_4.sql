@@ -13,8 +13,10 @@ CREATE TABLE gld_level (
     PRIMARY KEY("guild_id", "user_id")
 );
 
-INSERT INTO com_command(com_name, com_short, com_desc, com_use_example, com_user_perms, com_bot_perms, cat_category) VALUES ("addlevel", "Adds a level reward", "Set up and automations to give roles to your members when they reach a certain KannaSucre level!", "addlevel 5 @Role", "manage_guild", "manage_roles", 1);
-INSERT INTO com_command(com_name, com_short, com_desc, com_use_example, com_user_perms, com_bot_perms, cat_category) VALUES ("editlevels", "Edits the level rewards", "View and delete the current's server level rewards!", "editlevels", "manage_guild", "manage_roles", 1);
+INSERT INTO com_command(com_name, com_use_example, com_user_perms, com_bot_perms, cat_category) VALUES ("addlevel", "addlevel 5 @Role", "manage_guild", "manage_roles", 1);
+INSERT INTO com_command(com_name, com_use_example, com_user_perms, com_bot_perms, cat_category) VALUES ("editlevels","editlevels", "manage_guild", "manage_roles", 1);
+
+SELECT "Please delete the column com_command.com_short and com_command.com_desc manually, as SQLite cannot do it" FROM db_updates;
 
 
 INSERT INTO db_updates(updates) VALUES ("1.4 Done!");
