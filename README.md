@@ -15,9 +15,15 @@ At the moment, the bot is available in English and French, but i'm looking for f
 
 ### Admin commands :
 
+`addlevel` : Adds a level rewards.
+
 `announce` : Sends a custome message to a channel.
 
 `ban` : Bans a member.
+
+`editlevels` : View/delete the level rewards.
+
+`giveaway` : Starts a new giveaway! (slash command only)
 
 `language` : Changes the bot's language!
 
@@ -105,7 +111,7 @@ Install dependencies
 Set the database
 
 ```bash
-  cp tmp/bot.db files/ressources/bot.db
+  cp tmp/bot.db files/resources/bot.db
 ```
 
 Start the bot!
@@ -118,7 +124,7 @@ Start the bot!
 To keep the bot updated, wait for a new version ot release for the bot to be in a stable state. If the database has been changed in the newer version, just update yours with the sql scripts in /tmp/versions :
 
 ```bash
-  sqlite3 files/ressources/bot.db < tmp/versions/version.sql
+  sqlite3 files/resources/bot.db < tmp/versions/version.sql
 ```
 
 If you're multiple releases late, make sure to use every SQL script on your database, in chronological order.
