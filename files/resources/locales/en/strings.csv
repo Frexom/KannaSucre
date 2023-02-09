@@ -169,3 +169,7 @@ editlevelDeleted%The role reward `Level {level}` has been deleted.
 addlevelSuccess%The role reward `@{role}` for level {level} has been created!
 addlevelFailure%There is already a level reward for the level {level}.
 addlevelEveryone%Please input a valid role!
+addlevelShort%Adds a level reward
+addlevelDesc%Set up an automation to give roles to your members when they reach a certain KannaSucre level!
+editlevelsShort%Edits the level rewards
+editlevelsDesc%View and delete the current's server level rewards!

@@ -169,3 +169,7 @@ editlevelDeleted%Le rôle récompense `niveau {level}` a été supprimé.
 addlevelSuccess%Le rôle récompense `@{role}` au niveau {level} est créé !
 addlevelFailure%Il y a déjà une récompense pour le niveau {level}.
 addlevelEveryone%Veuillez saisir un rôle valide !
+addlevelShort%Ajoute une récompense de niveau
+addlevelDesc%Configurez l'assignation automatique de rôles à vos membres lorsqu'ils atteignent un certain niveau sur KannaSucre !
+editlevelsShort%Modifie les récompenses de rôle
+editlevelsDesc%Affichez et supprimez les récompenses de niveau actuelles !
