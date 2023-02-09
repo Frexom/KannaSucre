@@ -156,16 +156,16 @@ pokeinfoSugimori%Attention ! Tu as activé les sprites au style Sugimori. Ces sp
 pokeinfoHome%Tu as réactivé les sprites HOME.
 giveawayPrefix%Je suis désolée, la commande giveaway repose sur trop de paramètres pour être utilisée sous forme d'une commande à préfixe, essayez plutôt `/giveaway` !
 clearDelete%Je supprime!
-levelUpRole%Congratulations {user}, you are now level {number}!\nAs a reward, you got the `{role}` role!
-cancel%Cancel
-refresh%Refresh
-editlevelNoReward%No level rewards.
-editLevelReward%Level {level}: <@&{roleID}>\n
-editlevelTitle%{guild}'s level rewards
-editlevelFooter%use /addlevel to add level rewards!
-editlevelDeleteLabel%Delete a level.
-editlevelChooseDelete%Choose a level to delete.
-editlevelDeleted%The role reward `Level {level}` has been deleted.
-addlevelSuccess%The role reward `@{role}` for level {level} has been created!
-addlevelFailure%There is already a level reward for the level {level}.
-addlevelEveryone%Please input a valid role!
+levelUpRole%Félicitations {user}, tu es passé·e niveau {number} !\n En guise de récompense, tu as obtenu le rôle `{role}` !
+cancel%Annuler
+refresh%Actualiser
+editlevelNoReward%Il n'y pas de récompense de niveau.
+editLevelReward%Niveau {level}: <@&{roleID}>\n
+editlevelTitle%Récompenses de niveau de {guild}
+editlevelFooter%utilisez la commande /addlevel pour ajouter des récompenses de niveau !
+editlevelDeleteLabel%Supprimer un niveau.
+editlevelChooseDelete%Choisissez un niveau à supprimer.
+editlevelDeleted%Le rôle récompense `niveau {level}` a été supprimé.
+addlevelSuccess%Le rôle récompense `@{role}` au niveau {level} est créé !
+addlevelFailure%Il y a déjà une récompense pour le niveau {level}.
+addlevelEveryone%Veuillez saisir un rôle valide !

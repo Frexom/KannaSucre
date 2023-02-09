@@ -70,7 +70,7 @@ class AdminCog(commands.Cog):
     @commands.command(name="language")
     async def language(self, context):
         words = context.message.content.split(" ")
-        locales = ['en', 'fr']
+        locales = ['en', 'fr'] #tr soon
         if(len(words) >= 2 and words[1] in locales):
             language = words[1]
             await languageFunction(ContextAdapter(context), language)
@@ -82,6 +82,7 @@ class AdminCog(commands.Cog):
     @app_commands.choices(language=[
         app_commands.Choice(name="English", value="en")
         ,app_commands.Choice(name="French", value="fr")
+        #,app_commands.Choice(name="Turkish", value="tr")
     ])
     @app_commands.describe(language="The language you want KannaSucre to use.")
     async def slashLanguage(self, interaction: discord.Interaction, language: app_commands.Choice[str]):
@@ -157,11 +158,24 @@ class AdminCog(commands.Cog):
 
 
 
+    @commands.command(name="addlevel")
+    async def addlevel(self, context: discord.Interaction):
+        if(not context.author.bot):
+            message = context.message.content.split(" ")
+            if(message[1].isdecimal() and int(message[1]) > 0 and len(context.message.role_mentions) > 0):
+                level = int(message[1])
+                role = context.message.role_mentions[0]
+
+                await addlevelFunction(ContextAdapter(context), level, role)
+            else:
+                await context.send("```" + context.prefix + "addlevel *number* *role*```")
+
+
     @app_commands.command(name = "addlevel", description = "Adds a level reward!")
     @app_commands.describe(level="The level to reach to get the role.")
     @app_commands.describe(level="The rewarded role.")
-    async def slashAddlevel(self, interaction: discord.Interaction, level: int, role: discord.Role):
-        await addlevelFunction(ContextAdapter(interaction), level, role)
+    async def slashAddLevel(self, interaction: discord.Interaction, level:int, role: discord.Role):
+        await addlevelFunction(ContextAdapter(context), level, role)
 
 
 
