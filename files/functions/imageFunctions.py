@@ -64,7 +64,7 @@ async def levelFunction(interaction: ContextAdapter, user: discord.User = None):
 
         #Render commands count
         font = ImageFont.truetype("./files/LevelCommand/coolvetica.ttf", size=28)
-        d.text((80, 200), "Commands run :"+str(stats[2]), font=font, fill= (120,120,120))
+        d.text((80, 200), "Commands run: "+str(stats[2]), font=font, fill= (120,120,120))
 
         #Save and send file
         image.save("./files/LevelCommand/Users/stats" + str(user.id) + ".png")

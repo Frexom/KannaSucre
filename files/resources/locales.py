@@ -23,7 +23,7 @@ class Translator():
         for folder in subfolders:
             file = './files/resources/locales/{}/strings.csv'.format(folder)
             with open(file) as f:
-                reader = csv.reader(f, delimiter ="&")
+                reader = csv.reader(f, delimiter ="%")
                 self.strings[folder] = list(reader)
 
     def loadPoke(self):
@@ -31,7 +31,7 @@ class Translator():
         for folder in subfolders:
             file = './files/resources/locales/{}/poke.csv'.format(folder)
             with open(file) as f:
-                reader = csv.reader(f, delimiter ="&")
+                reader = csv.reader(f, delimiter ="%")
                 self.poke[folder] = list(reader)
 
     def loadPokeEvos(self):
@@ -39,7 +39,7 @@ class Translator():
         for folder in subfolders:
             file = './files/resources/locales/{}/evolutions.csv'.format(folder)
             with open(file) as f:
-                reader = csv.reader(f, delimiter ="&")
+                reader = csv.reader(f, delimiter ="%")
                 self.evolutions[folder] = list(reader)
 
 
@@ -121,7 +121,7 @@ class Translator():
         if(locale != "en"):
             file = './files/resources/locales/en/poke.csv'
             with open(file) as f:
-                reader = csv.reader(f, delimiter ="&")
+                reader = csv.reader(f, delimiter ="%")
 
                 for row in reader:
                     if(row[1].lower() == name):

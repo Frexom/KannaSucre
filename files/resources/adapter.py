@@ -12,6 +12,8 @@ class ContextAdapter():
         if(isinstance(interaction, ContextAdapter)):
             self = interaction
 
+        self.message = None
+
 
 
 
@@ -80,7 +82,8 @@ class ContextAdapter():
             else:
                 return await self.interaction.response.send_message(**kwargs)
         else:
-            return await self.context.send(**kwargs)
+            self.message = await self.context.send(**kwargs)
+            return self.message
 
 
     async def defer(self):
@@ -92,14 +95,20 @@ class ContextAdapter():
         if(self.interaction is not None):
             await self.interaction.followup.send(**kwargs)
         else:
-            return await self.context.send(**kwargs)
+            return await self.sendMessage(**kwargs)
 
 
     async def editMessage(self, **kwargs):
         if(self.interaction is not None):
             await self.interaction.message.edit(**kwargs)
+        elif(self.message != None):
+            await self.message.edit(**kwargs)
+        else:
+            raise ValueError("Message was not set before editing!")
 
 
     async def editOriginal(self, **kwargs):
         if(self.interaction is not None):
             await self.interaction.edit_original_response(**kwargs)
+        else:
+            await self.editMessage(**kwargs)
