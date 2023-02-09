@@ -175,7 +175,7 @@ class AdminCog(commands.Cog):
     @app_commands.describe(level="The level to reach to get the role.")
     @app_commands.describe(level="The rewarded role.")
     async def slashAddLevel(self, interaction: discord.Interaction, level:int, role: discord.Role):
-        await addlevelFunction(ContextAdapter(context), level, role)
+        await addlevelFunction(ContextAdapter(interaction), level, role)
 
 
 
