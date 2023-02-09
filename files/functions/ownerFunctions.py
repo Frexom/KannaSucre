@@ -79,7 +79,7 @@ async def shutdownFunction(interaction: ContextAdapter):
         async def shutCallback(interaction):
             nonlocal shutdownInteraction
             interaction = ContextAdapter(interaction)
-            if interaction.getAuthor() == shutdowninteraction.getAuthor():
+            if interaction.getAuthor() == shutdownInteraction.getAuthor():
                 await shutdownInteraction.editOriginal(content = "Shutting down...", view = None)
                 await bot.close()
         shutButton = discord.ui.Button(label = "Shutdown", style = discord.ButtonStyle.danger, emoji = "⛔")
@@ -87,7 +87,7 @@ async def shutdownFunction(interaction: ContextAdapter):
 
         async def cancelCallback(interaction):
             interaction = ContextAdapter(interaction)
-            if interaction.getAuthor() == shutdowninteraction.getAuthor():
+            if interaction.getAuthor() == shutdownInteraction.getAuthor():
                 await shutdownInteraction.editOriginal(content = "Shutdown cancelled.", view = None)
         cancelButton = discord.ui.Button(label = "Cancel", style = discord.ButtonStyle.primary, emoji = "❌")
         cancelButton.callback = cancelCallback

@@ -1,101 +1,101 @@
-spec462&passant un niveau dans un Champ Magnétique
-spec865&réussisant 3 coups critiques en un seul combat
-spec463&apprenant Roulade
-spec465&apprennant Pouvoir Antique
-spec700&ayant un bonheur maximal et en apprenant une capacité de type Fée
-spec424&apprenant Coup Double
-spec469&apprenant Pouvoir Antique
-spec472&tenant le Croc Rasoir de nuit
-spec904&utilisant Multitoxic 20 fois en Style Puissant
-spec461&tenant la Griffe rasoir de nuit
-spec901&utilisant un Bloc de Tourbe sous la pleine lune
-spec473&apprenant Pouvoir Antique
-spec899&utilisant Sprint Bouclier 20 fois en Style Rapide
-spec106&atteignant le niveau 20 avec Attaque > Défense
-spec107&atteignant le niveau 20 avec Attaque < Défense
-spec237&atteignant le niveau 20 avec Attaque = Défense
-spec475&utilisant une Pierre Aube sur un Kirlia mâle
-spec292&atteignant le niveau 20 avec un emplacement libre dans l'équipe, et une Pokéball dans le sac
-spec476&passant un niveau dans un Champ magnétique
-spec478&utilisant une Pierre Aube sur un Stalgamin femelle
-spec413A&atteignant le niveau 20 avec un Cheniti femelle dans l'herbe
-spec413B&atteignant le niveau 20 avec un Cheniti femelle dans une grotte
-spec413C&atteignant le niveau 20 avec un Cheniti femelle dans un bâtiment
-spec414&atteignant le niveau 20 avec un Cheniti mâle
-spec416&atteignant le niveau 21 avec un Apitrini femelle
-spec185&apprenant Mimique
-spec122&apprenant Mimique
-spec113&tenant une Pierre Ovale le jour
-spec226&ayant Rémoraid dans l'équipe
-spec902&subissant 294 points de dégats de recul
-spec867&étant dans la Fosse des Sables
-spec589&étant échangé contre Escargaume
-spec617&étant échangé contre Carabing
-spec675&atteignant le niveau 32 avec un Pokémon de type Ténèbres dans l'équipe
-spec678A&atteignant le niveau 25 avec un Psystigri mâle
-spec678B&atteignant le niveau 25 avec un Psystigri femelle
-spec687&atteignant le niveau 30 en tenant la console à l'envers
-spec706&atteignant le niveau 50 sous la pluie
-spec738&utilisant une Pierre Foudre (ou en passant un niveau dans un Champ Magnétique)
-spec740&allant au MontLanakila
-spec745&atteignant le niveau 25 au crépuscule
-spec758&atteignant le niveau 33 avec un Tritox femelle
-spec763&apprenant Écrasement
-spec791&atteignant le niveau 53 dans Pokémon: Soleil/Ultra-Soleil
-spec792&atteignant le niveau 53 dans Pokémon: Lune/Ultra-Lune
-spec804&apprenant Draco-choc
-spec809&utilisant 400 bonbons Meltan dans Pokémon GO
-spec849A&atteignant le niveau 30 avec une nature Aïgue
-spec849B&atteignant le niveau 30 avec une nature Grave
-spec853&apprenant Provoc
-spec869&tournoyant en tenant un Objet en Sucre
-spec892A&terminant la Tour des Ténèbres
-spec892B&terminant la Tour de l'Eau
-ThunderStone&une Pierre Foudre
-IceStone&une Pierre Glace
-MoonStone&une Pierre Lune
-FireStone&une Pierre Feu
-LeafStone&une Pierre Feuille
-SunStone&une Pierre Soleil
-WaterStone&une Pierre Eau
-GalaricaCuff&un Bracelet Galanoa
-GalaricaWreath&une Couronne Galanoa
-BlackAugurite&une Obsidienne
-ShinyStone&une Pierre Éclat
-DuskStone&une Pierre Aube
-RazorClaw&une Griffe Rasoir
-TartApple&une Pomme Acidulée
-SweetApple&une Pomme Sucrée
-CrackedPot&une Théière Fêlée
-item&utilisant {item}
-level&atteignant le niveau {level}
-Day&le jour
-Night&la nuit
-friend&atteignant un bonheur maximal
-trade&étant échangé
-tradeItem&étant échangé en tenant {item}
-DeepSeaScale&une Écaille Océan
-DeepSeaTooth&une Dent Océan
-DragonScale&une Écaille Draco
-DubiousDisc&un CD Douteux
-Electrizer&un Éléctriseur
-KingsRock&une Roche Royale
-Magmarizer&un Magmariseur
-MetalCoat&une Peau Métal
-PrismScale&une Bel'Écaille
-Protector&un Protecteur
-ReaperCloth&un Tissu Fauche
-Sachet&un Sachet Senteur
-Upgrade&un Améliorator
-WhippedDream&un Chantibonbon
-spec1000&ramassant 999 pièces de Mordudor
-spec923&marchant 1000 pas en mode Let's Go
-spec947&marchant 1000 pas en mode Let's Go
-spec954&marchant 1000 pas en mode Let's Go
-spec964&atteignant le niveau 38 en mode multijoueur
-spec979&utilisant Poing de Colère 20 fois
-spec981&apprenant Double Laser
-spec982&apprenant Hyperceuse
-spec983&battant 3 Scalproie qui tiennent l'Emblème du Général
-MaliciousArmor&une Armure de la Rancune
-AuspiciousArmor&une Armure de la Fortune
+spec462%passant un niveau dans un Champ Magnétique
+spec865%réussisant 3 coups critiques en un seul combat
+spec463%apprenant Roulade
+spec465%apprennant Pouvoir Antique
+spec700%ayant un bonheur maximal et en apprenant une capacité de type Fée
+spec424%apprenant Coup Double
+spec469%apprenant Pouvoir Antique
+spec472%tenant le Croc Rasoir de nuit
+spec904%utilisant Multitoxic 20 fois en Style Puissant
+spec461%tenant la Griffe rasoir de nuit
+spec901%utilisant un Bloc de Tourbe sous la pleine lune
+spec473%apprenant Pouvoir Antique
+spec899%utilisant Sprint Bouclier 20 fois en Style Rapide
+spec106%atteignant le niveau 20 avec Attaque > Défense
+spec107%atteignant le niveau 20 avec Attaque < Défense
+spec237%atteignant le niveau 20 avec Attaque = Défense
+spec475%utilisant une Pierre Aube sur un Kirlia mâle
+spec292%atteignant le niveau 20 avec un emplacement libre dans l'équipe, et une Pokéball dans le sac
+spec476%passant un niveau dans un Champ magnétique
+spec478%utilisant une Pierre Aube sur un Stalgamin femelle
+spec413A%atteignant le niveau 20 avec un Cheniti femelle dans l'herbe
+spec413B%atteignant le niveau 20 avec un Cheniti femelle dans une grotte
+spec413C%atteignant le niveau 20 avec un Cheniti femelle dans un bâtiment
+spec414%atteignant le niveau 20 avec un Cheniti mâle
+spec416%atteignant le niveau 21 avec un Apitrini femelle
+spec185%apprenant Mimique
+spec122%apprenant Mimique
+spec113%tenant une Pierre Ovale le jour
+spec226%ayant Rémoraid dans l'équipe
+spec902%subissant 294 points de dégats de recul
+spec867%étant dans la Fosse des Sables
+spec589%étant échangé contre Escargaume
+spec617%étant échangé contre Carabing
+spec675%atteignant le niveau 32 avec un Pokémon de type Ténèbres dans l'équipe
+spec678A%atteignant le niveau 25 avec un Psystigri mâle
+spec678B%atteignant le niveau 25 avec un Psystigri femelle
+spec687%atteignant le niveau 30 en tenant la console à l'envers
+spec706%atteignant le niveau 50 sous la pluie
+spec738%utilisant une Pierre Foudre (ou en passant un niveau dans un Champ Magnétique)
+spec740%allant au MontLanakila
+spec745%atteignant le niveau 25 au crépuscule
+spec758%atteignant le niveau 33 avec un Tritox femelle
+spec763%apprenant Écrasement
+spec791%atteignant le niveau 53 dans Pokémon: Soleil/Ultra-Soleil
+spec792%atteignant le niveau 53 dans Pokémon: Lune/Ultra-Lune
+spec804%apprenant Draco-choc
+spec809%utilisant 400 bonbons Meltan dans Pokémon GO
+spec849A%atteignant le niveau 30 avec une nature Aïgue
+spec849B%atteignant le niveau 30 avec une nature Grave
+spec853%apprenant Provoc
+spec869%tournoyant en tenant un Objet en Sucre
+spec892A%terminant la Tour des Ténèbres
+spec892B%terminant la Tour de l'Eau
+ThunderStone%une Pierre Foudre
+IceStone%une Pierre Glace
+MoonStone%une Pierre Lune
+FireStone%une Pierre Feu
+LeafStone%une Pierre Feuille
+SunStone%une Pierre Soleil
+WaterStone%une Pierre Eau
+GalaricaCuff%un Bracelet Galanoa
+GalaricaWreath%une Couronne Galanoa
+BlackAugurite%une Obsidienne
+ShinyStone%une Pierre Éclat
+DuskStone%une Pierre Aube
+RazorClaw%une Griffe Rasoir
+TartApple%une Pomme Acidulée
+SweetApple%une Pomme Sucrée
+CrackedPot%une Théière Fêlée
+item%utilisant {item}
+level%atteignant le niveau {level}
+Day%le jour
+Night%la nuit
+friend%atteignant un bonheur maximal
+trade%étant échangé
+tradeItem%étant échangé en tenant {item}
+DeepSeaScale%une Écaille Océan
+DeepSeaTooth%une Dent Océan
+DragonScale%une Écaille Draco
+DubiousDisc%un CD Douteux
+Electrizer%un Éléctriseur
+KingsRock%une Roche Royale
+Magmarizer%un Magmariseur
+MetalCoat%une Peau Métal
+PrismScale%une Bel'Écaille
+Protector%un Protecteur
+ReaperCloth%un Tissu Fauche
+Sachet%un Sachet Senteur
+Upgrade%un Améliorator
+WhippedDream%un Chantibonbon
+spec1000%ramassant 999 pièces de Mordudor
+spec923%marchant 1000 pas en mode Let's Go
+spec947%marchant 1000 pas en mode Let's Go
+spec954%marchant 1000 pas en mode Let's Go
+spec964%atteignant le niveau 38 en mode multijoueur
+spec979%utilisant Poing de Colère 20 fois
+spec981%apprenant Double Laser
+spec982%apprenant Hyperceuse
+spec983%battant 3 Scalproie qui tiennent l'Emblème du Général
+MaliciousArmor%une Armure de la Rancune
+AuspiciousArmor%une Armure de la Fortune

@@ -144,9 +144,26 @@ class AdminCog(commands.Cog):
     async def slashGiveaway(self, interaction: discord.Interaction, channel: discord.TextChannel, prize: str, days: int = 0, hours: int = 0, minutes: int = 0, role: discord.Role = None):
         await giveawayFunction(ContextAdapter(interaction), channel, prize, days, hours, minutes, role)
 
-    @commands.command(name="test")
-    async def test(self, context):
-        await testFunction(ContextAdapter(context))
+
+
+    @commands.command(name="editlevels")
+    async def editlevels(self, context):
+        await editlevelsFunction(ContextAdapter(context))
+
+
+    @app_commands.command(name = "editlevels", description = "Edits the server's level rewards!")
+    async def slashEditlevels(self, interaction):
+        await editlevelsFunction(ContextAdapter(interaction))
+
+
+
+    @app_commands.command(name = "addlevel", description = "Adds a level reward!")
+    @app_commands.describe(level="The level to reach to get the role.")
+    @app_commands.describe(level="The rewarded role.")
+    async def slashAddlevel(self, interaction: discord.Interaction, level: int, role: discord.Role):
+        await addlevelFunction(ContextAdapter(interaction), level, role)
+
+
 
 
 async def setup(bot):

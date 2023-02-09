@@ -2,6 +2,7 @@ from connection import *
 from prefix import *
 from perms import *
 from bot import *
+from ui import *
 
 sys.path.append("../resources")
 
@@ -192,5 +193,49 @@ async def giveawayFunction(interaction: ContextAdapter, channel: discord.TextCha
         else:
             await dmUnavailable(interaction, "giveaway")
 
-    async def testFunction(self, interaction: ContextAdapter):
-        await interaction.sendMessage(content = "Oui!")
+
+async def editlevelsFunction(interaction:ContextAdapter):
+    if not interaction.getAuthor().bot:
+        if(interaction.getGuild() is not None):
+            if(interaction.getAuthor().guild_permissions.manage_guild):
+
+                embed = LevelListEmbed(interaction)
+                view = LevelListView(interaction)
+                await interaction.sendMessage(embed = embed, view = view)
+
+        else:
+            await missing_perms(interaction, "giveaway", "manage guild")
+    else:
+        await dmUnavailable(interaction, "giveaway")
+
+
+
+async def addlevelFunction(interaction: ContextAdapter, level : int, role: discord.Role):
+    if not interaction.getAuthor().bot:
+        if(interaction.getGuild() is not None):
+            if(interaction.getAuthor().guild_permissions.manage_guild):
+                if(role.name == "@everyone"):
+                    content = bot.translator.getLocalString(interaction, "addlevelEveryone", [])
+                    await interaction.sendMessage(content = content, ephemeral = True)
+                    return
+
+
+                cursor = await bot.connection.cursor()
+                try:
+                    await cursor.execute("INSERT INTO gld_reward (guild_id, rew_level, rew_role) VALUES (?,?,?)", (interaction.getGuild().id, level, role.id))
+                except sqlite3.IntegrityError:
+                    await cursor.close()
+                    content = bot.translator.getLocalString(interaction, "addlevelFailure", [("level", str(level))])
+                    await interaction.sendMessage(content = content, ephemeral = True)
+                    return
+
+                await bot.connection.commit()
+                await cursor.close()
+
+                content = bot.translator.getLocalString(interaction, "addlevelSuccess", [("role", role.name), ("level", str(level))])
+                await interaction.sendMessage(content = content)
+
+        else:
+            await missing_perms(interaction, "giveaway", "manage guild")
+    else:
+        await dmUnavailable(interaction, "giveaway")
