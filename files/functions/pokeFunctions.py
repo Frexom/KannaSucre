@@ -125,7 +125,6 @@ async def pokeinfoFunction(interaction: ContextAdapter, id: int = None, name: st
             linkType = linkType[0]
             pokemon = Pokemon(interaction = interaction, linkType = linkType, pokeID = poke_id)
             buttonView = ClearView(90)
-            buttonView.setMessage(interaction)
 
         #Callback definition, and buttons generation
             label = bot.translator.getLocalString(interaction, "buttonEvolve", [])
@@ -184,7 +183,6 @@ async def pokeinfoFunction(interaction: ContextAdapter, id: int = None, name: st
                         dropdown = PokeDropdown(interaction, pokemon, buttonView)
 
                         evoView = ClearView(90)
-                        evoView.setMessage(buttonView.message)
                         evoView.add_item(dropdown)
 
                         await interaction.editMessage(view = evoView)
@@ -276,9 +274,7 @@ async def pokedexFunction(interaction: ContextAdapter, user: discord.User = None
             user = interaction.getAuthor()
         if not user.bot:
             closedView = ClearView(90)
-            closedView.setMessage(interaction)
             openedView = ClearView(90)
-            openedView.setMessage(interaction)
             pokedex = Pokedex(interaction, user, page-1)
 
             label = bot.translator.getLocalString(interaction, "buttonOpen", [])
