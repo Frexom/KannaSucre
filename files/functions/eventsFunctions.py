@@ -163,16 +163,23 @@ async def on_message(message):
                     guildLevel += 1
 
                     roleName = ""
+                    success = True
                     levelRole: discord.Role = message.guild.get_role(guildLeveling[2])
                     if(levelRole is not None):
                         try:
-                            await message.author.add_roles(levelRole, reason=f"Gave level {str(guildLevel)} role!")
                             roleName = levelRole.name
+                            await message.author.add_roles(levelRole, reason=f"Gave level {str(guildLevel)} role!")
                         except discord.errors.Forbidden as e:
-                            roleName = ""
+                            success = False
 
-                    if(roleName == ""):
+                    if(roleName == "" or not success):
                         content = bot.translator.getLocalString(message, "levelUp", [("user", message.author.mention), ("number", str(guildLevel))])
+                        if(not success):
+                            roleError = f"__Message from **{message.guild.name}** :__\n\nI do not have enough permissions to give the members their levelup role.\nIf you want to disable that feature, please run `/togglelevels disable` on **{message.guild.name}**.\nIf you want the feature to work, pelease make sure my role has the `manage roles` permission, and that my role is higher than the reward roles.\n This incident occured with the role `@{roleName}` at level {guildLevel}."
+                            try:
+                                await message.guild.owner.send(content = roleError)
+                            except Exception as e:
+                                pass
                     else:
                         content = bot.translator.getLocalString(message, "levelUpRole", [("user", message.author.mention), ("number", str(guildLevel)), ("role", roleName)])
                     await message.channel.send(content = content)
@@ -284,16 +291,24 @@ async def on_app_command_completion(interaction: discord.Interaction, command):
                     guildLevel += 1
 
                     roleName = ""
+                    success = True
                     levelRole: discord.Role = interaction.getGuild().get_role(guildLeveling[2])
                     if(levelRole is not None):
                         try:
-                            await interaction.getAuthor().add_roles(levelRole, reason=f"Gave level {str(guildLevel)} role!")
                             roleName = levelRole.name
+                            await interaction.getAuthor().add_roles(levelRole, reason=f"Gave level {str(guildLevel)} role!")
                         except discord.errors.Forbidden as e:
-                            roleName = ""
+                            success = False
 
-                    if(roleName == ""):
+                    if(roleName == "" or not success):
                         content = bot.translator.getLocalString(interaction, "levelUp", [("user", interaction.getAuthor().mention), ("number", str(guildLevel))])
+                        if(not success):
+                            roleError = f"__Message from **{interaction.getGuild().name}** :__\n\nI do not have enough permissions to give the members their levelup role.\nIf you want to disable that feature, please run `/togglelevels disable` on **{interaction.getGuild().name}**.\nIf you want the feature to work, pelease make sure my role has the `manage roles` permission, and that my role is higher than the reward roles.\nThis incident occured with the role `@{roleName}` at level {guildLevel}."
+
+                            try:
+                                await interaction.getGuild().owner.send(content = roleError)
+                            except Exception as e:
+                                pass
                     else:
                         content = bot.translator.getLocalString(interaction, "levelUpRole", [("user", interaction.getAuthor().mention), ("number", str(guildLevel)), ("role", roleName)])
                     await interaction.getChannel().send(content = content)

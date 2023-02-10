@@ -203,10 +203,10 @@ async def editlevelsFunction(interaction:ContextAdapter):
                 view = LevelListView(interaction)
                 await interaction.sendMessage(embed = embed, view = view)
 
+            else:
+                await missing_perms(interaction, "giveaway", "manage guild")
         else:
-            await missing_perms(interaction, "giveaway", "manage guild")
-    else:
-        await dmUnavailable(interaction, "giveaway")
+            await dmUnavailable(interaction, "giveaway")
 
 
 
@@ -235,7 +235,7 @@ async def addlevelFunction(interaction: ContextAdapter, level : int, role: disco
                 content = bot.translator.getLocalString(interaction, "addlevelSuccess", [("role", role.name), ("level", str(level))])
                 await interaction.sendMessage(content = content)
 
+            else:
+                await missing_perms(interaction, "giveaway", "manage guild")
         else:
-            await missing_perms(interaction, "giveaway", "manage guild")
-    else:
-        await dmUnavailable(interaction, "giveaway")
+            await dmUnavailable(interaction, "giveaway")
