@@ -89,10 +89,10 @@ async def on_member_join(member):
         elif (member.name != member_id[1]):
             await cursor.execute("UPDATE dis_user SET user_name = ? WHERE user_id = ?", (member.name, member.id))
 
-        await cursor.execute("SELECT user_id FROM gld_level WHERE user_id = ? AND guild_id = ?", (user.id, guild.id))
+        await cursor.execute("SELECT user_id FROM gld_level WHERE user_id = ? AND guild_id = ?", (member.id, member.guild.id))
         userInfos = await cursor.fetchone()
         if userInfos == None:
-            await cursor.execute("INSERT INTO gld_level(user_id, guild_id) VALUES(?, ?)", (user.id, guild.id))
+            await cursor.execute("INSERT INTO gld_level(user_id, guild_id) VALUES(?, ?)", (member.id, member.guild.id))
 
         await bot.connection.commit()
     await cursor.close()
