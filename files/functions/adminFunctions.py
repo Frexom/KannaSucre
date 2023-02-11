@@ -33,10 +33,16 @@ async def banFunction(interaction: ContextAdapter, user: Union[discord.Member, d
 
                     if reason != "" and reason is not None:
                         content = bot.translator.getLocalString(interaction, "banReason", [("guild", interaction.getGuild().name), ("reason", reason)])
-                        await user.send(content = content)
+                        try:
+                            await user.send(content = content)
+                        except discord.errors.HTTPException:
+                            pass
                     else:
                         content = bot.translator.getLocalString(interaction, "banNoReason", [("guild", interaction.getGuild().name)])
-                        await user.send(content = content)
+                        try:
+                            await user.send(content = content)
+                        except discord.errors.HTTPException:
+                            pass
                     await user.ban(reason = (reason or "No reason given.") + " / Triggered by " + interaction.getAuthor().name)
                     content = bot.translator.getLocalString(interaction, "userBanned", [])
                     await interaction.sendMessage(content = content)

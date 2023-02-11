@@ -83,10 +83,16 @@ async def kickFunction(interaction:ContextAdapter, user: Union[discord.Member, d
 
                     if reason == "" or reason is None:
                         content = bot.translator.getLocalString(interaction, "kickNoReason", [("guild", interaction.getGuild().name)])
-                        await user.send(content = content)
+                        try:
+                            await user.send(content = content)
+                        except discord.errors.HTTPException:
+                            pass
                     else:
                         content = bot.translator.getLocalString(interaction, "kickReason", [("guild", interaction.getGuild().name), ("reason", reason)])
-                        await user.send(content = content)
+                        try:
+                            await user.send(content = content)
+                        except discord.errors.HTTPException:
+                            pass
                     await user.kick(reason = (reason or "No reason given.") + " / Triggered by " + interaction.getAuthor().name)
                     content = bot.translator.getLocalString(interaction, "userKicked", [])
                     await interaction.sendMessage(content = content)
