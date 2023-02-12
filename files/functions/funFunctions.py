@@ -66,7 +66,7 @@ async def standFunction(interaction: ContextAdapter):
         await cursor.execute("SELECT stand_id FROM sta_user WHERE user_id = ?", (interaction.getAuthor().id, ))
         stand_id = await cursor.fetchone()
         if stand_id == None:
-            stand_id = random.randint(1, 32)
+            stand_id = random.randint(1, 105)
             await cursor.execute("INSERT INTO sta_user(user_id, stand_id) VALUES(?, ?)", (interaction.getAuthor().id, stand_id))
             await bot.connection.commit()
         else:
