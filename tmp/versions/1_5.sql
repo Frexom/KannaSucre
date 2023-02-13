@@ -1,4 +1,5 @@
-INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (33,"Crazy Diamond", "https://i.ibb.co/dBzFGBV/Diver-Down.png");
+--- Inserting new stands
+INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (33,"Crazy Diamond", "https://i.ibb.co/m6v0QYP/Crazy-Diamond.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (34,"The Hand", "https://i.ibb.co/dL5Qx3f/TheHand.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (35,"Echoes", "https://i.ibb.co/S06qwz7/Echoes.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (36,"Heaven's Door", "https://i.ibb.co/8zMmvF8/Heavens-Door.png");
@@ -6,7 +7,7 @@ INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (37,"Killer Queen
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (38,"Aqua Necklace", "https://i.ibb.co/DC2Ty8W/Aqua-Necklace.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (39,"Bad Company", "https://i.ibb.co/0tbF0Jt/Bad-Company.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (40,"Red Hot Chilli Pepper", "https://i.ibb.co/pj1S2Lj/Red-Hot-Chilli-Pepper.png");
-INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (41,"The Lock", "https://i.ibb.co/s5H6wBH/TheLock.pnghand");
+INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (41,"The Lock", "https://i.ibb.co/s5H6wBH/TheLock.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (42,"Surface", "https://i.ibb.co/bzzG0Nv/Surface.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (43,"Love Deluxe", "https://i.ibb.co/Z8R7WJN/Love-Deluxe.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (44,"Pearl Jam", "https://i.ibb.co/0fhvbhY/PearlJam.png");
@@ -60,7 +61,7 @@ INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (91,"Goo Goo Doll
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (92,"Manhattan Transfer", "https://i.ibb.co/YcCn2hW/Manhattan-Transfer.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (93,"Highway to Hell", "https://i.ibb.co/5rnhYYz/Highway-To-Hell.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (94,"Marilyn Manson", "https://i.ibb.co/VH5FZrm/Marilyn-Manson.png");
-INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (95,"Jumpin' Jack Flash", "https://i.ibb.co/5WyVyt5/Killer-Queen.png");
+INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (95,"Jumpin' Jack Flash", "https://i.ibb.co/BCB6Rhh/Jumpin-Jack-Flash.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (96,"Limp Bizkit", "https://i.ibb.co/28MqTn2/Limp-Bizkit.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (97,"Survivor", "https://i.ibb.co/9ZW84FM/Survivor.png");
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (98,"Planet Waves", "https://i.ibb.co/JHRC4pJ/Planet-Waves.png");
@@ -73,6 +74,13 @@ INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (104,"Sky High", 
 INSERT INTO sta_stand(stand_id, stand_name, stand_link) VALUES (105,"Under World", "https://i.ibb.co/XztQMgb/Underworld.png");
 
 
+--- Correcting first commit mistakes
+UPDATE sta_stand SET stand_link = "https://i.ibb.co/m6v0QYP/Crazy-Diamond.png" WHERE stand_id = 33;
+UPDATE sta_stand SET stand_link = "https://i.ibb.co/s5H6wBH/TheLock.png" WHERE stand_id = 41;
+UPDATE sta_stand SET stand_link = "https://i.ibb.co/BCB6Rhh/Jumpin-Jack-Flash.png" WHERE stand_id = 95;
+
+
+--- Inserting new sugimori shiny sprites (9G)
 UPDATE poke_link SET LINK_SHINY = "https://i.ibb.co/m5JrsZ7/906-Sprigatito.png" where dex_id = 906 AND form_alt = 0 AND link_type = 1;
 UPDATE poke_link SET LINK_SHINY = "https://i.ibb.co/2FsKN22/907-Floragato.png" where dex_id = 907 AND form_alt = 0 AND link_type = 1;
 UPDATE poke_link SET LINK_SHINY = "https://i.ibb.co/0VmBFT6/908-Meowscarada.png" where dex_id = 908 AND form_alt = 0 AND link_type = 1;
@@ -181,6 +189,7 @@ UPDATE poke_link SET LINK_SHINY = "https://i.ibb.co/84rsWN1/1008-Miraidon.png" w
 UPDATE poke_link SET LINK_SHINY = "https://i.ibb.co/RbpD4rn/128-Tauros-Combat-Breed.png" where dex_id = 128 AND form_alt = 1 AND link_type = 1;
 UPDATE poke_link SET LINK_SHINY = "https://i.ibb.co/TRTRy6k/128-Tauros-Blaze-Breed.png" where dex_id = 128 AND form_alt = 2 AND link_type = 1;
 UPDATE poke_link SET LINK_SHINY = "https://i.ibb.co/sP749fw/128-Tauros-Aqua-Breed.png" where dex_id = 128 AND form_alt = 3 AND link_type = 1;
+
 
 --- Fixing missing roaming ghimmighoul
 UPDATE poke_form SET form_label = "Chest" WHERE dex_id = 999 AND form_alt = 0;
