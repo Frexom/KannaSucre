@@ -242,6 +242,7 @@ async def pokeinfoFunction(interaction: ContextAdapter, id: int = None, name: st
 
 
 async def rollsFunction(interaction: ContextAdapter):
+    await interaction.defer()
     cursor = await bot.connection.cursor()
     await cursor.execute("SELECT user_last_roll_datetime, user_pity FROM dis_user WHERE user_id =?", (interaction.getAuthor().id, ))
     data = await cursor.fetchone()
