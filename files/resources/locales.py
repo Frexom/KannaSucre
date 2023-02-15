@@ -46,9 +46,12 @@ class Translator():
     def getLocaleFromInteraction(self, interaction):
         id = None
         if(isinstance(interaction, ContextAdapter)):
-            id = str(interaction.getGuild().id)
+            if(interaction.getGuild() is not None):
+                id = str(interaction.getGuild().id)
+
         elif(interaction.guild is not None):
             id = str(interaction.guild.id)
+
 
         if(id is not None):
             if(id not in self.locales.keys()):
