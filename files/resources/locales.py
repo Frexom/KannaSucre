@@ -24,7 +24,7 @@ class Translator():
             file = './files/resources/locales/{}/strings.csv'.format(folder)
             with open(file) as f:
                 reader = csv.reader(f, delimiter ="%")
-                self.strings[folder] = list(reader)
+                self.strings[folder] = {rows[0]:rows[1] for rows in reader}
 
     def loadPoke(self):
         subfolders = [ f.name for f in os.scandir("./files/resources/locales") if f.is_dir() ]
@@ -32,7 +32,7 @@ class Translator():
             file = './files/resources/locales/{}/poke.csv'.format(folder)
             with open(file) as f:
                 reader = csv.reader(f, delimiter ="%")
-                self.poke[folder] = list(reader)
+                self.poke[folder] = {rows[0]:rows[1] for rows in reader}
 
     def loadPokeEvos(self):
         subfolders = [ f.name for f in os.scandir("./files/resources/locales") if f.is_dir() ]
@@ -40,7 +40,7 @@ class Translator():
             file = './files/resources/locales/{}/evolutions.csv'.format(folder)
             with open(file) as f:
                 reader = csv.reader(f, delimiter ="%")
-                self.evolutions[folder] = list(reader)
+                self.evolutions[folder] = {rows[0]:rows[1] for rows in reader}
 
 
     def getLocaleFromInteraction(self, interaction):
@@ -72,11 +72,7 @@ class Translator():
 
     def getLocalString(self, interaction, key:str, values:list):
         locale = self.getLocaleFromInteraction(interaction)
-        string = None
-        for row in self.strings[locale]:
-            if(row[0] == key):
-                string = row[1]
-                break
+        string = self.strings[locale].get(key)
 
         if string is None:
             raise KeyError("String {} has not been found".format(key))
@@ -89,22 +85,17 @@ class Translator():
 
     def getLocalPokeString(self, interaction, key:str):
         locale = self.getLocaleFromInteraction(interaction)
-        string = None
-        for row in self.poke[locale]:
-            if(row[0] == key):
-                string = row[1]
-                return string
+        string = self.poke[locale].get(key)
 
-        raise KeyError("String {} has not been found".format(key))
+        if(string is None):
+            raise KeyError("String {} has not been found".format(key))
+        else:
+            return string
 
 
     def getLocalPokeEvo(self, interaction, key:str, values:list):
         locale = self.getLocaleFromInteraction(interaction)
-        string = None
-        for row in self.evolutions[locale]:
-            if(row[0] == key):
-                string = row[1]
-                break
+        string = self.evolutions[locale].get(key)
 
         if string is None:
             raise KeyError("String {} has not been found".format(key))
@@ -116,19 +107,16 @@ class Translator():
 
     def getPokeIdByName(self, interaction, name:str):
         locale = self.getLocaleFromInteraction(interaction)
+        name=name.lower()
 
-        for row in self.poke[locale]:
-            if(row[1].lower() == name.lower()):
-                return int(row[0][4:])
+        keys = [key for key, value in self.poke[locale].items() if value.lower() == name]
+        if len(keys) == 1:
+            return int(keys[0][4:])
 
         if(locale != "en"):
-            file = './files/resources/locales/en/poke.csv'
-            with open(file) as f:
-                reader = csv.reader(f, delimiter ="%")
-
-                for row in reader:
-                    if(row[1].lower() == name):
-                        return int(row[0][4:])
+            keys = [key for key, value in self.poke["en"].items() if value.lower() == name]
+            if len(keys) == 1:
+                return int(keys[0][4:])
         return 0
 
 
