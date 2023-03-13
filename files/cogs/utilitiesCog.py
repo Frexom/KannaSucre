@@ -62,6 +62,16 @@ class UtilitiesCog(commands.Cog):
         await supportserverFunction(ContextAdapter(interaction))
 
 
+    @commands.command(name="daily")
+    async def daily(self, context):
+        await dailyFunction(ContextAdapter(context))
+
+
+    @app_commands.command(name="daily", description="Get your daily KannaSucre money!")
+    async def slashDaily(self, interaction: discord.Interaction):
+        await dailyFunction(ContextAdapter(interaction))
+
+
 
     @commands.command(name="help")
     async def help(self, context):

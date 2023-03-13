@@ -38,6 +38,34 @@ async def supportserverFunction(interaction: ContextAdapter):
         await interaction.sendMessage(content=content + link)
 
 
+async def dailyFunction(interaction: ContextAdapter):
+    if not interaction.getAuthor().bot:
+
+        cursor = await bot.connection.cursor()
+        await cursor.execute("SELECT user_balance, user_last_daily_day FROM dis_user WHERE user_id = ?", (interaction.getAuthor().id, ))
+        userWallet = await cursor.fetchone()
+
+        now = time.time()
+        daysSince = (now - (now%(24*60*60)))/(24*60*60)
+
+        responseMessage = ""
+        if(daysSince != userWallet[1]):
+            await cursor.execute("UPDATE dis_user SET user_balance = user_balance + 100, user_last_daily_day = ? WHERE user_id = ?", (daysSince, interaction.getAuthor().id, ))
+            responseMessage += "100 KannaCoins have been added to your balance!\n"
+            responseMessage += f"That makes **{str(userWallet[0]+100)} KannaCoins** on your account."
+        else:
+
+            timeLeft = (daysSince*24*60*60)+24*60*60 - now
+
+            hours = int(timeLeft // (60*60))
+            minutes = int((timeLeft % (60*60)) // 60)
+            responseMessage = f"You cannot get your daily coins yet, please wait {hours} hours and {minutes} minutes.\n"
+
+        await interaction.sendMessage(content = responseMessage)
+        await cursor.close();
+
+
+
 async def helpFunction(interaction = ContextAdapter, command: str = None):
     if not interaction.getAuthor().bot :
         cursor = await bot.connection.cursor()

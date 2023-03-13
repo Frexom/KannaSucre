@@ -196,3 +196,19 @@ UPDATE poke_form SET form_label = "Chest" WHERE dex_id = 999 AND form_alt = 0;
 INSERT INTO poke_form (dex_id, form_alt, form_sex, form_label) VALUES (999, 1, "x", "Roaming");
 INSERT INTO poke_link (dex_id, form_alt, form_sex, link_type) VALUES (999, 1, "x", 0);
 INSERT INTO poke_link (dex_id, form_alt, form_sex, link_type, link_normal, link_shiny) VALUES (999, 1, "x", 1, "https://i.ibb.co/hd0KMhp/Gimmighoul.png", "https://i.ibb.co/Lt5tLrC/976-Gimmighoul-Roaming-Form.png");
+
+---Adding Walking Wake and Iron Leaves
+INSERT INTO poke_dex (dex_id, dex_name, dex_rarity) VALUES (1009, "Walking Wake", 4);
+INSERT INTO poke_form (dex_id, form_alt, form_sex, form_label) VALUES (1009, 0, "x", "Normal");
+INSERT INTO poke_link (dex_id, form_alt, form_sex, link_type) VALUES (1009, 0, "x", 0);
+INSERT INTO poke_link (dex_id, form_alt, form_sex, link_type, link_normal, link_shiny) VALUES (1009, 0, "x", 1, "https://i.ibb.co/g4L3Vh6/1009-000-x-n.png", "https://i.ibb.co/X7db1MD/1009-Walking-Wake.png");
+
+INSERT INTO poke_dex (dex_id, dex_name, dex_rarity) VALUES (1010, "Iron Leaves", 4);
+INSERT INTO poke_form (dex_id, form_alt, form_sex, form_label) VALUES (1010, 0, "x", "Normal");
+INSERT INTO poke_link (dex_id, form_alt, form_sex, link_type) VALUES (1010, 0, "x", 0);
+INSERT INTO poke_link (dex_id, form_alt, form_sex, link_type, link_normal, link_shiny) VALUES (1010, 0, "x", 1, "https://i.ibb.co/ZB3HkzR/1010-000-x-n.png", "https://i.ibb.co/7vN8RSS/1010-Iron-Leaves.png");
+
+
+--- Adding user balance in DB
+ALTER TABLE dis_user ADD user_balance INT DEFAULT 0;
+ALTER TABLE dis_user ADD user_last_daily_day INT DEFAULT 0;
