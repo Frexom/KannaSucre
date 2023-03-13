@@ -15,7 +15,10 @@ async def on_ready():
     path="files.cogs"
     for filename in os.listdir("files/cogs/"):
         if os.path.isfile(f"files/cogs/{filename}"):
-            await bot.load_extension(f"{path}.{filename[:-3]}")
+            try :
+                await bot.load_extension(f"{path}.{filename[:-3]}")
+            except discord.ext.commands.errors.ExtensionAlreadyLoaded:
+                print(f"{path}.{filename[:-3]} : Cog already loaded")
 
     #Cog already loaded (while reconnecting)
     #except discord.errors.ClientException:
