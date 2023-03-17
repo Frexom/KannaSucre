@@ -13,7 +13,7 @@ async def previewFunction(interaction : ContextAdapter, message: str):
 
 async def sqlFunction(interaction : ContextAdapter, query : str):
     if await bot.is_owner(interaction.getAuthor()):
-        connection, cursor = await getReadingConn("files/resources/bot.db")
+        connection, cursor = await getReadingConn("files/resources/database/bot.db")
         if(query[0].lower() == "s"):
             await cursor.execute(query)
             result = await cursor.fetchall()
@@ -64,7 +64,7 @@ async def sqlFunction(interaction : ContextAdapter, query : str):
 async def databaseFunction(interaction: ContextAdapter):
     if await bot.is_owner(interaction.getAuthor()):
         await interaction.defer()
-        await interaction.followupSend(file=discord.File('files/resources/bot.db'))
+        await interaction.followupSend(file=discord.File('files/resources/database/bot.db'))
     else:
         await interaction.sendMessage(content="You don't have the permission to use that.")
 

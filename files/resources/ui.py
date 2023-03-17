@@ -76,7 +76,7 @@ class PokeDropdown(discord.ui.Select):
 
 class LevelListEmbed(discord.Embed):
     def __init__(self, interaction: ContextAdapter):
-        connection, cursor = getStaticReadingConn("./files/resources/bot.db")
+        connection, cursor = getStaticReadingConn("./files/resources/database/bot.db")
         cursor.execute("SELECT rew_level, rew_role FROM gld_reward WHERE guild_id = ? ORDER BY rew_level", (interaction.getGuild().id, ))
         levels = cursor.fetchall()
 
@@ -141,7 +141,7 @@ class DeleteLevelDropdown(discord.ui.Select):
     def __init__(self, interaction: ContextAdapter):
         self.interaction = interaction
 
-        connection, cursor = getStaticReadingConn("./files/resources/bot.db")
+        connection, cursor = getStaticReadingConn("./files/resources/database/bot.db")
         cursor.execute("SELECT rew_level FROM gld_reward WHERE guild_id = ? ORDER BY rew_level", (interaction.getGuild().id, ))
         levels = cursor.fetchall()
         options = []
