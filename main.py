@@ -8,7 +8,7 @@ from eventsFunctions import *
 
 @bot.event
 async def on_ready():
-    bot.connection = await aiosqlite3.connect("files/resources/bot.db")
+    bot.connection = await aiosqlite3.connect("files/resources/database/bot.db")
 
 
     #Adding cogs
