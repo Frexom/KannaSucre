@@ -1,9 +1,9 @@
 pokeCatch%Congratulation {user}, you got {pokeName}.
 pokeRarity%This is a **{rarity}** Pokémon.
 pokeAlready%You already had that Pokémon.😕
-pokeExtraRolls%Rolls +{number}.
-rollsHours%{user}, your next roll will be available in {hours} hour {minutes} minutes.\nRolls : `{number}`.
-rollsMinutes%{user}, your next roll will be available in {minutes} minutes.\nRolls : `{number}`.
+pokeExtraRolls%Pokéballs +{number}.
+rollsHours%{user}, your next pokéball will be available in {hours} hour {minutes} minutes.\nPokéballs : `{number}`.
+rollsMinutes%{user}, your next pokéball will be available in {minutes} minutes.\nPokéballs : `{number}`.
 pokeNewForm%You already had that Pokémon, but that's a new form!🆕
 common%Common
 uncommon%Uncommon
@@ -45,7 +45,7 @@ pokeinfoNotFound%Not found :(
 pokeinfoNoSuch%No such Pokemon.
 pokeinfoInput%Please input either the Pokémon's ID or its name.
 commandBot%This command isn't supported for bots.
-rollsAvailable%{user}, your poke roll is available.\nRolls : `{number}`.
+rollsAvailable%{user}, your pokéball is available.\nPokéballs : `{number}`.
 diceRoll%Rolled **{randomNumber}** between 1 and {maxNumber}!
 servericon%This server does not have an icon.
 usericon%This user does not have an icon.
@@ -108,7 +108,7 @@ usericonDesc%Display the given user's icon.
 pruneShort%Deletes an user's messages
 pruneDesc%Deletes all the mentionned user's messages among the 200 last from each channel.
 rollsShort%Show poke command personnal details.
-rollsDesc%Displays how much pokerolls you have, and when your next free roll will be.
+rollsDesc%Displays how much pokéballs you have, and when your next free pokéball will be.
 pokeinfoShort%Displays a Pokémon's info
 pokeinfoDesc%Displays some infos about a given Pokémon. You can use it with pokedex id, or Pokémon name!
 announceShort%Sends a custom message to a channel
@@ -173,3 +173,6 @@ addlevelShort%Adds a level reward
 addlevelDesc%Set up an automation to give roles to your members when they reach a certain KannaSucre level!
 editlevelsShort%Edits the level rewards
 editlevelsDesc%View and delete the current's server level rewards!
+servrankEmpty%No levels yet, activate it with /togglelevels !
+servrankRanking%{guild}'s level ranking :
+servrankLevel%{username}: Level {level}

@@ -72,6 +72,17 @@ class UtilitiesCog(commands.Cog):
         await dailyFunction(ContextAdapter(interaction))
 
 
+    @commands.command(name="servrank")
+    async def servrank(self, context):
+        await servrankFunction(ContextAdapter(context))
+
+
+    @app_commands.command(name="servrank", description="See this server's most active members!")
+    async def slashServrank(self, interaction: discord.Interaction):
+        await servrankFunction(ContextAdapter(interaction))
+
+
+
 
     @commands.command(name="help")
     async def help(self, context):

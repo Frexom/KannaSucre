@@ -66,7 +66,45 @@ async def dailyFunction(interaction: ContextAdapter):
 
 
 
-async def helpFunction(interaction = ContextAdapter, command: str = None):
+async def servrankFunction(interaction: ContextAdapter):
+    if not interaction.getAuthor().bot :
+
+        await interaction.defer()
+
+        cursor = await bot.connection.cursor()
+        await cursor.execute("SELECT user_level, user_name FROM gld_level JOIN dis_user USING(user_id) WHERE guild_id = ? AND lev_level != 0 ORDER BY lev_level DESC, lev_xp DESC limit 10", (interaction.getGuild().id, ))
+        result = await cursor.fetchall()
+        await cursor.close()
+        result_list = []
+        for i in range(len(result)):
+            result_list.append([result[i][0], result[i][1]])
+        description = ""
+        i = 0
+        limit = 10
+        while i != len(result_list) and i < 10:
+            description += str(i+1) + " - "
+            description += bot.translator.getLocalString(interaction, "servrankLevel", [("username", result_list[i][1]), ("level", str(result_list[i][0]))])
+            description += "\n"
+            i += 1;
+
+        if(description == ""):
+            description = bot.translator.getLocalString(interaction, "servrankEmpty", [])
+
+        title = bot.translator.getLocalString(interaction, "pokerank", [])
+        embed=discord.Embed(title = title, colour=discord.Colour(0x635f))
+
+        if(interaction.getGuild().icon is not None):
+            embed.set_thumbnail(url=interaction.getGuild().icon.url)
+        else:
+            embed.set_thumbnail(url=interaction.getClientUser().avatar.url)
+
+        name = bot.translator.getLocalString(interaction, "servrankRanking", [("guild", interaction.getGuild().name)])
+        embed.add_field(name=name, value=description)
+        await interaction.followupSend(embed=embed)
+
+
+
+async def helpFunction(interaction: ContextAdapter, command: str = None):
     if not interaction.getAuthor().bot :
         cursor = await bot.connection.cursor()
         if command == None:
