@@ -9,6 +9,7 @@ from discord import app_commands
 from discord.ext import tasks
 from dotenv import load_dotenv
 from typing import Union
+from sclib import SoundcloudAPI, Track, Playlist
 
 from persistent import *
 from locales import *
