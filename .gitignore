@@ -1,10 +1,9 @@
 #Mine
-files/LevelCommand/Users
-files/LevelCommand/stats*.png
+src/LevelCommand/Users
+src/LevelCommand/stats*.png
 *.db
 *.db-journal
-useful
-reminder.help
+useful/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
