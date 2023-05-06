@@ -87,7 +87,7 @@ async def servrankFunction(interaction: ContextAdapter):
 
         cursor = await bot.connection.cursor()
         await cursor.execute(
-            "SELECT user_level, user_name FROM gld_level JOIN dis_user USING(user_id) WHERE guild_id = ? AND lev_level != 0 ORDER BY lev_level DESC, lev_xp DESC limit 10",
+            "SELECT lev_level, user_name FROM gld_level JOIN dis_user USING(user_id) WHERE guild_id = ? AND lev_level != 0 ORDER BY lev_level DESC, lev_xp DESC limit 10",
             (interaction.getGuild().id,),
         )
         result = await cursor.fetchall()
