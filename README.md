@@ -149,4 +149,3 @@ Shiny Sugimori sprites : [Click here](https://www.deviantart.com/tonofdirt726)<b
 ## Authors
 
 - [@frexom](https://www.github.com/ferxom) (The owner of this repo)
-

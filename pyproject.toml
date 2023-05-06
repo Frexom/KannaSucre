@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "KannaSucre"
+version = "1.4.0"
+description = ""
+authors = ["Frexom <hugom2003@sfr.fr>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+discord = "^2.2.3"
+python-dotenv = "^1.0.0"
+aiosqlite3 = "^0.3.0"
+Pillow = "^9.5.0"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "^3.3.1"
+black = "^23.3.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
