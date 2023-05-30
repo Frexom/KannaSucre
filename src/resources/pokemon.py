@@ -235,7 +235,7 @@ class Pokemon:
 
     def prev_alt(self):
         if self.pokelinks > 1:
-            connection, cursor = getStaticReadingConn("src/resources/database/bot.db")
+            connection, cursor = getStaticReadingConn()
             nextAlt = False
             if self.genre == "m":
                 try:
@@ -250,12 +250,12 @@ class Pokemon:
                     self.label = temp[2]
 
                 except TypeError:
-                    next_alt = True
+                    prev_alt = True
                     pass
             else:
-                nextAlt = True
+                prev_alt = True
 
-            if nextAlt:
+            if prev_alt:
                 if self.alt != 0:
                     self.alt -= 1
                 else:
