@@ -19,13 +19,7 @@ class PokeCog(commands.Cog):
 
     @app_commands.command(name="poke", description="Catch a random pokémon!")
     async def slashPoke(self, interaction: discord.Interaction):
-        start_time = datetime.now()
-
         await pokeFunction(ContextAdapter(interaction))
-
-        end_time = datetime.now()
-        time_diff = end_time - start_time
-        print(f"slashPoke took {time_diff.total_seconds() * 1000} milliseconds!")
 
     @commands.command(name="pokeinfo")
     async def pokeinfo(self, context):
