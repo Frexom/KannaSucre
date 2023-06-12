@@ -1,8 +1,8 @@
-from src.resources.bot import *
-from src.resources.connection import *
-from src.resources.perms import *
-from src.resources.prefix import *
-from src.resources.ui import *
+import discord
+from discord import app_commands
+
+from src.resources.adapter import ContextAdapter
+from src.resources.perms import lack_perms, missing_perms
 
 
 async def prefixFunction(interaction: ContextAdapter, prefix: str):
@@ -22,9 +22,7 @@ async def prefixFunction(interaction: ContextAdapter, prefix: str):
                     await bot.connection.commit()
                     await cursor.close()
                 else:
-                    content = bot.translator.getLocalString(
-                        interaction, "prefixNoSpace", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "prefixNoSpace", [])
                     await interaction.sendMessage(content=content)
             else:
                 await missing_perms(interaction, "prefix", "manage guild")
@@ -34,7 +32,7 @@ async def prefixFunction(interaction: ContextAdapter, prefix: str):
 
 async def banFunction(
     interaction: ContextAdapter,
-    user: Union[discord.Member, discord.User],
+    user: discord.Member | discord.User,
     reason: str = None,
 ):
     if not interaction.getAuthor().bot:
@@ -70,9 +68,7 @@ async def banFunction(
                         + " / Triggered by "
                         + interaction.getAuthor().name
                     )
-                    content = bot.translator.getLocalString(
-                        interaction, "userBanned", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "userBanned", [])
                     await interaction.sendMessage(content=content)
                 else:
                     await lack_perms(interaction, "ban")
@@ -96,9 +92,7 @@ async def welcomeFunction(
 
                 if channel is None:
                     channel = 0
-                    content += bot.translator.getLocalString(
-                        interaction, "welcomeDisabled", []
-                    )
+                    content += bot.translator.getLocalString(interaction, "welcomeDisabled", [])
                     await cursor.execute(
                         "UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?",
                         (0, 0, interaction.getGuild().id),
@@ -120,9 +114,7 @@ async def welcomeFunction(
                             (channel, role.id, interaction.getGuild().id),
                         )
                     else:
-                        content += bot.translator.getLocalString(
-                            interaction, "welcomeNoRole", []
-                        )
+                        content += bot.translator.getLocalString(interaction, "welcomeNoRole", [])
                         await cursor.execute(
                             "UPDATE dis_guild SET guild_welcome_channel_id = ?, guild_welcome_role_id = ? WHERE guild_id=?",
                             (channel, 0, interaction.getGuild().id),
@@ -138,9 +130,7 @@ async def welcomeFunction(
             await dmUnavailable(interaction, "welcome")
 
 
-async def languageFunction(
-    interaction: ContextAdapter, language: app_commands.Choice[str]
-):
+async def languageFunction(interaction: ContextAdapter, language: app_commands.Choice[str]):
     if not interaction.getAuthor().bot:
         if interaction.getGuild() is not None:
             if interaction.getAuthor().guild_permissions.manage_guild:
@@ -178,14 +168,10 @@ async def announceFunction(
 
                 if channel.guild.id == interaction.getGuild().id:
                     message = await channel.send(authorCredit + message)
-                    content = bot.translator.getLocalString(
-                        interaction, "announceLink", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "announceLink", [])
                     await interaction.sendMessage(content=content + message.jump_url)
                 else:
-                    content = bot.translator.getLocalString(
-                        interaction, "channelGuild", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "channelGuild", [])
                     await interaction.sendMessage(content=content)
             else:
                 await missing_perms(interaction, "announce", "manage guild")
@@ -206,9 +192,7 @@ async def togglelevelsFunction(interaction: ContextAdapter, toggle: int):
                 await cursor.close()
 
                 if toggle == 1:
-                    content = bot.translator.getLocalString(
-                        interaction, "togglelevelsEnabled", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "togglelevelsEnabled", [])
                     await interaction.sendMessage(content=content)
                 else:
                     content = bot.translator.getLocalString(
@@ -245,9 +229,7 @@ async def giveawayFunction(
 
                     # If channel is found
                     if channelOnGuild:
-                        embed = GiveawayEmbed(
-                            interaction, duration, prize, role, bot.translator
-                        )
+                        embed = GiveawayEmbed(interaction, duration, prize, role, bot.translator)
 
                         # Try sending the giveaway
                         try:
@@ -264,9 +246,7 @@ async def giveawayFunction(
                             )
                             await interaction.sendMessage(content=content)
 
-                        content = bot.translator.getLocalString(
-                            interaction, "giveawayCreated", []
-                        )
+                        content = bot.translator.getLocalString(interaction, "giveawayCreated", [])
                         await interaction.sendMessage(content=content)
 
                         cursor = await bot.connection.cursor()
@@ -296,14 +276,10 @@ async def giveawayFunction(
                         await cursor.close()
 
                     else:
-                        content = bot.translator.getLocalString(
-                            interaction, "channelGuild", []
-                        )
+                        content = bot.translator.getLocalString(interaction, "channelGuild", [])
                         await interaction.sendMessage(content=content)
                 else:
-                    content = bot.translator.getLocalString(
-                        interaction, "giveawayNoDuration", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "giveawayNoDuration", [])
                     await interaction.sendMessage(content=content)
             else:
                 await missing_perms(interaction, "giveaway", "manage guild")
@@ -331,9 +307,7 @@ async def addlevelFunction(interaction: ContextAdapter, level: int, role: discor
         if interaction.getGuild() is not None:
             if interaction.getAuthor().guild_permissions.manage_guild:
                 if role.name == "@everyone":
-                    content = bot.translator.getLocalString(
-                        interaction, "addlevelEveryone", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "addlevelEveryone", [])
                     await interaction.sendMessage(content=content, ephemeral=True)
                     return
 

@@ -1,7 +1,19 @@
-from src.functions.adminFunctions import *
-from src.resources.connection import *
-from src.resources.perms import *
-from src.resources.prefix import *
+import discord
+from discord import app_commands
+from discord.ext import commands
+
+from src.functions.adminFunctions import (
+    addlevelFunction,
+    announceFunction,
+    banFunction,
+    editlevelsFunction,
+    giveawayFunction,
+    languageFunction,
+    prefixFunction,
+    togglelevelsFunction,
+    welcomeFunction,
+)
+from src.resources.adapter import ContextAdapter
 
 
 class AdminCog(commands.Cog):
@@ -40,13 +52,11 @@ class AdminCog(commands.Cog):
     @app_commands.command(
         name="ban", description="Bans a specified user, a reason can be given or not."
     )
-    @app_commands.describe(
-        user="The user to ban.", reason="The reason to ban the user."
-    )
+    @app_commands.describe(user="The user to ban.", reason="The reason to ban the user.")
     async def slashBan(
         self,
         interaction: discord.Interaction,
-        user: Union[discord.Member, discord.User],
+        user: discord.Member | discord.User,
         reason: str = None,
     ):
         await banFunction(ContextAdapter(interaction), user, reason)
@@ -64,9 +74,7 @@ class AdminCog(commands.Cog):
                 await welcomeFunction(ContextAdapter(context), channel)
         else:
             await context.send(
-                "```"
-                + context.prefix
-                + "welcome *mention channel* *mention role(optional)*```"
+                "```" + context.prefix + "welcome *mention channel* *mention role(optional)*```"
             )
 
     @app_commands.command(
@@ -99,13 +107,12 @@ class AdminCog(commands.Cog):
     @app_commands.choices(
         language=[
             app_commands.Choice(name="English", value="en"),
-            app_commands.Choice(name="French", value="fr")
-            # ,app_commands.Choice(name="Turkish", value="tr")
+            app_commands.Choice(name="French", value="fr"),
         ]
     )
     @app_commands.describe(language="The language you want KannaSucre to use.")
     async def slashLanguage(
-        self, interaction: discord.Interaction, language: app_commands.Choice[str]
+        self, interaction: discord.Interaction, language: discord.app_commands.Choice[str]
     ):
         await languageFunction(ContextAdapter(interaction), language.value)
 
@@ -117,9 +124,7 @@ class AdminCog(commands.Cog):
             announcement = " ".join(message[2:])
             await announceFunction(ContextAdapter(context), channel[0], announcement)
         else:
-            await context.send(
-                "```" + context.prefix + "announce *mention channel* *message*```"
-            )
+            await context.send("```" + context.prefix + "announce *mention channel* *message*```")
 
     @app_commands.command(
         name="announce", description="Sends a custom announcement on a set channel."
@@ -143,9 +148,7 @@ class AdminCog(commands.Cog):
         else:
             await context.send("```" + context.prefix + "togglelevels 0 or 1```")
 
-    @app_commands.command(
-        name="togglelevels", description="Enable or disable the level feature."
-    )
+    @app_commands.command(name="togglelevels", description="Enable or disable the level feature.")
     @app_commands.choices(
         toggle=[
             app_commands.Choice(name="Disable", value=0),
@@ -159,9 +162,7 @@ class AdminCog(commands.Cog):
     @commands.command(name="giveaway")
     async def giveaway(self, context):
         if not context.author.bot:
-            content = bot.translator.getLocalString(
-                ContextAdapter(context), "giveawayPrefix", []
-            )
+            content = bot.translator.getLocalString(ContextAdapter(context), "giveawayPrefix", [])
             await context.send(content=content)
 
     @app_commands.command(name="giveaway", description="Creates a new giveaway!")
@@ -189,9 +190,7 @@ class AdminCog(commands.Cog):
     async def editlevels(self, context):
         await editlevelsFunction(ContextAdapter(context))
 
-    @app_commands.command(
-        name="editlevels", description="Edits the server's level rewards!"
-    )
+    @app_commands.command(name="editlevels", description="Edits the server's level rewards!")
     async def slashEditlevels(self, interaction):
         await editlevelsFunction(ContextAdapter(interaction))
 
@@ -209,9 +208,7 @@ class AdminCog(commands.Cog):
 
                 await addlevelFunction(ContextAdapter(context), level, role)
             else:
-                await context.send(
-                    "```" + context.prefix + "addlevel *number* *role*```"
-                )
+                await context.send("```" + context.prefix + "addlevel *number* *role*```")
 
     @app_commands.command(name="addlevel", description="Adds a level reward!")
     @app_commands.describe(level="The level to reach to get the role.")

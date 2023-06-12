@@ -1,4 +1,4 @@
-from src.resources.bot import *
+from src.resources.adapter import ContextAdapter
 
 
 async def missing_perms(

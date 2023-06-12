@@ -4,9 +4,8 @@ import time
 import discord
 from discord.ext import commands
 
-from src.resources.adapter import *
-from src.resources.locales import *
-from src.resources.prefix import *
+from src.resources.locales import Translator
+from src.resources.prefix import get_pre
 
 
 class PersistentBot(commands.Bot):
@@ -26,23 +25,17 @@ class PersistentBot(commands.Bot):
 
 
 class giveawayView(discord.ui.View):
-    def __init__(
-        self, translator: Translator = None, interaction: discord.Interaction = None
-    ):
+    def __init__(self, translator: Translator = None, interaction: discord.Interaction = None):
         super().__init__(timeout=None)
 
         if translator is not None:
             self.t = translator
 
         if interaction is not None:
-            self.register.label = self.t.getLocalString(
-                interaction, "giveawayRegister", []
-            )
+            self.register.label = self.t.getLocalString(interaction, "giveawayRegister", [])
 
     @discord.ui.button(label="tmp", custom_id="register")
-    async def register(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
+    async def register(self, interaction: discord.Interaction, button: discord.ui.Button):
         interaction = ContextAdapter(interaction)
         if self.t is not None:
             cursor = await interaction.getClient().connection.cursor()
@@ -74,9 +67,7 @@ class giveawayView(discord.ui.View):
                         )
                         await interaction.sendMessage(content=content, ephemeral=True)
                         return
-                    content = self.t.getLocalString(
-                        interaction, "giveawayRegistered", []
-                    )
+                    content = self.t.getLocalString(interaction, "giveawayRegistered", [])
                     await interaction.sendMessage(content=content, ephemeral=True)
                 else:
                     content = self.t.getLocalString(interaction, "giveawayMissRole", [])
@@ -123,9 +114,7 @@ class GiveawayEmbed(discord.Embed):
 
         ending = datetime.datetime.fromtimestamp(duration + time.time())
         name = translator.getLocalString(interaction, "giveawayEnds", [])
-        self.add_field(
-            name=name, value=ending.strftime("%d/%m/%Y %H:%M") + " UTC+1", inline=True
-        )
+        self.add_field(name=name, value=ending.strftime("%d/%m/%Y %H:%M") + " UTC+1", inline=True)
 
         value = (
             translator.getLocalString(interaction, "giveawayNone", [])

@@ -1,15 +1,14 @@
-from src.resources.bot import *
-from src.resources.connection import *
-from src.resources.prefix import *
+import discord
+from discord import app_commands
+
+from src.resources.adapter import ContextAdapter
 
 
 async def previewFunction(interaction: ContextAdapter, message: str):
     if await bot.is_owner(interaction.getAuthor()):
         await interaction.sendMessage(content=message)
     else:
-        await interaction.sendMessage(
-            content="You don't have the permission to use that."
-        )
+        await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
 async def sqlFunction(interaction: ContextAdapter, query: str):
@@ -22,9 +21,7 @@ async def sqlFunction(interaction: ContextAdapter, query: str):
             if result == None:
                 await interaction.sendMessage(content="None")
             else:
-                await interaction.sendMessage(
-                    content=query + "\n" + str(result), ephemeral=True
-                )
+                await interaction.sendMessage(content=query + "\n" + str(result), ephemeral=True)
         else:
 
             # Only getting rowcount, not comitting on this connection
@@ -64,29 +61,20 @@ async def sqlFunction(interaction: ContextAdapter, query: str):
             view.add_item(rollbackButton)
 
             await interaction.sendMessage(
-                content=query
-                + "\n"
-                + str(rowcount)
-                + " rows affected, do you want to commit?",
+                content=query + "\n" + str(rowcount) + " rows affected, do you want to commit?",
                 view=view,
                 ephemeral=True,
             )
     else:
-        await interaction.sendMessage(
-            content="You don't have the permission to use that."
-        )
+        await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
 async def databaseFunction(interaction: ContextAdapter):
     if await bot.is_owner(interaction.getAuthor()):
         await interaction.defer()
-        await interaction.followupSend(
-            file=discord.File("src/resources/database/bot.db")
-        )
+        await interaction.followupSend(file=discord.File("src/resources/database/bot.db"))
     else:
-        await interaction.sendMessage(
-            content="You don't have the permission to use that."
-        )
+        await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
 async def shutdownFunction(interaction: ContextAdapter):
@@ -99,9 +87,7 @@ async def shutdownFunction(interaction: ContextAdapter):
             nonlocal shutdownInteraction
             interaction = ContextAdapter(interaction)
             if interaction.getAuthor() == shutdownInteraction.getAuthor():
-                await shutdownInteraction.editOriginal(
-                    content="Shutting down...", view=None
-                )
+                await shutdownInteraction.editOriginal(content="Shutting down...", view=None)
                 await bot.close()
 
         shutButton = discord.ui.Button(
@@ -112,9 +98,7 @@ async def shutdownFunction(interaction: ContextAdapter):
         async def cancelCallback(interaction):
             interaction = ContextAdapter(interaction)
             if interaction.getAuthor() == shutdownInteraction.getAuthor():
-                await shutdownInteraction.editOriginal(
-                    content="Shutdown cancelled.", view=None
-                )
+                await shutdownInteraction.editOriginal(content="Shutdown cancelled.", view=None)
 
         cancelButton = discord.ui.Button(
             label="Cancel", style=discord.ButtonStyle.primary, emoji="❌"
@@ -128,9 +112,7 @@ async def shutdownFunction(interaction: ContextAdapter):
             content="Do you really want to shut down the bot?", view=view
         )
     else:
-        await interaction.sendMessage(
-            content="You don't have the permission to use that."
-        )
+        await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
 async def syncFunction(interaction: ContextAdapter):
@@ -152,9 +134,7 @@ async def syncFunction(interaction: ContextAdapter):
         message += f"Synced the tree to {ret}/{len(guilds)} guilds."
         await interaction.followupSend(content=message, ephemeral=True)
     else:
-        await interaction.sendMessage(
-            content="You don't have the permission to use that."
-        )
+        await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
 async def guildcountFunction(interaction: ContextAdapter):
@@ -165,9 +145,7 @@ async def guildcountFunction(interaction: ContextAdapter):
         )
         await interaction.sendMessage(content=content)
     else:
-        await interaction.sendMessage(
-            content="You don't have the permission to use that."
-        )
+        await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
 async def statusFunction(
@@ -180,9 +158,7 @@ async def statusFunction(
         await bot.change_presence(status=status.value, activity=activity)
         await interaction.sendMessage(content=f"Changed status to `{activity}`!")
     else:
-        await interaction.sendMessage(
-            content="You don't have the permission to use that."
-        )
+        await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
 async def reloadFunction(interaction: ContextAdapter):

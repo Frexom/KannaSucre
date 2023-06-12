@@ -1,10 +1,10 @@
-from PIL import Image, ImageDraw, ImageFont
+import discord
+from discord import app_commands
+from discord.ext import commands
 
-from src.functions.imageFunctions import *
-from src.resources.bot import *
-from src.resources.connection import *
-from src.resources.mentions import *
-from src.resources.prefix import *
+from src.functions.imageFunctions import levelFunction
+from src.resources.adapter import ContextAdapter
+from src.resources.mentions import get_target
 
 
 class ImageCog(commands.Cog):
@@ -19,9 +19,7 @@ class ImageCog(commands.Cog):
 
     @app_commands.command(name="level", description="Displays your level and XP.")
     @app_commands.describe(user="The user you want to see the level of.")
-    async def slashLevel(
-        self, interaction: discord.Interaction, user: discord.User = None
-    ):
+    async def slashLevel(self, interaction: discord.Interaction, user: discord.User = None):
         await levelFunction(ContextAdapter(interaction), user)
 
 

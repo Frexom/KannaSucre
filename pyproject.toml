@@ -3,6 +3,7 @@ name = "KannaSucre"
 version = "1.4.0"
 description = ""
 authors = ["Frexom <hugom2003@sfr.fr>"]
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -15,6 +16,12 @@ Pillow = "^9.5.0"
 pre-commit = "^3.3.1"
 black = "^23.3.0"
 
+[tool.black]
+line_length=99
+
+[tool.pycln]
+all = true
+
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

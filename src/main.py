@@ -1,7 +1,13 @@
+import os
 import random
+import time
 
-from src.functions.eventsFunctions import *
-from src.resources.bot import *
+import aiosqlite3
+import discord
+from discord.ext import tasks
+
+from src.functions.eventsFunctions import setup_func
+from src.resources.bot import bot
 
 
 @bot.event
@@ -17,13 +23,14 @@ async def on_ready():
             except discord.ext.commands.errors.ExtensionAlreadyLoaded:
                 print(f"{path}.{filename[:-3]} : Cog already loaded")
 
-    # Cog already loaded (while reconnecting)
-    # except discord.errors.ClientException:
-    # pass
+    try:
+        await bot.load_extension("src.functions.eventsFunctions")
+    except discord.ext.commands.errors.ExtensionAlreadyLoaded:
+        print(f"src.functions.eventsFunctions : Cog already loaded")
 
     # Downtime database update
     for i in range(len(bot.guilds)):
-        await setup_func(bot.guilds[i])
+        await setup_func(bot, bot.guilds[i])
 
     # Appearance
     game = discord.Game("Now with slash commands!")
@@ -77,6 +84,43 @@ async def checkEndedGiveaways():
         await bot.connection.commit()
 
     await cursor.close()
+
+
+@bot.tree.error
+async def on_app_command_error(
+    interaction: discord.Interaction, error: discord.app_commands.AppCommandError
+):
+    interaction = ContextAdapter(interaction)
+
+    if isinstance(error, discord.app_commands.errors.CommandInvokeError):
+        error = error.original
+
+    if isinstance(error, discord.Forbidden):
+        content = bot.translator.getLocalString(interaction, "kannaMissPerms", [])
+        await interaction.sendMessage(content=content)
+
+    # Error report
+    else:
+        me = await bot.fetch_user(os.environ["OWNER_ID"])
+        message = format_exc()
+        if len(message) >= 2000:
+            message = message.splitlines()
+            middle = int(len(message) / 2)
+
+            await me.send("\n".join(message[:middle]))
+            await me.send("\n".join(message[middle:]))
+        else:
+            await me.send(message)
+
+        content = bot.translator.getLocalString(interaction, "kannaError", [])
+        try:
+            await interaction.sendMessage(content=content)
+        except Exception as e:
+            try:
+                await interaction.followupSend(content=content, view=None, embed=None)
+            except Exception:
+                return
+    return
 
 
 bot.run(os.environ["TOKEN"])

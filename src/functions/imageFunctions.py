@@ -1,12 +1,10 @@
-from PIL import Image, ImageDraw, ImageFont
+import discord
 
-from src.resources.bot import *
-from src.resources.connection import *
-from src.resources.mentions import *
-from src.resources.prefix import *
+from src.resources.adapter import ContextAdapter
 
 
 async def levelFunction(interaction: ContextAdapter, user: discord.User = None):
+    await interaction.defer()
     # If no user specified, user is author
     if user is None:
         user = interaction.getAuthor()
@@ -22,9 +20,7 @@ async def levelFunction(interaction: ContextAdapter, user: discord.User = None):
         await cursor.close()
 
         # Pasting pfp on level image
-        await user.display_avatar.save(
-            fp="src/LevelCommand/Users/" + str(user.id) + ".png"
-        )
+        await user.display_avatar.save(fp="src/LevelCommand/Users/" + str(user.id) + ".png")
         image = Image.open("src/LevelCommand/Base.png")
         ProfilePic = Image.open("src/LevelCommand/Users/" + str(user.id) + ".png")
         ProfilePic = ProfilePic.resize((190, 190))
@@ -63,22 +59,12 @@ async def levelFunction(interaction: ContextAdapter, user: discord.User = None):
 
         # Render level
         font = ImageFont.truetype("src/LevelCommand/coolvetica.ttf", size=40)
-        level = (
-            "Level "
-            + str(stats[0])
-            + "\n"
-            + str(stats[1])
-            + "/"
-            + str(500 * stats[0])
-            + "XP"
-        )
+        level = "Level " + str(stats[0]) + "\n" + str(stats[1]) + "/" + str(500 * stats[0]) + "XP"
         d.multiline_text((80, 75), level, font=font, fill=(90, 90, 90))
 
         # Render commands count
         font = ImageFont.truetype("src/LevelCommand/coolvetica.ttf", size=28)
-        d.text(
-            (80, 200), "Commands run: " + str(stats[2]), font=font, fill=(120, 120, 120)
-        )
+        d.text((80, 200), "Commands run: " + str(stats[2]), font=font, fill=(120, 120, 120))
 
         # Save and send file
         image.save("src/LevelCommand/Users/stats" + str(user.id) + ".png")
