@@ -1,8 +1,17 @@
-from src.functions.utilitiesFunctions import *
-from src.resources.bot import *
-from src.resources.mentions import *
-from src.resources.perms import *
-from src.resources.prefix import *
+import discord
+from discord import app_commands
+from discord.ext import commands
+
+from src.functions.utilitiesFunctions import (
+    dailyFunction,
+    diceFunction,
+    helpFunction,
+    servericonFunction,
+    servrankFunction,
+    supportserverFunction,
+    usericonFunction,
+)
+from src.resources.adapter import ContextAdapter
 
 
 class UtilitiesCog(commands.Cog):
@@ -42,7 +51,7 @@ class UtilitiesCog(commands.Cog):
     async def slashUsericon(
         self,
         interaction: discord.Interaction,
-        member: Union[discord.Member, discord.User] = None,
+        member: discord.Member | discord.User = None,
     ):
         await usericonFunction(ContextAdapter(interaction), member)
 
@@ -69,9 +78,7 @@ class UtilitiesCog(commands.Cog):
     async def servrank(self, context):
         await servrankFunction(ContextAdapter(context))
 
-    @app_commands.command(
-        name="servrank", description="See this server's most active members!"
-    )
+    @app_commands.command(name="servrank", description="See this server's most active members!")
     async def slashServrank(self, interaction: discord.Interaction):
         await servrankFunction(ContextAdapter(interaction))
 

@@ -1,13 +1,9 @@
-import random
+import discord
 
-from src.resources.bot import *
-from src.resources.connection import *
-from src.resources.prefix import *
+from src.resources.adapter import ContextAdapter
 
 
-async def hugFunction(
-    interaction: ContextAdapter, user: Union[discord.Member, discord.User]
-):
+async def hugFunction(interaction: ContextAdapter, user: discord.Member | discord.User):
     if not interaction.getAuthor().bot:
         hugList = [
             "https://media1.tenor.com/images/89272929c73eefcca4b5f0ec8fe30316/tenor.gif",
@@ -71,9 +67,7 @@ async def hugFunction(
             e = discord.Embed(title=title)
             link = str(hugList[random.randint(0, len(hugList) - 1)])
             e.set_image(url=link)
-        await interaction.sendMessage(
-            content=(user.mention or None) + "\n" + link, embed=e
-        )
+        await interaction.sendMessage(content=(user.mention or None) + "\n" + link, embed=e)
 
 
 async def standFunction(interaction: ContextAdapter):

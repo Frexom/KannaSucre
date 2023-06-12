@@ -1,7 +1,21 @@
-from src.functions.ownerFunctions import *
-from src.resources.bot import *
-from src.resources.connection import *
-from src.resources.prefix import *
+import os
+
+import discord
+from discord import app_commands
+from discord.ext import commands
+
+from src.functions.ownerFunctions import (
+    databaseFunction,
+    guildcountFunction,
+    previewFunction,
+    reloadFunction,
+    shutdownFunction,
+    sqlFunction,
+    statusFunction,
+    syncFunction,
+)
+from src.resources.adapter import ContextAdapter
+from src.resources.prefix import get_pre
 
 
 class OwnerCog(commands.Cog):
@@ -15,9 +29,7 @@ class OwnerCog(commands.Cog):
         message = " ".join(message)
         await previewFunction(ContextAdapter(context), message)
 
-    @app_commands.command(
-        name="preview", description="Makes the bot repeat what you just said."
-    )
+    @app_commands.command(name="preview", description="Makes the bot repeat what you just said.")
     @app_commands.describe(message="The message to repeat.")
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashPreview(self, interaction: discord.Interaction, message: str):
@@ -54,9 +66,7 @@ class OwnerCog(commands.Cog):
     async def shutdown(self, context):
         await shutdownFunction(ContextAdapter(context))
 
-    @app_commands.command(
-        name="shutdown", description="Shuts down the bot, BE CAREFUL."
-    )
+    @app_commands.command(name="shutdown", description="Shuts down the bot, BE CAREFUL.")
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashShutdown(self, interaction: discord.Interaction):
         await shutdownFunction(ContextAdapter(interaction))
@@ -108,9 +118,7 @@ class OwnerCog(commands.Cog):
     async def guildcount(self, context):
         await guildcountFunction(ContextAdapter(context))
 
-    @app_commands.command(
-        name="guildcount", description="Shows how many guilds the bot is in."
-    )
+    @app_commands.command(name="guildcount", description="Shows how many guilds the bot is in.")
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashGuildcount(self, interaction: discord.Interaction):
         await guildcountFunction(ContextAdapter(interaction))

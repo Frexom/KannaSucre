@@ -1,7 +1,10 @@
-from src.functions.moderationFunctions import *
-from src.resources.mentions import *
-from src.resources.perms import *
-from src.resources.prefix import *
+import discord
+from discord import app_commands
+from discord.ext import commands
+
+from src.functions.moderationFunctions import clearFunction, kickFunction, pruneFunction
+from src.resources.adapter import ContextAdapter
+from src.resources.mentions import get_mention
 
 
 class ModerationCog(commands.Cog):
@@ -14,9 +17,7 @@ class ModerationCog(commands.Cog):
         if user is not None:
             await pruneFunction(ContextAdapter(context), user)
         else:
-            await context.send(
-                "```" + context.prefix + "prune *mention targeted user*```"
-            )
+            await context.send("```" + context.prefix + "prune *mention targeted user*```")
 
     @app_commands.command(
         name="prune",
@@ -26,7 +27,7 @@ class ModerationCog(commands.Cog):
     async def slashPrune(
         self,
         interaction: discord.Interaction,
-        user: Union[discord.Member, discord.User],
+        user: discord.Member | discord.User,
     ):
         await pruneFunction(ContextAdapter(interaction), user)
 
@@ -61,13 +62,11 @@ class ModerationCog(commands.Cog):
     @app_commands.command(
         name="kick", description="Kicks a specified user, a reason can be given or not."
     )
-    @app_commands.describe(
-        user="The user to kick.", reason="The reason to kick the user."
-    )
+    @app_commands.describe(user="The user to kick.", reason="The reason to kick the user.")
     async def slashKick(
         self,
         interaction: discord.Interaction,
-        user: Union[discord.Member, discord.User],
+        user: discord.Member | discord.User,
         reason: str = None,
     ):
         await kickFunction(ContextAdapter(interaction), user, reason)

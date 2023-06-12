@@ -1,6 +1,3 @@
-import discord
-
-
 def get_target(ctx):
     if len(ctx.message.mentions) > 0:
         return ctx.message.mentions[0]

@@ -1,11 +1,6 @@
 import csv
 import os
 
-import discord
-
-from src.resources.adapter import *
-from src.resources.connection import *
-
 
 class Translator:
     def __init__(self):
@@ -56,9 +51,7 @@ class Translator:
 
                 # Database query
                 connection, cursor = getStaticReadingConn()
-                cursor.execute(
-                    "SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (id,)
-                )
+                cursor.execute("SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (id,))
                 locale = cursor.fetchone()
                 closeStaticConn(connection, cursor)
                 self.locales[id] = locale[0]
@@ -104,16 +97,12 @@ class Translator:
         locale = self.getLocaleFromInteraction(interaction)
         name = name.lower()
 
-        keys = [
-            key for key, value in self.poke[locale].items() if value.lower() == name
-        ]
+        keys = [key for key, value in self.poke[locale].items() if value.lower() == name]
         if len(keys) == 1:
             return int(keys[0][4:])
 
         if locale != "en":
-            keys = [
-                key for key, value in self.poke["en"].items() if value.lower() == name
-            ]
+            keys = [key for key, value in self.poke["en"].items() if value.lower() == name]
             if len(keys) == 1:
                 return int(keys[0][4:])
         return 0

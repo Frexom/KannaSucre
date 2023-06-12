@@ -1,12 +1,9 @@
-from src.resources.bot import *
-from src.resources.mentions import *
-from src.resources.perms import *
-from src.resources.prefix import *
+import discord
+
+from src.resources.adapter import ContextAdapter
 
 
-async def pruneFunction(
-    interaction: ContextAdapter, user: Union[discord.Member, discord.User]
-):
+async def pruneFunction(interaction: ContextAdapter, user: discord.Member | discord.User):
     if not interaction.getAuthor().bot:
         if interaction.getGuild() is not None:
             if interaction.getAuthor().guild_permissions.manage_messages:
@@ -56,9 +53,7 @@ async def clearFunction(interaction: ContextAdapter, amount: int):
                     if interaction.isContext():
                         amount += 1
                     else:
-                        content = bot.translator.getLocalString(
-                            interaction, "clearDelete", []
-                        )
+                        content = bot.translator.getLocalString(interaction, "clearDelete", [])
                         await interaction.sendMessage(content=content, ephemeral=True)
 
                     try:
@@ -73,9 +68,7 @@ async def clearFunction(interaction: ContextAdapter, amount: int):
                             mess_count += -1
 
                     except discord.errors.Forbidden:
-                        content = bot.translator.getLocalString(
-                            interaction, "noAccess", []
-                        )
+                        content = bot.translator.getLocalString(interaction, "noAccess", [])
                         await interaction.followupSend(content=content)
                         return
 
@@ -87,9 +80,7 @@ async def clearFunction(interaction: ContextAdapter, amount: int):
                     else:
                         await interaction.editOriginal(content=content)
                 else:
-                    content = bot.translator.getLocalString(
-                        interaction, "clearMore", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "clearMore", [])
                     await interaction.sendMessage(content=content)
             else:
                 await missing_perms(interaction, "clear", "manage messages")
@@ -99,7 +90,7 @@ async def clearFunction(interaction: ContextAdapter, amount: int):
 
 async def kickFunction(
     interaction: ContextAdapter,
-    user: Union[discord.Member, discord.User],
+    user: discord.Member | discord.User,
     reason: str = None,
 ):
     if not interaction.getAuthor().bot:
@@ -135,9 +126,7 @@ async def kickFunction(
                         + " / Triggered by "
                         + interaction.getAuthor().name
                     )
-                    content = bot.translator.getLocalString(
-                        interaction, "userKicked", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "userKicked", [])
                     await interaction.sendMessage(content=content)
 
                 else:

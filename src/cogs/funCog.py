@@ -1,8 +1,10 @@
-from src.functions.funFunctions import *
-from src.resources.bot import *
-from src.resources.connection import *
-from src.resources.mentions import *
-from src.resources.prefix import *
+import discord
+from discord import app_commands
+from discord.ext import commands
+
+from src.functions.funFunctions import hugFunction, standFunction
+from src.resources.adapter import ContextAdapter
+from src.resources.mentions import get_target
 
 
 class FunCog(commands.Cog):
@@ -18,7 +20,7 @@ class FunCog(commands.Cog):
     async def slashHug(
         self,
         interaction: discord.Interaction,
-        user: Union[discord.Member, discord.User],
+        user: discord.Member | discord.User,
     ):
         await hugFunction(ContextAdapter(interaction), user)
 

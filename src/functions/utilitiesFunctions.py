@@ -1,7 +1,6 @@
-import random
+import discord
 
-from src.resources.bot import *
-from src.resources.perms import *
+from src.resources.adapter import ContextAdapter
 
 
 async def diceFunction(interaction: ContextAdapter, max: int = 6):
@@ -26,7 +25,7 @@ async def servericonFunction(interaction: ContextAdapter):
 
 
 async def usericonFunction(
-    interaction: ContextAdapter, member: Union[discord.Member, discord.User] = None
+    interaction: ContextAdapter, member: discord.Member | discord.User = None
 ):
     if not interaction.getAuthor().bot:
         if member == None:
@@ -109,9 +108,7 @@ async def servrankFunction(interaction: ContextAdapter):
             i += 1
 
         if description == "":
-            description = bot.translator.getLocalString(
-                interaction, "servrankEmpty", []
-            )
+            description = bot.translator.getLocalString(interaction, "servrankEmpty", [])
 
         title = bot.translator.getLocalString(interaction, "pokerank", [])
         embed = discord.Embed(title=title, colour=discord.Colour(0x635F))
@@ -134,18 +131,10 @@ async def helpFunction(interaction: ContextAdapter, command: str = None):
         if command == None:
 
             categories = []
-            categories.append(
-                bot.translator.getLocalString(interaction, "helpCatAdmin", [])
-            )
-            categories.append(
-                bot.translator.getLocalString(interaction, "helpCatMod", [])
-            )
-            categories.append(
-                bot.translator.getLocalString(interaction, "helpCatUtil", [])
-            )
-            categories.append(
-                bot.translator.getLocalString(interaction, "helpCatMisc", [])
-            )
+            categories.append(bot.translator.getLocalString(interaction, "helpCatAdmin", []))
+            categories.append(bot.translator.getLocalString(interaction, "helpCatMod", []))
+            categories.append(bot.translator.getLocalString(interaction, "helpCatUtil", []))
+            categories.append(bot.translator.getLocalString(interaction, "helpCatMisc", []))
 
             await cursor.execute(
                 "SELECT com_name, cat_category FROM com_command ORDER BY cat_category, com_name"
@@ -189,34 +178,20 @@ async def helpFunction(interaction: ContextAdapter, command: str = None):
                         description=description,
                     )
                     embed.set_thumbnail(url=bot.user.avatar.url)
-                    name = bot.translator.getLocalString(
-                        interaction, "helpUserPerms", []
-                    )
-                    embed.add_field(
-                        name=name, value="`" + commands[i][2] + "`", inline=True
-                    )
-                    name = bot.translator.getLocalString(
-                        interaction, "helpKannaPerms", []
-                    )
+                    name = bot.translator.getLocalString(interaction, "helpUserPerms", [])
+                    embed.add_field(name=name, value="`" + commands[i][2] + "`", inline=True)
+                    name = bot.translator.getLocalString(interaction, "helpKannaPerms", [])
                     embed.add_field(
                         name="Kanna's perms :",
                         value="`" + commands[i][3] + "`",
                         inline=True,
                     )
                     if commands[i][4] is not None:
-                        answer = bot.translator.getLocalString(
-                            interaction, "helpNo", []
-                        )
+                        answer = bot.translator.getLocalString(interaction, "helpNo", [])
                         if int(commands[i][4]) == 1:
-                            answer = bot.translator.getLocalString(
-                                interaction, "helpYes", []
-                            )
-                        name = bot.translator.getLocalString(
-                            interaction, "helpMorePerms", []
-                        )
-                        embed.add_field(
-                            name=name, value="```" + answer + "```", inline=False
-                        )
+                            answer = bot.translator.getLocalString(interaction, "helpYes", [])
+                        name = bot.translator.getLocalString(interaction, "helpMorePerms", [])
+                        embed.add_field(name=name, value="```" + answer + "```", inline=False)
                     name = bot.translator.getLocalString(interaction, "helpExample", [])
                     embed.add_field(
                         name=name,

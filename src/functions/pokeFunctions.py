@@ -1,9 +1,6 @@
-from src.resources.bot import *
-from src.resources.connection import *
-from src.resources.mentions import *
-from src.resources.pokemon import *
-from src.resources.prefix import *
-from src.resources.ui import *
+import discord
+
+from src.resources.adapter import ContextAdapter
 
 
 async def pokeFunction(interaction: ContextAdapter):
@@ -68,11 +65,7 @@ async def pokeFunction(interaction: ContextAdapter):
             desc = ""
 
             # Pokémon form
-            if (
-                pokemon.label != "Normal"
-                and pokemon.label != "Female"
-                and pokemon.label != "Male"
-            ):
+            if pokemon.label != "Normal" and pokemon.label != "Female" and pokemon.label != "Male":
                 desc += bot.translator.getLocalString(
                     interaction, "pokeForm", [("form", pokemon.label)]
                 )
@@ -136,9 +129,7 @@ async def pokeFunction(interaction: ContextAdapter):
             await rollsFunction(interaction)
 
 
-async def pokeinfoFunction(
-    interaction: ContextAdapter, id: int = None, name: str = None
-):
+async def pokeinfoFunction(interaction: ContextAdapter, id: int = None, name: str = None):
     if not interaction.getAuthor().bot:
         if id is not None or name is not None:
             if name is not None:
@@ -148,12 +139,8 @@ async def pokeinfoFunction(
 
             # If poke_id is Illegal
             if poke_id > poke_count or poke_id <= 0:
-                title = bot.translator.getLocalString(
-                    interaction, "pokeinfoNotFound", []
-                )
-                description = bot.translator.getLocalString(
-                    interaction, "pokeinfoNoSuch", []
-                )
+                title = bot.translator.getLocalString(interaction, "pokeinfoNotFound", [])
+                description = bot.translator.getLocalString(interaction, "pokeinfoNoSuch", [])
                 e = discord.Embed(title=title, description=description)
                 await interaction.sendMessage(embed=e)
                 return
@@ -166,9 +153,7 @@ async def pokeinfoFunction(
             linkType = await cursor.fetchone()
             await cursor.close()
             linkType = linkType[0]
-            pokemon = Pokemon(
-                interaction=interaction, linkType=linkType, pokeID=poke_id
-            )
+            pokemon = Pokemon(interaction=interaction, linkType=linkType, pokeID=poke_id)
             buttonView = ClearView(interaction, timeout=90)
 
             # Callback definition, and buttons generation
@@ -190,9 +175,7 @@ async def pokeinfoFunction(
             devolveButton = discord.ui.Button(
                 label=label, style=discord.ButtonStyle.secondary, emoji="⏬", row=3
             )
-            sugimori = discord.ui.Button(
-                label="Sprites", style=discord.ButtonStyle.success, row=3
-            )
+            sugimori = discord.ui.Button(label="Sprites", style=discord.ButtonStyle.success, row=3)
 
             filler1 = discord.ui.Button(label="⠀⠀⠀", row=1, disabled=True)
             filler2 = discord.ui.Button(label="⠀⠀⠀", row=1, disabled=True)
@@ -254,9 +237,7 @@ async def pokeinfoFunction(
                     else:
                         pokemon.evolve()
                         await interaction.editMessage(
-                            content=pokemon.shiny_link
-                            if pokemon.shiny
-                            else pokemon.link,
+                            content=pokemon.shiny_link if pokemon.shiny else pokemon.link,
                             embed=pokemon.get_pokeinfo_embed(),
                         )
 
@@ -285,13 +266,9 @@ async def pokeinfoFunction(
                     embed=pokemon.get_pokeinfo_embed(),
                 )
                 if pokemon.linkType == 1:
-                    content = bot.translator.getLocalString(
-                        interaction, "pokeinfoSugimori", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "pokeinfoSugimori", [])
                 else:
-                    content = bot.translator.getLocalString(
-                        interaction, "pokeinfoHome", []
-                    )
+                    content = bot.translator.getLocalString(interaction, "pokeinfoHome", [])
 
                 await interaction.sendMessage(content=content, ephemeral=True)
 
@@ -371,9 +348,7 @@ async def rollsFunction(interaction: ContextAdapter):
     await cursor.close()
 
 
-async def pokedexFunction(
-    interaction: ContextAdapter, user: discord.User = None, page: int = 1
-):
+async def pokedexFunction(interaction: ContextAdapter, user: discord.User = None, page: int = 1):
     if not interaction.getAuthor().bot:
         if user is None:
             user = interaction.getAuthor()
