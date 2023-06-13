@@ -1,3 +1,6 @@
+from src.resources.connection import closeConn, getReadingConn
+
+
 async def get_pre(message, message2=None):
     if message2 != None:
         message = message2

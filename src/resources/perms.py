@@ -2,7 +2,7 @@ from src.resources.adapter import ContextAdapter
 
 
 async def missing_perms(
-    interaction: ContextAdapter, command_name: str, perms: str = "Not renseigned"
+    bot, interaction: ContextAdapter, command_name: str, perms: str = "Not renseigned"
 ):
     content = bot.translator.getLocalString(
         interaction,
@@ -12,7 +12,7 @@ async def missing_perms(
     await interaction.sendMessage(content=content, ephemeral=True)
 
 
-async def lack_perms(interaction: ContextAdapter, command_name: str):
+async def lack_perms(bot, interaction: ContextAdapter, command_name: str):
     content = bot.translator.getLocalString(
         interaction, "lackPerms", [("commandName", command_name)]
     )

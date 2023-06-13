@@ -1,9 +1,11 @@
+import random
+
 import discord
 
 from src.resources.adapter import ContextAdapter
 
 
-async def diceFunction(interaction: ContextAdapter, max: int = 6):
+async def diceFunction(bot, interaction: ContextAdapter, max: int = 6):
     if not interaction.getAuthor().bot:
         number = str(random.randint(1, max))
         content = bot.translator.getLocalString(
@@ -12,7 +14,7 @@ async def diceFunction(interaction: ContextAdapter, max: int = 6):
         await interaction.sendMessage(content=content)
 
 
-async def servericonFunction(interaction: ContextAdapter):
+async def servericonFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
         if interaction.getGuild() is not None:
             if interaction.getGuild().icon is None:
@@ -25,7 +27,7 @@ async def servericonFunction(interaction: ContextAdapter):
 
 
 async def usericonFunction(
-    interaction: ContextAdapter, member: discord.Member | discord.User = None
+    bot, interaction: ContextAdapter, member: discord.Member | discord.User = None
 ):
     if not interaction.getAuthor().bot:
         if member == None:
@@ -34,14 +36,14 @@ async def usericonFunction(
         await interaction.sendMessage(content=member.display_avatar.url or content)
 
 
-async def supportserverFunction(interaction: ContextAdapter):
+async def supportserverFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
         link = os.environ["SUPPORTSERVERLINK"]
         content = bot.translator.getLocalString(interaction, "supportServer", [])
         await interaction.sendMessage(content=content + link)
 
 
-async def dailyFunction(interaction: ContextAdapter):
+async def dailyFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
 
         cursor = await bot.connection.cursor()
@@ -79,7 +81,7 @@ async def dailyFunction(interaction: ContextAdapter):
         await cursor.close()
 
 
-async def servrankFunction(interaction: ContextAdapter):
+async def servrankFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
 
         await interaction.defer()
@@ -125,7 +127,7 @@ async def servrankFunction(interaction: ContextAdapter):
         await interaction.followupSend(embed=embed)
 
 
-async def helpFunction(interaction: ContextAdapter, command: str = None):
+async def helpFunction(bot, interaction: ContextAdapter, command: str = None):
     if not interaction.getAuthor().bot:
         cursor = await bot.connection.cursor()
         if command == None:

@@ -1,7 +1,12 @@
+import os
+import random
+import time
+
 import discord
 from discord.ext import commands
 
 from src.resources.adapter import ContextAdapter
+from src.resources.prefix import get_pre
 
 
 async def setup_func(bot, guild):
@@ -49,7 +54,7 @@ class EventsCog(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_command_error(context, error):
+    async def on_command_error(self, context, error):
         context = ContextAdapter(context)
         if isinstance(error, commands.CommandInvokeError):
             error = error.original
@@ -57,19 +62,19 @@ class EventsCog(commands.Cog):
             return
         elif isinstance(error, discord.errors.Forbidden):
             try:
-                content = bot.translator.getLocalString(context, "kannaMissPerms", [])
+                content = self.bot.translator.getLocalString(context, "kannaMissPerms", [])
                 await context.sendMessage(content=content)
                 return
             except Exception as e:
                 return
 
-        me = await bot.fetch_user(os.environ["OWNER_ID"])
+        me = await self.bot.fetch_user(os.environ["OWNER_ID"])
         await me.send(error)
         raise error
 
     @commands.Cog.listener()
-    async def on_member_join(member):
-        cursor = await bot.connection.cursor()
+    async def on_member_join(self, member):
+        cursor = await self.bot.connection.cursor()
         await cursor.execute(
             "SELECT guild_welcome_channel_id, guild_welcome_role_id FROM dis_guild WHERE guild_id = ?",
             (member.guild.id,),
@@ -78,9 +83,9 @@ class EventsCog(commands.Cog):
         channel_ID = welcomeSettings[0]
         role_ID = welcomeSettings[1]
         if channel_ID != 0:
-            welcome_channel: discord.TextChannel = bot.get_channel(channel_ID)
+            welcome_channel: discord.TextChannel = self.bot.get_channel(channel_ID)
             if welcome_channel is not None:
-                content = bot.translator.getLocalString(
+                content = self.bot.translator.getLocalString(
                     member, "welcome", [("memberID", str(member.id))]
                 )
                 await welcome_channel.send(content=content)
@@ -92,7 +97,7 @@ class EventsCog(commands.Cog):
                     await member.add_roles(welcome_role, reason="Gave welcome role")
                 except discord.errors.Forbidden as e:
                     try:
-                        content = bot.translator.getLocalString(
+                        content = self.bot.translator.getLocalString(
                             member, "errorWelcomeRole", [("guild", member.guild.name)]
                         )
                         await member.guild.owner.send(content=content)
@@ -128,12 +133,12 @@ class EventsCog(commands.Cog):
                     (member.id, member.guild.id),
                 )
 
-            await bot.connection.commit()
+            await self.bot.connection.commit()
         await cursor.close()
 
     @commands.Cog.listener()
-    async def on_member_remove(member):
-        cursor = await bot.connection.cursor()
+    async def on_member_remove(self, member):
+        cursor = await self.bot.connection.cursor()
         await cursor.execute(
             "SELECT guild_welcome_channel_ID FROM dis_guild WHERE guild_id = ?",
             (member.guild.id,),
@@ -142,9 +147,9 @@ class EventsCog(commands.Cog):
         await cursor.close()
 
         if channel_ID[0] != 0:
-            welcome_channel: discord.TextChannel = bot.get_channel(channel_ID[0])
+            welcome_channel: discord.TextChannel = self.bot.get_channel(channel_ID[0])
             if welcome_channel is not None:
-                content = bot.translator.getLocalString(
+                content = self.bot.translator.getLocalString(
                     member,
                     "goodbye",
                     [("memberName", member.name + "#" + member.discriminator)],
@@ -152,20 +157,24 @@ class EventsCog(commands.Cog):
                 await welcome_channel.send(content=content)
 
     @commands.Cog.listener()
-    async def on_guild_join(guild):
+    async def on_guild_join(self, guild):
         await setup_func(self.bot, guild)
 
     @commands.Cog.listener()
-    async def on_message(message):
+    async def on_message(self, message):
         if not message.author.bot:
 
             # Prefix
             if message.content.lower() == "ping":
                 prefix = await get_pre(message)
                 await message.channel.send(
-                    "Pong! `" + str(int(bot.latency * 1000)) + "ms`\nPrefix : `" + prefix + "`"
+                    "Pong! `"
+                    + str(int(self.bot.latency * 1000))
+                    + "ms`\nPrefix : `"
+                    + prefix
+                    + "`"
                 )
-            cursor = await bot.connection.cursor()
+            cursor = await self.bot.connection.cursor()
 
             # Levels
             await cursor.execute(
@@ -228,7 +237,7 @@ class EventsCog(commands.Cog):
                                 success = False
 
                         if roleName == "" or not success:
-                            content = bot.translator.getLocalString(
+                            content = self.bot.translator.getLocalString(
                                 message,
                                 "levelUp",
                                 [
@@ -243,7 +252,7 @@ class EventsCog(commands.Cog):
                                 except Exception as e:
                                     pass
                         else:
-                            content = bot.translator.getLocalString(
+                            content = self.bot.translator.getLocalString(
                                 message,
                                 "levelUpRole",
                                 [
@@ -259,39 +268,36 @@ class EventsCog(commands.Cog):
                         (guildXP, guildLevel, message.author.id, message.guild.id),
                     )
 
-            await bot.connection.commit()
+            await self.bot.connection.commit()
             await cursor.close()
 
-            # Runs commands if it exists
-            await bot.process_commands(message)
-
     @commands.Cog.listener()
-    async def on_user_update(before: discord.User, after: discord.User):
+    async def on_user_update(self, before: discord.User, after: discord.User):
         if before.name != after.name:
-            cursor = await bot.connection.cursor()
+            cursor = await self.bot.connection.cursor()
             await cursor.execute(
                 "UPDATE dis_user SET user_name = ? WHERE user_id = ?",
                 (after.name, before.id),
             )
-            await bot.connection.commit()
+            await self.bot.connection.commit()
             await cursor.close()
 
     @commands.Cog.listener()
-    async def on_command_completion(ctx):
+    async def on_command_completion(self, ctx):
         if not ctx.author.bot:
-            cursor = await bot.connection.cursor()
+            cursor = await self.bot.connection.cursor()
             await cursor.execute(
                 "INSERT INTO com_history (com_name, user_id, date) VALUES (?,?,?)",
                 (ctx.command.name, ctx.author.id, time.time()),
             )
-            await bot.connection.commit()
+            await self.bot.connection.commit()
             await cursor.close()
 
     @commands.Cog.listener()
-    async def on_app_command_completion(interaction: discord.Interaction, command):
+    async def on_app_command_completion(self, interaction: discord.Interaction, command):
         interaction = ContextAdapter(interaction)
         if not interaction.getAuthor().bot:
-            cursor = await bot.connection.cursor()
+            cursor = await self.bot.connection.cursor()
             await cursor.execute(
                 "INSERT INTO com_history (com_name, user_id, date) VALUES (?,?,?)",
                 (command.name, interaction.getAuthor().id, time.time()),
@@ -358,7 +364,7 @@ class EventsCog(commands.Cog):
                                 success = False
 
                         if roleName == "" or not success:
-                            content = bot.translator.getLocalString(
+                            content = self.bot.translator.getLocalString(
                                 interaction,
                                 "levelUp",
                                 [
@@ -374,7 +380,7 @@ class EventsCog(commands.Cog):
                                 except Exception as e:
                                     pass
                         else:
-                            content = bot.translator.getLocalString(
+                            content = self.bot.translator.getLocalString(
                                 interaction,
                                 "levelUpRole",
                                 [
@@ -395,7 +401,7 @@ class EventsCog(commands.Cog):
                         ),
                     )
 
-            await bot.connection.commit()
+            await self.bot.connection.commit()
             await cursor.close()
 
 

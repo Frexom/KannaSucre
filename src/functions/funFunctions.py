@@ -1,9 +1,11 @@
+import random
+
 import discord
 
 from src.resources.adapter import ContextAdapter
 
 
-async def hugFunction(interaction: ContextAdapter, user: discord.Member | discord.User):
+async def hugFunction(bot, interaction: ContextAdapter, user: discord.Member | discord.User):
     if not interaction.getAuthor().bot:
         hugList = [
             "https://media1.tenor.com/images/89272929c73eefcca4b5f0ec8fe30316/tenor.gif",
@@ -46,7 +48,7 @@ async def hugFunction(interaction: ContextAdapter, user: discord.Member | discor
             "https://images-ext-1.discordapp.net/external/2TAL2AoHlWYA2U4lStmtWb8CCo0S417XnedHFaz9uaw/%3Fitemid%3D19674705/https/media1.tenor.com/images/f7b6be96e8ebb23319b43304da0e1118/tenor.gif",
         ]
 
-        if interaction.getAuthor() == user:
+        if interaction.getAuthor() == user or user.id == bot.user.id:
             title = bot.translator.getLocalString(
                 interaction,
                 "hugLonely",
@@ -70,7 +72,8 @@ async def hugFunction(interaction: ContextAdapter, user: discord.Member | discor
         await interaction.sendMessage(content=(user.mention or None) + "\n" + link, embed=e)
 
 
-async def standFunction(interaction: ContextAdapter):
+async def standFunction(bot, interaction: ContextAdapter):
+    print("started command!")
     if not interaction.getAuthor().bot:
         cursor = await bot.connection.cursor()
         await cursor.execute(
@@ -100,4 +103,5 @@ async def standFunction(interaction: ContextAdapter):
         )
         e = discord.Embed(title=title, colour=discord.Colour(0x635F))
         e.set_image(url=stand[1])
+        print("sent it!")
         await interaction.sendMessage(content=stand[1], embed=e)

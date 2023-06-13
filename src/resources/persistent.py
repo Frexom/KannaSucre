@@ -4,6 +4,7 @@ import time
 import discord
 from discord.ext import commands
 
+from src.resources.adapter import ContextAdapter
 from src.resources.locales import Translator
 from src.resources.prefix import get_pre
 
