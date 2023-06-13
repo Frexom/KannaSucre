@@ -27,31 +27,31 @@ class OwnerCog(commands.Cog):
     async def preview(self, context):
         message = context.message.content.split(" ")[1:]
         message = " ".join(message)
-        await previewFunction(ContextAdapter(context), message)
+        await previewFunction(self.bot, ContextAdapter(context), message)
 
     @app_commands.command(name="preview", description="Makes the bot repeat what you just said.")
     @app_commands.describe(message="The message to repeat.")
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashPreview(self, interaction: discord.Interaction, message: str):
-        await previewFunction(ContextAdapter(interaction), message)
+        await previewFunction(self.bot, ContextAdapter(interaction), message)
 
     @commands.command(name="sql")
     @commands.is_owner()
     async def sql(self, context):
         query = context.message.content.split(" ")[1:]
         query = " ".join(query)
-        await sqlFunction(ContextAdapter(context), query)
+        await sqlFunction(self.bot, ContextAdapter(context), query)
 
     @app_commands.command(name="sql", description="Runs SQL queries, be careful!")
     @app_commands.describe(query="The query to run.")
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashSql(self, interaction: discord.Interaction, query: str):
-        await sqlFunction(ContextAdapter(interaction), query)
+        await sqlFunction(self.bot, ContextAdapter(interaction), query)
 
     @commands.command(name="database")
     @commands.is_owner()
     async def database(self, context):
-        await databaseFunction(ContextAdapter(context))
+        await databaseFunction(self.bot, ContextAdapter(context))
 
     @app_commands.command(
         name="database",
@@ -59,27 +59,27 @@ class OwnerCog(commands.Cog):
     )
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashDatabase(self, interaction: discord.Interaction):
-        await databaseFunction(ContextAdapter(interaction))
+        await databaseFunction(self.bot, ContextAdapter(interaction))
 
     @commands.command(name="shutdown")
     @commands.is_owner()
     async def shutdown(self, context):
-        await shutdownFunction(ContextAdapter(context))
+        await shutdownFunction(self.bot, ContextAdapter(context))
 
     @app_commands.command(name="shutdown", description="Shuts down the bot, BE CAREFUL.")
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashShutdown(self, interaction: discord.Interaction):
-        await shutdownFunction(ContextAdapter(interaction))
+        await shutdownFunction(self.bot, ContextAdapter(interaction))
 
     @commands.command(name="sync")
     @commands.is_owner()
     async def syncCommands(self, context: discord.ext.commands.Context):
-        await syncFunction(ContextAdapter(context))
+        await syncFunction(self.bot, ContextAdapter(context))
 
     @app_commands.command(name="sync", description="Sync the bot's commands.")
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashSync(self, interaction: discord.Interaction):
-        await syncFunction(ContextAdapter(interaction))
+        await syncFunction(self.bot, ContextAdapter(interaction))
 
     @commands.command(name="rules")
     @commands.is_owner()
@@ -116,12 +116,12 @@ class OwnerCog(commands.Cog):
     @commands.command(name="guildcount")
     @commands.is_owner()
     async def guildcount(self, context):
-        await guildcountFunction(ContextAdapter(context))
+        await guildcountFunction(self.bot, ContextAdapter(context))
 
     @app_commands.command(name="guildcount", description="Shows how many guilds the bot is in.")
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashGuildcount(self, interaction: discord.Interaction):
-        await guildcountFunction(ContextAdapter(interaction))
+        await guildcountFunction(self.bot, ContextAdapter(interaction))
 
     @commands.command(name="status")
     @commands.is_owner()
@@ -132,7 +132,7 @@ class OwnerCog(commands.Cog):
 
         if isLongEnough and lower(msg[1]) in validStatuses:
             activity = discord.Game(" ".join(msg[2:]))
-            await statusFunction(ContextAdapter(context), status, activity)
+            await statusFunction(self.bot, ContextAdapter(context), status, activity)
         else:
             await context.send(
                 content=f"```{await get_pre(context)}status online/dnd/idle *activity*```"
@@ -155,17 +155,17 @@ class OwnerCog(commands.Cog):
         status: app_commands.Choice[str] = "online",
         activity: str = "Now with Slash commands!",
     ):
-        await statusFunction(ContextAdapter(interaction), status, activity)
+        await statusFunction(self.bot, ContextAdapter(interaction), status, activity)
 
     @commands.command(name="reload")
     @commands.is_owner()
     async def reload(self, context):
-        await reloadFunction(ContextAdapter(context))
+        await reloadFunction(self.bot, ContextAdapter(context))
 
     @app_commands.command(name="reload", description="Reloads the bot's cogs!")
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashReload(self, interaction: discord.Interaction):
-        await reloadFunction(ContextAdapter(interaction))
+        await reloadFunction(self.bot, ContextAdapter(interaction))
 
 
 async def setup(bot):

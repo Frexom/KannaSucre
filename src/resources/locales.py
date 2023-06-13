@@ -1,6 +1,9 @@
 import csv
 import os
 
+from src.resources.adapter import ContextAdapter
+from src.resources.connection import closeStaticConn, getStaticReadingConn
+
 
 class Translator:
     def __init__(self):

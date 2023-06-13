@@ -20,11 +20,11 @@ class PokeCog(commands.Cog):
 
     @commands.command(name="poke")
     async def poke(self, context):
-        await pokeFunction(ContextAdapter(context))
+        await pokeFunction(self.bot, ContextAdapter(context))
 
     @app_commands.command(name="poke", description="Catch a random pokémon!")
     async def slashPoke(self, interaction: discord.Interaction):
-        await pokeFunction(ContextAdapter(interaction))
+        await pokeFunction(self.bot, ContextAdapter(interaction))
 
     @commands.command(name="pokeinfo")
     async def pokeinfo(self, context):
@@ -36,7 +36,7 @@ class PokeCog(commands.Cog):
             else:
                 poke_id = int(message[1])
 
-            await pokeinfoFunction(ContextAdapter(context), poke_id)
+            await pokeinfoFunction(self.bot, ContextAdapter(context), poke_id)
         else:
             await context.send("```" + context.prefix + "pokeinfo Poké-Id/Poké-Name```")
 
@@ -45,18 +45,18 @@ class PokeCog(commands.Cog):
     async def slashPokeinfo(
         self, interaction: discord.Interaction, id: int = None, name: str = None
     ):
-        await pokeinfoFunction(ContextAdapter(interaction), id, name)
+        await pokeinfoFunction(self.bot, ContextAdapter(interaction), id, name)
 
     @commands.command(name="rolls")
     async def rolls(self, context):
-        await rollsFunction(ContextAdapter(context))
+        await rollsFunction(self.bot, ContextAdapter(context))
 
     @app_commands.command(
         name="rolls",
         description="Displays how much pokerolls you have, and when your next free roll will be.",
     )
     async def slashRolls(self, interaction: discord.Interaction):
-        await rollsFunction(ContextAdapter(interaction))
+        await rollsFunction(self.bot, ContextAdapter(interaction))
 
     @commands.command(name="pokedex")
     async def pokedex(self, context):
@@ -72,7 +72,7 @@ class PokeCog(commands.Cog):
                     if outOfRange:
                         page = 1
 
-                await pokedexFunction(ContextAdapter(context), user, page)
+                await pokedexFunction(self.bot, ContextAdapter(context), user, page)
             else:
                 await context.send("```" + context.prefix + "pokedex *page number* @user```")
 
@@ -87,17 +87,17 @@ class PokeCog(commands.Cog):
     async def slashPokedex(
         self, interaction: discord.Interaction, user: discord.User = None, page: int = 1
     ):
-        await pokedexFunction(ContextAdapter(interaction), user, page)
+        await pokedexFunction(self.bot, ContextAdapter(interaction), user, page)
 
     @commands.command(name="pokerank")
     async def pokerank(self, context):
-        await pokerankFunction(ContextAdapter(context))
+        await pokerankFunction(self.bot, ContextAdapter(context))
 
     @app_commands.command(
         name="pokerank", description="Displays the bot's top 10 best pokemon trainers!"
     )
     async def slashPokerank(self, interaction: discord.Interaction):
-        await pokerankFunction(ContextAdapter(interaction))
+        await pokerankFunction(self.bot, ContextAdapter(interaction))
 
 
 async def setup(bot):

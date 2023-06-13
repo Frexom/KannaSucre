@@ -4,14 +4,14 @@ from discord import app_commands
 from src.resources.adapter import ContextAdapter
 
 
-async def previewFunction(interaction: ContextAdapter, message: str):
+async def previewFunction(bot, interaction: ContextAdapter, message: str):
     if await bot.is_owner(interaction.getAuthor()):
         await interaction.sendMessage(content=message)
     else:
         await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
-async def sqlFunction(interaction: ContextAdapter, query: str):
+async def sqlFunction(bot, interaction: ContextAdapter, query: str):
     if await bot.is_owner(interaction.getAuthor()):
         connection, cursor = await getReadingConn()
         if query[0].lower() == "s":
@@ -69,7 +69,7 @@ async def sqlFunction(interaction: ContextAdapter, query: str):
         await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
-async def databaseFunction(interaction: ContextAdapter):
+async def databaseFunction(bot, interaction: ContextAdapter):
     if await bot.is_owner(interaction.getAuthor()):
         await interaction.defer()
         await interaction.followupSend(file=discord.File("src/resources/database/bot.db"))
@@ -77,7 +77,7 @@ async def databaseFunction(interaction: ContextAdapter):
         await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
-async def shutdownFunction(interaction: ContextAdapter):
+async def shutdownFunction(bot, interaction: ContextAdapter):
     if await bot.is_owner(interaction.getAuthor()):
 
         shutdownInteraction = interaction
@@ -115,7 +115,7 @@ async def shutdownFunction(interaction: ContextAdapter):
         await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
-async def syncFunction(interaction: ContextAdapter):
+async def syncFunction(bot, interaction: ContextAdapter):
     if await bot.is_owner(interaction.getAuthor()):
         await interaction.defer()
         guilds = []
@@ -137,7 +137,7 @@ async def syncFunction(interaction: ContextAdapter):
         await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
-async def guildcountFunction(interaction: ContextAdapter):
+async def guildcountFunction(bot, interaction: ContextAdapter):
     if await bot.is_owner(interaction.getAuthor()):
         guilds = len(bot.guilds)
         content = "KannaSucre is in {} guilds., {} more to be verified!".format(
@@ -161,7 +161,7 @@ async def statusFunction(
         await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
-async def reloadFunction(interaction: ContextAdapter):
+async def reloadFunction(bot, interaction: ContextAdapter):
     path = "src.cogs"
     directory = "src/cogs"
 

@@ -1,3 +1,8 @@
+import discord
+
+from src.resources.adapter import ContextAdapter
+from src.resources.connection import getStaticReadingConn
+
 """   General Purpose UI   """
 
 
@@ -11,8 +16,9 @@ class ClearView(discord.ui.View):
 
 
 class CancelButton(discord.ui.Button):
-    def __init__(self, interaction: ContextAdapter, prevView: discord.ui.View):
-        label = bot.translator.getLocalString(interaction, "cancel", [])
+    def __init__(self, bot, interaction: ContextAdapter, prevView: discord.ui.View):
+        self.bot = bot
+        label = self.bot.translator.getLocalString(interaction, "cancel", [])
         super().__init__(label="Cancel", style=discord.ButtonStyle.danger, emoji="⚠️")
         self.interaction = interaction
         self.prevView = prevView
@@ -26,8 +32,11 @@ class CancelButton(discord.ui.Button):
 
 
 class RefreshButton(discord.ui.Button):
-    def __init__(self, editInteraction: discord.Interaction, refreshClass: type, **kwargs):
-        label = bot.translator.getLocalString(editInteraction, "refresh", [])
+    def __init__(
+        self, refresh_bot, editInteraction: discord.Interaction, refreshClass: type, **kwargs
+    ):
+        self.bot = refresh_bot
+        label = self.bot.translator.getLocalString(editInteraction, "refresh", [])
         super().__init__(label=label, style=discord.ButtonStyle.primary, emoji="🔄")
         self.editInteraction = editInteraction
         self.refreshClass = refreshClass
@@ -42,7 +51,8 @@ class RefreshButton(discord.ui.Button):
 
 
 class PokeDropdown(discord.ui.Select):
-    def __init__(self, interaction, pokemon: Pokemon, buttonView: discord.ui.View):
+    def __init__(self, bot, interaction, pokemon, buttonView: discord.ui.View):
+        self.bot = bot
         self.pokemon = pokemon
         self.buttonView = buttonView
         self.interaction = interaction
@@ -56,7 +66,7 @@ class PokeDropdown(discord.ui.Select):
             label = evo[2] if evo[3] in noLabel else evo[3] + " " + evo[2]
             options.append(discord.SelectOption(label=label, value=i))
             i += 1
-        placeholder = bot.translator.getLocalString(self.interaction, "chooseEvolution", [])
+        placeholder = self.bot.translator.getLocalString(self.interaction, "chooseEvolution", [])
         super().__init__(placeholder=placeholder, options=options, min_values=1, max_values=1)
 
     async def callback(self, interaction: discord.Interaction):
@@ -73,7 +83,8 @@ class PokeDropdown(discord.ui.Select):
 
 
 class LevelListEmbed(discord.Embed):
-    def __init__(self, interaction: ContextAdapter):
+    def __init__(self, bot, interaction: ContextAdapter):
+        self.bot = bot
         connection, cursor = getStaticReadingConn()
         cursor.execute(
             "SELECT rew_level, rew_role FROM gld_reward WHERE guild_id = ? ORDER BY rew_level",
@@ -82,19 +93,19 @@ class LevelListEmbed(discord.Embed):
         levels = cursor.fetchall()
 
         if len(levels) == 0:
-            description = bot.translator.getLocalString(interaction, "editlevelNoReward", [])
+            description = self.bot.translator.getLocalString(interaction, "editlevelNoReward", [])
             self.allowedToDelete = False
         else:
             description = ""
             self.allowedToDelete = True
             for row in levels:
-                description += bot.translator.getLocalString(
+                description += self.bot.translator.getLocalString(
                     interaction,
                     "editLevelReward",
                     [("level", str(row[0])), ("roleID", str(row[1]))],
                 )
 
-        title = bot.translator.getLocalString(
+        title = self.bot.translator.getLocalString(
             interaction, "editlevelTitle", [("guild", interaction.getGuild().name)]
         )
         super().__init__(title=title, description=description)
@@ -104,7 +115,7 @@ class LevelListEmbed(discord.Embed):
         else:
             self.set_thumbnail(url=interaction.getClientUser().avatar.url)
 
-        text = bot.translator.getLocalString(interaction, "editlevelFooter", [])
+        text = self.bot.translator.getLocalString(interaction, "editlevelFooter", [])
         self.set_footer(text=text)
 
     def isAllowedToDelete(self):
@@ -112,17 +123,20 @@ class LevelListEmbed(discord.Embed):
 
 
 class LevelListView(ClearView):
-    def __init__(self, interaction: ContextAdapter, timeout: int = 300):
+    def __init__(self, bot, interaction: ContextAdapter, timeout: int = 300):
         super().__init__(interaction=interaction, timeout=timeout)
-        self.deleteLevel.label = bot.translator.getLocalString(
+        self.bot = bot
+        self.deleteLevel.label = self.bot.translator.getLocalString(
             interaction, "editlevelDeleteLabel", []
         )
         self.interaction = interaction
 
         self.add_item(
             RefreshButton(
+                refresh_bot=self.bot,
                 editInteraction=interaction,
                 refreshClass=LevelListEmbed,
+                bot=self.bot,
                 interaction=interaction,
             )
         )
@@ -134,24 +148,27 @@ class LevelListView(ClearView):
             await interaction.defer()
             if interaction.getAuthor().guild_permissions.manage_guild:
                 try:
-                    await self.interaction.editOriginal(view=(ChooseDeleteLevel(interaction)))
+                    await self.interaction.editOriginal(
+                        view=(ChooseDeleteLevel(self.bot, interaction))
+                    )
                 except ValueError:
                     pass
 
 
 class ChooseDeleteLevel(ClearView):
-    def __init__(self, interaction: ContextAdapter, timeout: int = 90):
+    def __init__(self, bot, interaction: ContextAdapter, timeout: int = 90):
         super().__init__(interaction=interaction, timeout=timeout)
 
         self.interaction = interaction
-        self.add_item(DeleteLevelDropdown(interaction))
+        self.add_item(DeleteLevelDropdown(bot, interaction))
 
-        view = LevelListView(interaction)
-        self.add_item(CancelButton(interaction, view))
+        view = LevelListView(bot, interaction)
+        self.add_item(CancelButton(bot, interaction, view))
 
 
 class DeleteLevelDropdown(discord.ui.Select):
-    def __init__(self, interaction: ContextAdapter):
+    def __init__(self, bot, interaction: ContextAdapter):
+        self.bot = bot
         self.interaction = interaction
 
         connection, cursor = getStaticReadingConn()
@@ -168,7 +185,7 @@ class DeleteLevelDropdown(discord.ui.Select):
         for row in levels:
             options.append(discord.SelectOption(label=f"Level {row[0]}", value=int(row[0])))
 
-        placeholder = bot.translator.getLocalString(interaction, "editlevelChooseDelete", [])
+        placeholder = self.bot.translator.getLocalString(interaction, "editlevelChooseDelete", [])
         super().__init__(placeholder=placeholder, options=options, min_values=1, max_values=1)
 
     async def callback(self, interaction: discord.Interaction):
@@ -184,11 +201,11 @@ class DeleteLevelDropdown(discord.ui.Select):
                 await interaction.getClient().connection.commit()
                 await cursor.close()
 
-                content = bot.translator.getLocalString(
+                content = self.bot.translator.getLocalString(
                     interaction, "editlevelDeleted", [("level", str(self.values[0]))]
                 )
                 await interaction.sendMessage(content=content, ephemeral=True)
-                embed = LevelListEmbed(self.interaction)
-                view = LevelListView(self.interaction)
+                embed = LevelListEmbed(self.bot, self.interaction)
+                view = LevelListView(self.bot, self.interaction)
 
                 await self.interaction.editOriginal(embed=embed, view=view)

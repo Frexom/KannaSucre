@@ -1,9 +1,13 @@
+import time
+
 import discord
 
 from src.resources.adapter import ContextAdapter
+from src.resources.pokemon import Pokedex, Pokemon, poke_count
+from src.resources.ui import ClearView
 
 
-async def pokeFunction(interaction: ContextAdapter):
+async def pokeFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
 
         # Not doidng it may cause bugs
@@ -38,7 +42,7 @@ async def pokeFunction(interaction: ContextAdapter):
                     (now, userID),
                 )
 
-            pokemon = Pokemon(interaction=interaction, linkType=linkType)
+            pokemon = Pokemon(bot, interaction=interaction, linkType=linkType)
 
             await cursor.execute(
                 "SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?",
@@ -48,7 +52,7 @@ async def pokeFunction(interaction: ContextAdapter):
 
             # Second chance
             if is_obtained:
-                pokemon = Pokemon(interaction=interaction, linkType=linkType)
+                pokemon = Pokemon(bot, interaction=interaction, linkType=linkType)
 
             await cursor.execute(
                 "SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?",
@@ -126,10 +130,10 @@ async def pokeFunction(interaction: ContextAdapter):
             await cursor.close()
 
         else:
-            await rollsFunction(interaction)
+            await rollsFunction(bot, interaction)
 
 
-async def pokeinfoFunction(interaction: ContextAdapter, id: int = None, name: str = None):
+async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, name: str = None):
     if not interaction.getAuthor().bot:
         if id is not None or name is not None:
             if name is not None:
@@ -153,7 +157,7 @@ async def pokeinfoFunction(interaction: ContextAdapter, id: int = None, name: st
             linkType = await cursor.fetchone()
             await cursor.close()
             linkType = linkType[0]
-            pokemon = Pokemon(interaction=interaction, linkType=linkType, pokeID=poke_id)
+            pokemon = Pokemon(bot, interaction=interaction, linkType=linkType, pokeID=poke_id)
             buttonView = ClearView(interaction, timeout=90)
 
             # Callback definition, and buttons generation
@@ -303,7 +307,7 @@ async def pokeinfoFunction(interaction: ContextAdapter, id: int = None, name: st
             await interaction.sendMessage(content=content)
 
 
-async def rollsFunction(interaction: ContextAdapter):
+async def rollsFunction(bot, interaction: ContextAdapter):
     await interaction.defer()
     cursor = await bot.connection.cursor()
     await cursor.execute(
@@ -348,14 +352,16 @@ async def rollsFunction(interaction: ContextAdapter):
     await cursor.close()
 
 
-async def pokedexFunction(interaction: ContextAdapter, user: discord.User = None, page: int = 1):
+async def pokedexFunction(
+    bot, interaction: ContextAdapter, user: discord.User = None, page: int = 1
+):
     if not interaction.getAuthor().bot:
         if user is None:
             user = interaction.getAuthor()
         if not user.bot:
             closedView = ClearView(interaction, timeout=90)
             openedView = ClearView(interaction, timeout=90)
-            pokedex = Pokedex(interaction, user, page - 1)
+            pokedex = Pokedex(bot, interaction, user, page - 1)
 
             label = bot.translator.getLocalString(interaction, "buttonOpen", [])
             open = discord.ui.Button(label=label, emoji="🌐")
@@ -433,7 +439,7 @@ async def pokedexFunction(interaction: ContextAdapter, user: discord.User = None
             await interaction.sendMessage(content=content)
 
 
-async def pokerankFunction(interaction: ContextAdapter):
+async def pokerankFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
 
         await interaction.defer()

@@ -1,9 +1,10 @@
 import discord
+from PIL import Image, ImageDraw, ImageFont
 
 from src.resources.adapter import ContextAdapter
 
 
-async def levelFunction(interaction: ContextAdapter, user: discord.User = None):
+async def levelFunction(bot, interaction: ContextAdapter, user: discord.User = None):
     await interaction.defer()
     # If no user specified, user is author
     if user is None:

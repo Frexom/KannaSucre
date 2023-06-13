@@ -1,9 +1,10 @@
 import discord
 
 from src.resources.adapter import ContextAdapter
+from src.resources.perms import lack_perms
 
 
-async def pruneFunction(interaction: ContextAdapter, user: discord.Member | discord.User):
+async def pruneFunction(bot, interaction: ContextAdapter, user: discord.Member | discord.User):
     if not interaction.getAuthor().bot:
         if interaction.getGuild() is not None:
             if interaction.getAuthor().guild_permissions.manage_messages:
@@ -37,14 +38,14 @@ async def pruneFunction(interaction: ContextAdapter, user: discord.Member | disc
                     )
                     await interaction.followupSend(content=content, ephemeral=True)
                 else:
-                    await lack_perms(interaction, "prune")
+                    await lack_perms(bot, interaction, "prune")
             else:
-                await missing_perms(interaction, "prune", "manage messages")
+                await missing_perms(bot, interaction, "prune", "manage messages")
         else:
             await dmUnavailable(interaction, "prune")
 
 
-async def clearFunction(interaction: ContextAdapter, amount: int):
+async def clearFunction(bot, interaction: ContextAdapter, amount: int):
     if not interaction.getAuthor().bot:
         if interaction.getGuild() is not None:
             if interaction.getAuthor().guild_permissions.manage_messages:
@@ -83,12 +84,13 @@ async def clearFunction(interaction: ContextAdapter, amount: int):
                     content = bot.translator.getLocalString(interaction, "clearMore", [])
                     await interaction.sendMessage(content=content)
             else:
-                await missing_perms(interaction, "clear", "manage messages")
+                await missing_perms(bot, interaction, "clear", "manage messages")
         else:
             await dmUnavailable(interaction, "clear")
 
 
 async def kickFunction(
+    bot,
     interaction: ContextAdapter,
     user: discord.Member | discord.User,
     reason: str = None,
@@ -121,17 +123,17 @@ async def kickFunction(
                             await user.send(content=content)
                         except discord.errors.HTTPException:
                             pass
-                    await user.kick(
-                        reason=(reason or "No reason given.")
-                        + " / Triggered by "
-                        + interaction.getAuthor().name
-                    )
+                    # await user.kick(
+                    #    reason=(reason or "No reason given.")
+                    #    + " / Triggered by "
+                    #    + interaction.getAuthor().name
+                    # )
                     content = bot.translator.getLocalString(interaction, "userKicked", [])
                     await interaction.sendMessage(content=content)
 
                 else:
-                    await lack_perms(interaction, "kick")
+                    await lack_perms(bot, interaction, "kick")
             else:
-                await missing_perms(interaction, "kick", "kick members")
+                await missing_perms(bot, interaction, "kick", "kick members")
         else:
             await dmUnavailable(interaction, "kick")

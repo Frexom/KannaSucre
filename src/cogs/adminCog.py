@@ -25,7 +25,7 @@ class AdminCog(commands.Cog):
         prefix = context.message.content.split(" ")
 
         if len(prefix) > 1:
-            await prefixFunction(ContextAdapter(context), prefix[1])
+            await prefixFunction(self.bot, ContextAdapter(context), prefix[1])
         else:
             await context.send("```" + context.prefix + "prefix *new prefix*```")
 
@@ -34,7 +34,7 @@ class AdminCog(commands.Cog):
     )
     @app_commands.describe(prefix="The server's new prefix!")
     async def slashPrefix(self, interaction: discord.Interaction, prefix: str):
-        await prefixFunction(ContextAdapter(interaction), prefix)
+        await prefixFunction(self.bot, ContextAdapter(interaction), prefix)
 
     @commands.command(name="ban")
     async def ban(self, context):
@@ -43,7 +43,7 @@ class AdminCog(commands.Cog):
         if hasMention:
             member = context.message.mentions[0]
             reason = " ".join(words[2:])
-            await banFunction(ContextAdapter(context), member, reason)
+            await banFunction(self.bot, ContextAdapter(context), member, reason)
         else:
             await context.send(
                 "```" + context.prefix + "ban *mention target* *reason(optional)*```"
@@ -59,7 +59,7 @@ class AdminCog(commands.Cog):
         user: discord.Member | discord.User,
         reason: str = None,
     ):
-        await banFunction(ContextAdapter(interaction), user, reason)
+        await banFunction(self.bot, ContextAdapter(interaction), user, reason)
 
     @commands.command(name="welcome")
     async def welcome(self, context):
@@ -69,9 +69,9 @@ class AdminCog(commands.Cog):
 
             if len(message.role_mentions) > 0:
                 role = message.role_mentions[0]
-                await welcomeFunction(ContextAdapter(context), channel, role)
+                await welcomeFunction(self.bot, ContextAdapter(context), channel, role)
             else:
-                await welcomeFunction(ContextAdapter(context), channel)
+                await welcomeFunction(self.bot, ContextAdapter(context), channel)
         else:
             await context.send(
                 "```" + context.prefix + "welcome *mention channel* *mention role(optional)*```"
@@ -89,7 +89,7 @@ class AdminCog(commands.Cog):
         channel: discord.TextChannel = None,
         role: discord.Role = None,
     ):
-        await welcomeFunction(ContextAdapter(interaction), channel, role)
+        await welcomeFunction(self.bot, ContextAdapter(interaction), channel, role)
 
     @commands.command(name="language")
     async def language(self, context):
@@ -97,7 +97,7 @@ class AdminCog(commands.Cog):
         locales = ["en", "fr"]  # tr soon
         if len(words) >= 2 and words[1] in locales:
             language = words[1]
-            await languageFunction(ContextAdapter(context), language)
+            await languageFunction(self.bot, ContextAdapter(context), language)
         else:
             await context.send("```" + context.prefix + "language en/fr```")
 
@@ -114,7 +114,7 @@ class AdminCog(commands.Cog):
     async def slashLanguage(
         self, interaction: discord.Interaction, language: discord.app_commands.Choice[str]
     ):
-        await languageFunction(ContextAdapter(interaction), language.value)
+        await languageFunction(self.bot, ContextAdapter(interaction), language.value)
 
     @commands.command(name="announce")
     async def announce(self, context):
@@ -122,7 +122,7 @@ class AdminCog(commands.Cog):
         channel = context.message.channel_mentions
         if len(channel) >= 1 and len(message) >= 3:
             announcement = " ".join(message[2:])
-            await announceFunction(ContextAdapter(context), channel[0], announcement)
+            await announceFunction(self.bot, ContextAdapter(context), channel[0], announcement)
         else:
             await context.send("```" + context.prefix + "announce *mention channel* *message*```")
 
@@ -137,14 +137,17 @@ class AdminCog(commands.Cog):
         channel: discord.TextChannel,
         message: str,
     ):
-        await announceFunction(ContextAdapter(interaction), channel, message)
+        await announceFunction(self.bot, ContextAdapter(interaction), channel, message)
 
     @commands.command(name="togglelevels")
     async def togglelevels(self, context):
         message = context.message.content.split(" ")
-        toggle = message[1]
-        if toggle.isnumeric() and (toggle == "0" or toggle == "1"):
-            await togglelevelsFunction(ContextAdapter(context), int(toggle))
+        if (
+            len(message) >= 2
+            and message[1].isnumeric()
+            and (message[1] == "0" or message[1] == "1")
+        ):
+            await togglelevelsFunction(self.bot, ContextAdapter(context), int(message[1]))
         else:
             await context.send("```" + context.prefix + "togglelevels 0 or 1```")
 
@@ -157,12 +160,14 @@ class AdminCog(commands.Cog):
     )
     @app_commands.describe(toggle="Weather activating the level feature or not.")
     async def slashTogglelevels(self, interaction: discord.Interaction, toggle: int):
-        await togglelevelsFunction(ContextAdapter(interaction), toggle)
+        await togglelevelsFunction(self.bot, ContextAdapter(interaction), toggle)
 
     @commands.command(name="giveaway")
     async def giveaway(self, context):
         if not context.author.bot:
-            content = bot.translator.getLocalString(ContextAdapter(context), "giveawayPrefix", [])
+            content = self.bot.translator.getLocalString(
+                ContextAdapter(context), "giveawayPrefix", []
+            )
             await context.send(content=content)
 
     @app_commands.command(name="giveaway", description="Creates a new giveaway!")
@@ -188,25 +193,26 @@ class AdminCog(commands.Cog):
 
     @commands.command(name="editlevels")
     async def editlevels(self, context):
-        await editlevelsFunction(ContextAdapter(context))
+        await editlevelsFunction(self.bot, ContextAdapter(context))
 
     @app_commands.command(name="editlevels", description="Edits the server's level rewards!")
     async def slashEditlevels(self, interaction):
-        await editlevelsFunction(ContextAdapter(interaction))
+        await editlevelsFunction(self.bot, ContextAdapter(interaction))
 
     @commands.command(name="addlevel")
     async def addlevel(self, context: discord.Interaction):
         if not context.author.bot:
             message = context.message.content.split(" ")
             if (
-                message[1].isdecimal()
+                len(message) > 2
+                and message[1].isdecimal()
                 and int(message[1]) > 0
                 and len(context.message.role_mentions) > 0
             ):
                 level = int(message[1])
                 role = context.message.role_mentions[0]
 
-                await addlevelFunction(ContextAdapter(context), level, role)
+                await addlevelFunction(self.bot, ContextAdapter(context), level, role)
             else:
                 await context.send("```" + context.prefix + "addlevel *number* *role*```")
 
@@ -216,7 +222,7 @@ class AdminCog(commands.Cog):
     async def slashAddLevel(
         self, interaction: discord.Interaction, level: int, role: discord.Role
     ):
-        await addlevelFunction(ContextAdapter(interaction), level, role)
+        await addlevelFunction(self.bot, ContextAdapter(interaction), level, role)
 
 
 async def setup(bot):

@@ -15,12 +15,12 @@ class ImageCog(commands.Cog):
     async def level(self, context):
         user = get_target(context)
 
-        await levelFunction(ContextAdapter(context), user)
+        await levelFunction(self.bot, ContextAdapter(context), user)
 
     @app_commands.command(name="level", description="Displays your level and XP.")
     @app_commands.describe(user="The user you want to see the level of.")
     async def slashLevel(self, interaction: discord.Interaction, user: discord.User = None):
-        await levelFunction(ContextAdapter(interaction), user)
+        await levelFunction(self.bot, ContextAdapter(interaction), user)
 
 
 async def setup(bot):

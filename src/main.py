@@ -1,12 +1,14 @@
 import os
 import random
 import time
+from traceback import format_exc
 
 import aiosqlite3
 import discord
 from discord.ext import tasks
 
 from src.functions.eventsFunctions import setup_func
+from src.resources.adapter import ContextAdapter
 from src.resources.bot import bot
 
 
