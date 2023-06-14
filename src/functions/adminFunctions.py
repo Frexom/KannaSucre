@@ -1,10 +1,12 @@
 import os
+import time
 
 import discord
 from discord import app_commands
 
 from src.resources.adapter import ContextAdapter
 from src.resources.perms import lack_perms, missing_perms
+from src.resources.persistent import GiveawayEmbed, GiveawayView
 from src.resources.ui import LevelListEmbed, LevelListView
 
 
@@ -67,11 +69,11 @@ async def banFunction(
                             await user.send(content=content)
                         except discord.errors.HTTPException:
                             pass
-                    # await user.ban(
-                    #    reason=(reason or "No reason given.")
-                    #    + " / Triggered by "
-                    #    + interaction.getAuthor().name
-                    # )
+                    await user.ban(
+                        reason=(reason or "No reason given.")
+                        + " / Triggered by "
+                        + interaction.getAuthor().name
+                    )
                     content = bot.translator.getLocalString(interaction, "userBanned", [])
                     await interaction.sendMessage(content=content)
                 else:
@@ -211,6 +213,7 @@ async def togglelevelsFunction(bot, interaction: ContextAdapter, toggle: int):
 
 
 async def giveawayFunction(
+    bot,
     interaction: ContextAdapter,
     channel: discord.TextChannel,
     prize: str,
@@ -240,7 +243,7 @@ async def giveawayFunction(
                         try:
                             givMess = await channel.send(
                                 embed=embed,
-                                view=giveawayView(
+                                view=GiveawayView(
                                     translator=bot.translator, interaction=interaction
                                 ),
                             )
