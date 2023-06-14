@@ -188,7 +188,7 @@ class AdminCog(commands.Cog):
         role: discord.Role = None,
     ):
         await giveawayFunction(
-            ContextAdapter(interaction), channel, prize, days, hours, minutes, role
+            self.bot, ContextAdapter(interaction), channel, prize, days, hours, minutes, role
         )
 
     @commands.command(name="editlevels")

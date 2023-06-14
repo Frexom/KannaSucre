@@ -22,10 +22,10 @@ class PersistentBot(commands.Bot):
         self.translator = Translator()
 
     async def setup_hook(self) -> None:
-        self.add_view(giveawayView(self.translator))
+        self.add_view(GiveawayView(self.translator))
 
 
-class giveawayView(discord.ui.View):
+class GiveawayView(discord.ui.View):
     def __init__(self, translator: Translator = None, interaction: discord.Interaction = None):
         super().__init__(timeout=None)
 

@@ -123,11 +123,11 @@ async def kickFunction(
                             await user.send(content=content)
                         except discord.errors.HTTPException:
                             pass
-                    # await user.kick(
-                    #    reason=(reason or "No reason given.")
-                    #    + " / Triggered by "
-                    #    + interaction.getAuthor().name
-                    # )
+                    await user.kick(
+                        reason=(reason or "No reason given.")
+                        + " / Triggered by "
+                        + interaction.getAuthor().name
+                    )
                     content = bot.translator.getLocalString(interaction, "userKicked", [])
                     await interaction.sendMessage(content=content)
 
