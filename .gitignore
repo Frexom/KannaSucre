@@ -3,6 +3,7 @@ src/LevelCommand/Users
 src/LevelCommand/stats*.png
 *.db
 *.db-journal
+*.lock
 useful/
 
 # Byte-compiled / optimized / DLL files

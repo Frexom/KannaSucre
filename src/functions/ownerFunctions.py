@@ -1,7 +1,10 @@
+import os
+
 import discord
 from discord import app_commands
 
 from src.resources.adapter import ContextAdapter
+from src.resources.connection import closeConn, getReadingConn
 
 
 async def previewFunction(bot, interaction: ContextAdapter, message: str):
@@ -149,13 +152,15 @@ async def guildcountFunction(bot, interaction: ContextAdapter):
 
 
 async def statusFunction(
+    bot,
     interaction: ContextAdapter,
-    status: app_commands.Choice[str] = "online",
+    status: app_commands.Choice[str] | str = "online",
     activity: str = "Now with Slash commands!",
 ):
     if await bot.is_owner(interaction.getAuthor()):
         activity = discord.Game(activity)
-        await bot.change_presence(status=status.value, activity=activity)
+        status = status.value if isinstance(status, app_commands.Choice) else status
+        await bot.change_presence(status=status, activity=activity)
         await interaction.sendMessage(content=f"Changed status to `{activity}`!")
     else:
         await interaction.sendMessage(content="You don't have the permission to use that.")
