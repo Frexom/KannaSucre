@@ -1,4 +1,5 @@
 import os
+from typing import Union
 
 import discord
 from discord import app_commands
@@ -154,7 +155,7 @@ async def guildcountFunction(bot, interaction: ContextAdapter):
 async def statusFunction(
     bot,
     interaction: ContextAdapter,
-    status: app_commands.Choice[str] | str = "online",
+    status: Union[app_commands.Choice[str], str] = "online",
     activity: str = "Now with Slash commands!",
 ):
     if await bot.is_owner(interaction.getAuthor()):
