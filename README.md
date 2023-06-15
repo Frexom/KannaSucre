@@ -105,7 +105,7 @@ Go to the project directory
 Install dependencies
 
 ```bash
-  pip install -r requirements.txt
+  poetry install
 ```
 
 Set the database
@@ -117,7 +117,7 @@ Set the database
 Start the bot!
 
 ```bash
-  python3 main.py
+  python3 -m src.main
 ```
 
 ## Keeping the bot updated
