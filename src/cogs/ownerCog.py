@@ -155,7 +155,7 @@ class OwnerCog(commands.Cog):
         status: app_commands.Choice[str] = "online",
         activity: str = "Now with Slash commands!",
     ):
-        await statusFunction(self.bot, ContextAdapter(interaction), status, activity)
+        await statusFunction(self.bot, ContextAdapter(interaction), status.value, activity)
 
     @commands.command(name="reload")
     @commands.is_owner()
