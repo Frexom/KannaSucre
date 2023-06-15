@@ -6,7 +6,7 @@ authors = ["Frexom <hugom2003@sfr.fr>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">3.9"
+python = ">=3.9<3.10"
 discord = "^2.2.3"
 python-dotenv = "^1.0.0"
 aiosqlite3 = "^0.3.0"
