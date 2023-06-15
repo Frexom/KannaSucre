@@ -130,9 +130,9 @@ class OwnerCog(commands.Cog):
         validStatuses = ["online", "dnd", "idle"]
         isLongEnough = len(msg) > 2
 
-        if isLongEnough and lower(msg[1]) in validStatuses:
+        if isLongEnough and msg[1].lower() in validStatuses:
             activity = discord.Game(" ".join(msg[2:]))
-            await statusFunction(self.bot, ContextAdapter(context), status, activity)
+            await statusFunction(self.bot, ContextAdapter(context), msg[1].lower(), activity)
         else:
             await context.send(
                 content=f"```{await get_pre(context)}status online/dnd/idle *activity*```"
