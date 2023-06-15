@@ -1,11 +1,11 @@
-from typing import Optional, Union
+from typing import Optional
 
 import discord
 import discord.ext.commands
 
 
 class ContextAdapter:
-    def __init__(self, interaction: Union[discord.Interaction, discord.ext.commands.Context]):
+    def __init__(self, interaction: discord.Interaction | discord.ext.commands.Context):
         if isinstance(interaction, discord.Interaction):
             self.interaction = interaction
             self.context = None
@@ -17,7 +17,7 @@ class ContextAdapter:
 
         self.message = None
 
-    def getAuthor(self) -> Union[discord.User, discord.Member]:
+    def getAuthor(self) -> discord.User | discord.Member:
         if self.interaction is not None:
             return self.interaction.user
         else:
@@ -37,7 +37,7 @@ class ContextAdapter:
 
     def getChannel(
         self,
-    ) -> Optional[Union[discord.abc.GuildChannel, discord.PartialMessageable, discord.Thread]]:
+    ) -> Optional[discord.abc.GuildChannel | discord.PartialMessageable | discord.Thread]:
         if self.interaction is not None:
             return self.interaction.channel
         else:
