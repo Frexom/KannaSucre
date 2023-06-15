@@ -9,8 +9,8 @@ readme = "README.md"
 python = ">=3.9<3.10"
 discord = "^2.2.3"
 python-dotenv = "^1.0.0"
-aiosqlite3 = "^0.3.0"
 Pillow = "^9.5.0"
+aiosqlite = "^0.19.0"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^3.3.1"

@@ -3,7 +3,7 @@ import random
 import time
 from traceback import format_exc
 
-import aiosqlite3
+import aiosqlite
 import discord
 from discord.ext import tasks
 
@@ -14,7 +14,7 @@ from src.resources.bot import bot
 
 @bot.event
 async def on_ready():
-    bot.connection = await aiosqlite3.connect("src/resources/database/bot.db")
+    bot.connection = await aiosqlite.connect("src/resources/database/bot.db")
 
     # Adding cogs
     path = "src.cogs"
