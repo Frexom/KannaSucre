@@ -1,10 +1,10 @@
 import sqlite3
 
-import aiosqlite3
+import aiosqlite
 
 
 async def getReadingConn():
-    conn = await aiosqlite3.connect("src/resources/database/bot.db", timeout=10)
+    conn = await aiosqlite.connect("src/resources/database/bot.db", timeout=10)
     c = await conn.cursor()
     return conn, c
 
