@@ -6,7 +6,7 @@ from discord.ext import commands
 
 from src.resources.adapter import ContextAdapter
 from src.resources.locales import Translator
-from src.resources.prefix import get_pre
+from src.resources.prefix import Prefix
 
 
 class PersistentBot(commands.Bot):
@@ -16,7 +16,7 @@ class PersistentBot(commands.Bot):
         intents.messages = True
         intents.message_content = True
 
-        super().__init__(command_prefix=get_pre, intents=intents)
+        super().__init__(command_prefix=Prefix.get_prefix, intents=intents)
         self.remove_command("help")
 
         self.translator = Translator()

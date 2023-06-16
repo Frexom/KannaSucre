@@ -15,7 +15,6 @@ from src.functions.ownerFunctions import (
     syncFunction,
 )
 from src.resources.adapter import ContextAdapter
-from src.resources.prefix import get_pre
 
 
 class OwnerCog(commands.Cog):
@@ -134,9 +133,7 @@ class OwnerCog(commands.Cog):
             activity = discord.Game(" ".join(msg[2:]))
             await statusFunction(self.bot, ContextAdapter(context), msg[1].lower(), activity)
         else:
-            await context.send(
-                content=f"```{await get_pre(context)}status online/dnd/idle *activity*```"
-            )
+            await context.send(content=f"```{context.prefix}status online/dnd/idle *activity*```")
 
     @app_commands.command(name="status", description="Changes the status of the bot!")
     @app_commands.describe(activity="The new activity!")

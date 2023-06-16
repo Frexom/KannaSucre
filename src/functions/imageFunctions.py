@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import discord
 from PIL import Image, ImageDraw, ImageFont
 
@@ -67,11 +69,12 @@ async def levelFunction(bot, interaction: ContextAdapter, user: discord.User = N
         font = ImageFont.truetype("src/LevelCommand/coolvetica.ttf", size=28)
         d.text((80, 200), "Commands run: " + str(stats[2]), font=font, fill=(120, 120, 120))
 
-        # Save and send file
-        image.save("src/LevelCommand/Users/stats" + str(user.id) + ".png")
-        await interaction.sendMessage(
-            file=discord.File("src/LevelCommand/Users/stats" + str(user.id) + ".png")
-        )
+        with BytesIO() as image_binary:
+            # Save and send file
+            image.save(image_binary, "PNG")
+            image_binary.seek(0)
+
+            await interaction.sendMessage(file=discord.File(fp=image_binary, filename="image.png"))
 
     # If user if bot
     else:
