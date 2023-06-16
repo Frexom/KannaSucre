@@ -1,7 +1,7 @@
 import discord
 
 from src.resources.adapter import ContextAdapter
-from src.resources.perms import lack_perms
+from src.resources.perms import lack_perms, missing_perms
 
 
 async def pruneFunction(bot, interaction: ContextAdapter, user: discord.Member | discord.User):
