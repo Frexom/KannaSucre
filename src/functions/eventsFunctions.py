@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 from src.resources.adapter import ContextAdapter
-from src.resources.prefix import get_pre
+from src.resources.prefix import Prefix
 
 
 async def setup_func(bot, guild):
@@ -166,7 +166,7 @@ class EventsCog(commands.Cog):
 
             # Prefix
             if message.content.lower() == "ping":
-                prefix = await get_pre(message)
+                prefix = Prefix.get_prefix(message)
                 await message.channel.send(
                     "Pong! `"
                     + str(int(self.bot.latency * 1000))

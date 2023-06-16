@@ -1,17 +1,34 @@
-from src.resources.connection import closeConn, getReadingConn
+from src.resources.connection import closeStaticConn, getStaticReadingConn
 
 
-async def get_pre(message, message2=None):
-    if message2 != None:
-        message = message2
+class Prefix:
+    prefixes: dict = {}
 
-    if message.guild is not None:
-        connection, cursor = await getReadingConn()
-        await cursor.execute(
-            "SELECT guild_prefix FROM dis_guild WHERE guild_id = ?", (message.guild.id,)
-        )
-        result = await cursor.fetchone()
-        await closeConn(connection, cursor)
+    def __fetch_prefix(guild_id):
+        connection, cursor = getStaticReadingConn()
+        cursor.execute("SELECT guild_prefix FROM dis_guild WHERE guild_id = ?", (guild_id,))
+        result = cursor.fetchone()
+        closeStaticConn(connection, cursor)
         return result[0]
-    else:
-        return "!"
+
+    def get_prefix(messageOrBot, message=None):
+        if isinstance(message, Prefix):
+            raise ValueError("'get_prefix' is a static method.")
+
+        if message is None:
+            message = messageOrBot
+
+        if message.guild is None:
+            return "!"
+
+        if message.guild.id in Prefix.prefixes.keys():
+            return Prefix.prefixes[message.guild.id]
+        else:
+            Prefix.prefixes[message.guild.id] = Prefix.__fetch_prefix(message.guild.id)
+            return Prefix.prefixes[message.guild.id]
+
+    def updateCache(guild_id, prefix):
+        if isinstance(guild_id, Prefix):
+            raise ValueError("'update_cache' is a static method.")
+
+        Prefix.prefixes[guild_id] = prefix

@@ -7,6 +7,7 @@ from discord import app_commands
 from src.resources.adapter import ContextAdapter
 from src.resources.perms import lack_perms, missing_perms
 from src.resources.persistent import GiveawayEmbed, GiveawayView
+from src.resources.prefix import Prefix
 from src.resources.ui import LevelListEmbed, LevelListView
 
 
@@ -20,6 +21,7 @@ async def prefixFunction(bot, interaction: ContextAdapter, prefix: str):
                         "UPDATE dis_guild SET guild_prefix = ? WHERE guild_id = ?",
                         (prefix, interaction.getGuild().id),
                     )
+                    Prefix.updateCache(interaction.getGuild().id, prefix)
                     content = bot.translator.getLocalString(
                         interaction, "newPrefix", [("prefix", str(prefix))]
                     )

@@ -6,10 +6,15 @@ from traceback import format_exc
 import aiosqlite
 import discord
 from discord.ext import tasks
+from dotenv import load_dotenv
 
 from src.functions.eventsFunctions import setup_func
 from src.resources.adapter import ContextAdapter
-from src.resources.bot import bot
+from src.resources.persistent import PersistentBot
+
+load_dotenv()
+
+bot = PersistentBot()
 
 
 @bot.event
