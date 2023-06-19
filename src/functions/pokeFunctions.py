@@ -459,7 +459,7 @@ async def pokerankFunction(bot, interaction: ContextAdapter):
         while i != len(result_list) and i < 10:
             description += (
                 str(i + 1)
-                + "- "
+                + " - "
                 + result_list[i][1]
                 + " - "
                 + str(result_list[i][0])
