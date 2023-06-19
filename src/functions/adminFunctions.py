@@ -74,7 +74,7 @@ async def banFunction(
                     await user.ban(
                         reason=(reason or "No reason given.")
                         + " / Triggered by "
-                        + interaction.getAuthor().name
+                        + interaction.getAuthor().display_name
                     )
                     content = bot.translator.getLocalString(interaction, "userBanned", [])
                     await interaction.sendMessage(content=content)

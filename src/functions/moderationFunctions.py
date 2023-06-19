@@ -61,7 +61,7 @@ async def clearFunction(bot, interaction: ContextAdapter, amount: int):
                         mess_count = len(
                             await interaction.getChannel().purge(
                                 limit=amount,
-                                reason="Requested by " + interaction.getAuthor().name,
+                                reason="Requested by " + interaction.getAuthor().display_name,
                             )
                         )
 
@@ -126,7 +126,7 @@ async def kickFunction(
                     await user.kick(
                         reason=(reason or "No reason given.")
                         + " / Triggered by "
-                        + interaction.getAuthor().name
+                        + interaction.getAuthor().display_name
                     )
                     content = bot.translator.getLocalString(interaction, "userKicked", [])
                     await interaction.sendMessage(content=content)

@@ -26,12 +26,12 @@ async def setup_func(bot, guild):
             if userInfos == None:
                 await cursor.execute(
                     "INSERT INTO dis_user(user_id, user_name) VALUES(?, ?)",
-                    (user.id, user.name),
+                    (user.id, user.display_name),
                 )
-            elif user.name != userInfos[1]:
+            elif user.display_name != userInfos[1]:
                 await cursor.execute(
                     "UPDATE dis_user SET user_name = ? where user_id = ?",
-                    (user.name, user.id),
+                    (user.display_name, user.id),
                 )
 
             await cursor.execute(
@@ -113,13 +113,13 @@ class EventsCog(commands.Cog):
             if member_id == None:
                 await cursor.execute(
                     "INSERT INTO dis_user(user_id, user_name) VALUES(?, ?)",
-                    (member.id, member.name),
+                    (member.id, member.display_name),
                 )
 
-            elif member.name != member_id[1]:
+            elif member.display_name != member_id[1]:
                 await cursor.execute(
                     "UPDATE dis_user SET user_name = ? WHERE user_id = ?",
-                    (member.name, member.id),
+                    (member.display_name, member.id),
                 )
 
             await cursor.execute(
@@ -152,7 +152,7 @@ class EventsCog(commands.Cog):
                 content = self.bot.translator.getLocalString(
                     member,
                     "goodbye",
-                    [("memberName", member.name + "#" + member.discriminator)],
+                    [("memberName", f"`{member.name}`")],
                 )
                 await welcome_channel.send(content=content)
 
@@ -273,11 +273,11 @@ class EventsCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
-        if before.name != after.name:
+        if before.display_name != after.display_name:
             cursor = await self.bot.connection.cursor()
             await cursor.execute(
                 "UPDATE dis_user SET user_name = ? WHERE user_id = ?",
-                (after.name, before.id),
+                (after.display_name, before.id),
             )
             await self.bot.connection.commit()
             await cursor.close()
