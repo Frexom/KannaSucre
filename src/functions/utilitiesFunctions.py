@@ -114,7 +114,9 @@ async def servrankFunction(bot, interaction: ContextAdapter):
         if description == "":
             description = bot.translator.getLocalString(interaction, "servrankEmpty", [])
 
-        title = bot.translator.getLocalString(interaction, "pokerank", [])
+        title = bot.translator.getLocalString(
+            interaction, "servrankRanking", [("guild", interaction.getGuild().name)]
+        )
         embed = discord.Embed(title=title, colour=discord.Colour(0x635F))
 
         if interaction.getGuild().icon is not None:

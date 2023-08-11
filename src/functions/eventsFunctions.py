@@ -26,12 +26,12 @@ async def setup_func(bot, guild):
             if userInfos == None:
                 await cursor.execute(
                     "INSERT INTO dis_user(user_id, user_name) VALUES(?, ?)",
-                    (user.id, user.display_name),
+                    (user.id, user.global_name),
                 )
-            elif user.display_name != userInfos[1]:
+            elif user.global_name != userInfos[1]:
                 await cursor.execute(
                     "UPDATE dis_user SET user_name = ? where user_id = ?",
-                    (user.display_name, user.id),
+                    (user.global_name, user.id),
                 )
 
             await cursor.execute(
@@ -113,13 +113,13 @@ class EventsCog(commands.Cog):
             if member_id == None:
                 await cursor.execute(
                     "INSERT INTO dis_user(user_id, user_name) VALUES(?, ?)",
-                    (member.id, member.display_name),
+                    (member.id, member.global_name),
                 )
 
-            elif member.display_name != member_id[1]:
+            elif member.global_name != member_id[1]:
                 await cursor.execute(
                     "UPDATE dis_user SET user_name = ? WHERE user_id = ?",
-                    (member.display_name, member.id),
+                    (member.global_name, member.id),
                 )
 
             await cursor.execute(
@@ -273,11 +273,11 @@ class EventsCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
-        if before.display_name != after.display_name:
+        if before.global_name != after.global_name:
             cursor = await self.bot.connection.cursor()
             await cursor.execute(
                 "UPDATE dis_user SET user_name = ? WHERE user_id = ?",
-                (after.display_name, before.id),
+                (after.global_name, before.id),
             )
             await self.bot.connection.commit()
             await cursor.close()
