@@ -152,8 +152,8 @@ giveawayEnded%This giveaway does not exist, it has probably ended!
 giveawayRole%Required role :
 giveawayLost%This giveaway ended, but no one entered it :/
 giveawayWon%The giveaway has ended with **{number}** people taking part in it!\nCongratulation to <@{userId}> who won `{prize}`!
-pokeinfoSugimori%Warning! you have switched to Sugimori-style sprites. Those sprites are better looking, but miss a lot of alternative forms. It means you won't see the difference between Pokémon forms, but still obtain them.
-pokeinfoHome%You have switched back to HOME sprites.
+pokeinfoLinktype0%Warning! you have switched to Sugimori-style sprites. Those sprites are better looking, but miss a lot of alternative forms. It means you won't see the difference between Pokémon forms, but still obtain them.
+pokeinfoLinktype1%You have switched to HOME sprites.
 giveawayPrefix%I'm sorry, but the giveaway command has too many settings to be interpreted as a prefix command, try `/giveaway` instead!
 clearDelete%Deleting!
 levelUpRole%Congratulations {user}, you are now level {number}!\nAs a reward, you got the `{role}` role!
@@ -162,7 +162,7 @@ refresh%Refresh
 editlevelNoReward%No level rewards.
 editLevelReward%Level {level}: <@&{roleID}>\n
 editlevelTitle%{guild}'s level rewards
-editlevelFooter%use /addlevel to add level rewards!
+editlevelFooter%Use /addlevel to add level rewards!
 editlevelDeleteLabel%Delete a level.
 editlevelChooseDelete%Choose a level to delete.
 editlevelDeleted%The role reward `Level {level}` has been deleted.

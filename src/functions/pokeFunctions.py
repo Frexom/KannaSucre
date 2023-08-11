@@ -269,10 +269,9 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
                     content=pokemon.shiny_link if pokemon.shiny else pokemon.link,
                     embed=pokemon.get_pokeinfo_embed(),
                 )
-                if pokemon.linkType == 1:
-                    content = bot.translator.getLocalString(interaction, "pokeinfoSugimori", [])
-                else:
-                    content = bot.translator.getLocalString(interaction, "pokeinfoHome", [])
+                content = bot.translator.getLocalString(
+                    interaction, f"pokeinfoLinktype{(pokemon.linkType-1)%2}", []
+                )
 
                 await interaction.sendMessage(content=content, ephemeral=True)
 
