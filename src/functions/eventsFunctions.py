@@ -19,6 +19,8 @@ async def setup_func(bot, guild):
         )
     for user in guild.members:
         if not user.bot:
+            global_name = user.global_name if user.global_name is not None else user.name
+
             await cursor.execute(
                 "SELECT user_id, user_name FROM dis_user WHERE user_id = ?", (user.id,)
             )
@@ -26,12 +28,12 @@ async def setup_func(bot, guild):
             if userInfos == None:
                 await cursor.execute(
                     "INSERT INTO dis_user(user_id, user_name) VALUES(?, ?)",
-                    (user.id, user.global_name),
+                    (user.id, global_name),
                 )
-            elif user.global_name != userInfos[1]:
+            elif global_name != userInfos[1]:
                 await cursor.execute(
                     "UPDATE dis_user SET user_name = ? where user_id = ?",
-                    (user.global_name, user.id),
+                    (global_name, user.id),
                 )
 
             await cursor.execute(
@@ -106,6 +108,8 @@ class EventsCog(commands.Cog):
 
         # Insert new member in database
         if not member.bot:
+            global_name = member.global_name if member.global_name is not None else user.name
+
             await cursor.execute(
                 "SELECT user_id, user_name FROM dis_user WHERE user_id = ?", (member.id,)
             )
@@ -113,13 +117,13 @@ class EventsCog(commands.Cog):
             if member_id == None:
                 await cursor.execute(
                     "INSERT INTO dis_user(user_id, user_name) VALUES(?, ?)",
-                    (member.id, member.global_name),
+                    (member.id, global_name),
                 )
 
-            elif member.global_name != member_id[1]:
+            elif global_name != member_id[1]:
                 await cursor.execute(
                     "UPDATE dis_user SET user_name = ? WHERE user_id = ?",
-                    (member.global_name, member.id),
+                    (global_name, member.id),
                 )
 
             await cursor.execute(
@@ -273,8 +277,9 @@ class EventsCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
-        if before.global_name != after.global_name:
+        if (before.global_name != after.global_name) or (before.name != after.name):
             cursor = await self.bot.connection.cursor()
+            global_name = after.global_name if after.global_name is not None else user.name
             await cursor.execute(
                 "UPDATE dis_user SET user_name = ? WHERE user_id = ?",
                 (after.global_name, before.id),
