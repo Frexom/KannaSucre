@@ -32,7 +32,7 @@ class PokeCog(commands.Cog):
         if len(message) > 1:
             pokemon = message[1]
             if not pokemon.isdecimal():
-                poke_id = bot.translator.getPokeIdByName(context, pokemon.lower())
+                poke_id = self.bot.translator.getPokeIdByName(context, pokemon.lower())
             else:
                 poke_id = int(message[1])
 
