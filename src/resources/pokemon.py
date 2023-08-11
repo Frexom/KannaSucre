@@ -351,7 +351,7 @@ class Pokemon:
         self.current_link = get_current_link(self.bot, self.id, self.alt, self.genre)
 
     def switchType(self):
-        self.linkType = 0 if self.linkType == 1 else 1
+        self.linkType = (self.linkType + 1) % 2
         self.update_properties()
 
 
@@ -419,7 +419,7 @@ class Pokedex:
         totals = cursor.fetchall()
         closeStaticConn(connection, cursor)
 
-        embed = discord.Embed(title=str(self.user.name) + "'s Pokedex")
+        embed = discord.Embed(title=str(self.user.display_name) + "'s Pokedex")
         rarityCountStr = ""
 
         currentIndex = 0

@@ -152,8 +152,8 @@ giveawayEnded%Ce giveaway n'existe pas, il est probablement déjà terminé !
 giveawayRole%Rôle requis :
 giveawayLost%Ce giveaway est terminé, mais personne n'a participé :/
 giveawayWon%Ce giveaway est terminé ! **{number}** personnes ont participé ! \nFélicitations à <@{userId}> qui a remporté `{prize}` !
-pokeinfoSugimori%Attention ! Tu as activé les sprites au style Sugimori. Ces sprites sont plus beaux, mais beaucoup de formes alternatives sont manquantes. Ça signifie que tu ne verras pas la différence entre les formes des Pokémons, mais tu attraperas tout de même différentes formes.
-pokeinfoHome%Tu as réactivé les sprites HOME.
+pokeinfoLinktype0%Attention ! Tu as activé les sprites au style Sugimori. Ces sprites sont plus beaux, mais beaucoup de formes alternatives sont manquantes. Ça signifie que tu ne verras pas la différence entre les formes des Pokémons, mais tu attraperas tout de même différentes formes.
+pokeinfoLinktype1%Tu as réactivé les sprites HOME.
 giveawayPrefix%Je suis désolée, la commande giveaway repose sur trop de paramètres pour être utilisée sous forme d'une commande à préfixe, essayez plutôt `/giveaway` !
 clearDelete%Je supprime!
 levelUpRole%Félicitations {user}, tu es passé·e niveau {number} !\n En guise de récompense, tu as obtenu le rôle `{role}` !
@@ -162,7 +162,7 @@ refresh%Actualiser
 editlevelNoReward%Il n'y pas de récompense de niveau.
 editLevelReward%Niveau {level}: <@&{roleID}>\n
 editlevelTitle%Récompenses de niveau de {guild}
-editlevelFooter%utilisez la commande /addlevel pour ajouter des récompenses de niveau !
+editlevelFooter%Utilisez la commande /addlevel pour ajouter des récompenses de niveau !
 editlevelDeleteLabel%Supprimer un niveau.
 editlevelChooseDelete%Choisissez un niveau à supprimer.
 editlevelDeleted%Le rôle récompense `niveau {level}` a été supprimé.
