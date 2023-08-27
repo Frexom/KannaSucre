@@ -28,9 +28,7 @@ def get_rarity(bot, interaction):
         return [1, bot.translator.getLocalString(interaction, "common", [])]
 
 
-def get_shiny(
-    bot,
-):
+def get_shiny(bot):
     rand = random.randint(1, 256)
     if rand == 1:
         return True
@@ -528,7 +526,7 @@ class Pokedex:
     def __get_shiny_embed(self):
         connection, cursor = getStaticReadingConn()
         cursor.execute(
-            "SELECT DISTINCT dex_id, dex_name FROM poke_obtained JOIN poke_dex USING(dex_id) WHERE is_shiny = 1 AND user_id = ? ORDER BY dex_id",
+            "SELECT DISTINCT dex_id FROM poke_obtained JOIN poke_dex USING(dex_id) WHERE is_shiny = 1 AND user_id = ? ORDER BY dex_id",
             (self.user.id,),
         )
         shinies = cursor.fetchall()
@@ -547,7 +545,14 @@ class Pokedex:
             for i in range(self.page * 20, (self.page + 1) * 20):
                 if len(shinies) > self.page * 20 + count:
 
-                    list_pokemons += str(shinies[i][0]) + " - " + shinies[i][1] + ":sparkles:\n"
+                    list_pokemons += (
+                        str(shinies[i][0])
+                        + " - "
+                        + self.bot.translator.getLocalPokeString(
+                            self.interaction, f"name{shinies[i][0]}"
+                        )
+                        + ":sparkles:\n"
+                    )
                 count += 1
 
         title = self.bot.translator.getLocalString(
