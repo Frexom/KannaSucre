@@ -11,10 +11,7 @@ connection, cursor = getStaticReadingConn()
 cursor.execute("SELECT type_name, type_emoji_id from poke_type ORDER BY type_id")
 tmp = cursor.fetchall()
 closeStaticConn(connection, cursor)
-type_names = [elem[0] for elem in tmp]
 type_emojis = [elem[1] for elem in tmp]
-
-
 
 
 def get_rarity(bot, interaction):
@@ -312,10 +309,13 @@ class Pokemon:
             name=self.bot.translator.getLocalString(self.interaction, "description", []) + " :",
             value=self.description,
         )
+        types = f"{self.bot.translator.getLocalString(self.interaction, f'poketype{self.type1}', [])} <:poke_type:{type_emojis[self.type1]}>"
+        if self.type2:
+            types += f", {self.bot.translator.getLocalString(self.interaction, f'poketype{self.type2}', [])} <:poke_type:{type_emojis[self.type2]}>"
         e.add_field(
             name=self.bot.translator.getLocalString(self.interaction, "type", []) + " :",
-            value=f"{type_names[self.type1]} <:poke_type:{type_emojis[self.type1]}>" + (f", {type_names[self.type2]} <:poke_type:{type_emojis[self.type2]}>" if self.type2 is not None else ""),
-            inline=False
+            value=types,
+            inline=False,
         )
         if self.devolution is not None:
             evolved = self.bot.translator.getLocalString(self.interaction, "evolvedBy", [])
