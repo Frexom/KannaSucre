@@ -176,3 +176,4 @@ editlevelsDesc%Affichez et supprimez les récompenses de niveau actuelles !
 servrankEmpty%Personne n'a encore de niveau, activez-les avec /togglelevels!
 servrankRanking%Classement des niveaux de {guild} :
 servrankLevel%{username}: Niveau {level}
+type%Type(s)
