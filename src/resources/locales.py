@@ -20,7 +20,7 @@ class Translator:
         subfolders = [f.name for f in os.scandir("src/resources/locales") if f.is_dir()]
         for folder in subfolders:
             file = "src/resources/locales/{}/strings.csv".format(folder)
-            with open(file, encoding='utf8') as f:
+            with open(file, encoding="utf8") as f:
                 reader = csv.reader(f, delimiter="%")
                 self.strings[folder] = {rows[0]: rows[1] for rows in reader}
 
@@ -28,7 +28,7 @@ class Translator:
         subfolders = [f.name for f in os.scandir("src/resources/locales") if f.is_dir()]
         for folder in subfolders:
             file = "src/resources/locales/{}/poke.csv".format(folder)
-            with open(file, encoding='utf8') as f:
+            with open(file, encoding="utf8") as f:
                 reader = csv.reader(f, delimiter="%")
                 self.poke[folder] = {rows[0]: rows[1] for rows in reader}
 
@@ -36,7 +36,7 @@ class Translator:
         subfolders = [f.name for f in os.scandir("src/resources/locales") if f.is_dir()]
         for folder in subfolders:
             file = "src/resources/locales/{}/evolutions.csv".format(folder)
-            with open(file, encoding='utf8') as f:
+            with open(file, encoding="utf8") as f:
                 reader = csv.reader(f, delimiter="%")
                 self.evolutions[folder] = {rows[0]: rows[1] for rows in reader}
 

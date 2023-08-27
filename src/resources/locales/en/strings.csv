@@ -177,3 +177,21 @@ servrankEmpty%No levels yet, activate it with /togglelevels !
 servrankRanking%{guild}'s level ranking :
 servrankLevel%{username}: Level {level}
 type%Type(s)
+poketype0%Normal
+poketype1%Fire
+poketype2%Water
+poketype3%Electric
+poketype4%Grass
+poketype5%Ice
+poketype6%Fighting
+poketype%Poison
+poketype8%Ground
+poketype9%Flying
+poketype10%Psychic
+poketype11%Bug
+poketype12%Rock
+poketype13%Ghost
+poketype14%Dragon
+poketype15%Dark
+poketype16%Steel
+poketype17%Fairy
