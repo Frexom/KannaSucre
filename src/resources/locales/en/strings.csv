@@ -176,3 +176,4 @@ editlevelsDesc%View and delete the current's server level rewards!
 servrankEmpty%No levels yet, activate it with /togglelevels !
 servrankRanking%{guild}'s level ranking :
 servrankLevel%{username}: Level {level}
+type%Type(s)

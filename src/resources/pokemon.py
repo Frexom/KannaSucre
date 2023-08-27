@@ -7,6 +7,16 @@ from src.resources.connection import closeStaticConn, getStaticReadingConn
 poke_count = 1010
 
 
+connection, cursor = getStaticReadingConn()
+cursor.execute("SELECT type_name, type_emoji_id from poke_type ORDER BY type_id")
+tmp = cursor.fetchall()
+closeStaticConn(connection, cursor)
+type_names = [elem[0] for elem in tmp]
+type_emojis = [elem[1] for elem in tmp]
+
+
+
+
 def get_rarity(bot, interaction):
     rand = random.randint(1, 100)
     if rand == 100:
@@ -167,7 +177,7 @@ class Pokemon:
     def update_properties(self):
         connection, cursor = getStaticReadingConn()
         cursor.execute(
-            "SELECT link_normal, link_shiny, form_sex, form_label FROM poke_dex JOIN poke_form USING(dex_id) JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND link_type = ?",
+            "SELECT link_normal, link_shiny, form_sex, form_label, form_type1, form_type2 FROM poke_dex JOIN poke_form USING(dex_id) JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND link_type = ?",
             (self.id, self.alt, self.linkType),
         )
         temp = cursor.fetchone()
@@ -180,6 +190,8 @@ class Pokemon:
         self.shiny_link = temp[1]
         self.genre = temp[2]
         self.label = temp[3]
+        self.type1 = temp[4]
+        self.type2 = temp[5]
         cursor.execute("SELECT COUNT(*) FROM poke_form WHERE dex_id = ?", (self.id,))
         self.pokelinks = cursor.fetchone()
         self.pokelinks = self.pokelinks[0]
@@ -239,7 +251,7 @@ class Pokemon:
                 try:
                     self.genre = "f"
                     cursor.execute(
-                        "SELECT link_normal, link_shiny, form_label FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND form_sex = ? AND link_type = ?",
+                        "SELECT link_normal, link_shiny, form_label FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) JOIN poke_type WHERE dex_id = ? AND form_alt = ? AND form_sex = ? AND link_type = ?",
                         (self.id, self.alt, self.genre, self.linkType),
                     )
                     temp = cursor.fetchone()
@@ -299,6 +311,11 @@ class Pokemon:
         e.add_field(
             name=self.bot.translator.getLocalString(self.interaction, "description", []) + " :",
             value=self.description,
+        )
+        e.add_field(
+            name=self.bot.translator.getLocalString(self.interaction, "type", []) + " :",
+            value=f"{type_names[self.type1]} <:poke_type:{type_emojis[self.type1]}>" + (f", {type_names[self.type2]} <:poke_type:{type_emojis[self.type2]}>" if self.type2 is not None else ""),
+            inline=False
         )
         if self.devolution is not None:
             evolved = self.bot.translator.getLocalString(self.interaction, "evolvedBy", [])
