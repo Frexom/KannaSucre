@@ -108,7 +108,7 @@ class EventsCog(commands.Cog):
 
         # Insert new member in database
         if not member.bot:
-            global_name = member.global_name if member.global_name is not None else user.name
+            global_name = member.global_name if member.global_name is not None else member.name
 
             await cursor.execute(
                 "SELECT user_id, user_name FROM dis_user WHERE user_id = ?", (member.id,)
