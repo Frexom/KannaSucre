@@ -4,7 +4,7 @@ import discord
 
 from src.resources.adapter import ContextAdapter
 from src.resources.pokemon import POKE_COUNT, Pokedex, Pokemon, RandomPokemon
-from src.resources.ui import ClearView
+from src.resources.ui import ClearView, PokeDropdown
 
 
 async def pokeFunction(bot, interaction: ContextAdapter):
@@ -228,9 +228,9 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
                 interaction = ContextAdapter(interaction)
 
                 await interaction.defer()
-                if pokemon.evolutions is not None:
+                if pokemon.getEvolutions():
                     if len(pokemon.evolutions) > 1:
-                        dropdown = PokeDropdown(interaction, pokemon, buttonView)
+                        dropdown = PokeDropdown(bot, interaction, pokemon, buttonView)
 
                         evoView = ClearView(interaction, timeout=90)
                         evoView.add_item(dropdown)
