@@ -449,7 +449,6 @@ class RandomPokemon:
 
     def _get_shiny(self):
         self.shiny = True if random.randint(1, 256) == 1 else False
-        self.shiny = True
 
     def _get_rarity(self):
         rand = random.randint(1, 100)
