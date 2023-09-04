@@ -214,7 +214,7 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
                 nonlocal pokemon
                 interaction = ContextAdapter(interaction)
 
-                pokemon.shiny = not pokemon.shiny
+                pokemon.toggleShiny()
                 await interaction.editMessage(
                     content=pokemon.getLink(),
                     embed=pokemon.get_pokeinfo_embed(),
