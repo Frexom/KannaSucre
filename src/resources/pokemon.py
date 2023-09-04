@@ -14,86 +14,6 @@ closeStaticConn(connection, cursor)
 type_emojis = [elem[1] for elem in tmp]
 
 
-def get_rarity(bot, interaction):
-    rand = random.randint(1, 100)
-    if rand == 100:
-        return [5, bot.translator.getLocalString(interaction, "legendary", [])]
-    elif rand >= 95 and rand <= 99:
-        return [4, bot.translator.getLocalString(interaction, "superRare", [])]
-    elif rand >= 80 and rand <= 94:
-        return [3, bot.translator.getLocalString(interaction, "rare", [])]
-    elif rand >= 55 and rand <= 79:
-        return [2, bot.translator.getLocalString(interaction, "uncommon", [])]
-    else:
-        return [1, bot.translator.getLocalString(interaction, "common", [])]
-
-
-def get_shiny(bot):
-    rand = random.randint(1, 256)
-    if rand == 1:
-        return True
-    return False
-
-
-def get_pokemon_id(bot, rarity: int):
-    connection, cursor = getStaticReadingConn()
-    cursor.execute(
-        "SELECT dex_id FROM poke_dex WHERE dex_rarity = ? ORDER BY RANDOM() LIMIT 1",
-        (rarity,),
-    )
-    temp = cursor.fetchone()
-    closeStaticConn(connection, cursor)
-    return temp[0]
-
-
-def get_pokemon_alt(bot, poke_id: int):
-    connection, cursor = getStaticReadingConn()
-    cursor.execute(
-        "SELECT DISTINCT form_alt, form_label FROM poke_form WHERE dex_id = ?",
-        (poke_id,),
-    )
-    alt = cursor.fetchall()
-    closeStaticConn(connection, cursor)
-    if len(alt) == 1:
-        return alt[0][0], alt[0][1]
-    else:
-        index = random.randint(0, len(alt) - 1)
-        return alt[index][0], alt[index][1]
-
-
-def get_pokemon_genre(bot, poke_id: int, poke_alt: int):
-    connection, cursor = getStaticReadingConn()
-    cursor.execute(
-        "SELECT form_sex FROM poke_form WHERE dex_id = ? AND form_alt = ?",
-        (poke_id, poke_alt),
-    )
-    data = cursor.fetchall()
-    closeStaticConn(connection, cursor)
-    if len(data) == 1:
-        return data[0][0]
-    else:
-        return data[random.randint(0, len(data) - 1)][0]
-
-
-def get_pokemon_link(
-    bot, poke_id: int, poke_alt: int, poke_genre: str, shiny: bool, linkType: int
-):
-    connection, cursor = getStaticReadingConn()
-    if shiny:
-        cursor.execute(
-            "SELECT link_shiny FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? and form_alt = ? and form_sex = ? AND link_type = ?",
-            (poke_id, poke_alt, poke_genre, linkType),
-        )
-    else:
-        cursor.execute(
-            "SELECT link_normal FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? and form_alt = ? and form_sex = ? AND link_type = ?",
-            (poke_id, poke_alt, poke_genre, linkType),
-        )
-    temp = cursor.fetchone()
-    closeStaticConn(connection, cursor)
-    return temp[0]
-
-
 def get_current_link(bot, poke_id: int, poke_alt: int, poke_genre: str):
     connection, cursor = getStaticReadingConn()
     cursor.execute(
@@ -135,38 +55,20 @@ def get_evolutions(bot, poke_id: int, poke_alt: int):
 
 
 class Pokemon:
-    def __init__(self, bot, interaction: discord.Interaction, linkType: int, pokeID: int = None):
+    def __init__(self, bot, interaction: discord.Interaction, linkType: int, pokeID: int):
         self.bot = bot
         self.interaction = interaction
         self.linkType = linkType
 
-        if pokeID is not None:
-            if pokeID <= poke_count and pokeID > 0:
-                self.id = pokeID
-                self.shiny = False
-                self.current_link = 1
-                self.alt = 0
-                self.update_properties()
+        if pokeID <= poke_count and pokeID > 0:
+            self.id = pokeID
+            self.shiny = False
+            self.current_link = 1
+            self.alt = 0
+            self.update_properties()
 
-            else:
-                raise ValueError(f"Poke_id must be between 0 and {poke_count}.")
         else:
-            self.rarity = get_rarity(self.bot, interaction)
-            self.shiny = get_shiny(
-                self.bot,
-            )
-            self.id = get_pokemon_id(self.bot, self.rarity[0])
-            self.name = self.bot.translator.getLocalPokeString(interaction, "name" + str(self.id))
-            self.alt, self.label = get_pokemon_alt(self.bot, self.id)
-            self.genre = get_pokemon_genre(self.bot, self.id, self.alt)
-            self.link = get_pokemon_link(
-                self.bot, self.id, self.alt, self.genre, self.shiny, self.linkType
-            )
-
-            if self.genre == "f":
-                self.name += "\u2640"
-            if self.genre == "m":
-                self.name += "\u2642"
+            raise ValueError(f"Poke_id must be between 0 and {poke_count}.")
 
     def update_properties(self):
         connection, cursor = getStaticReadingConn()
@@ -186,8 +88,9 @@ class Pokemon:
         self.label = temp[3]
         self.type1 = temp[4]
         self.type2 = temp[5]
-        cursor.execute("SELECT COUNT(*) FROM poke_form WHERE dex_id = ?", (self.id,))
-        self.pokelinks = cursor.fetchone()
+
+        cursor.execute("SELECT * FROM poke_form WHERE dex_id = ?", (self.id,))
+        self.pokelinks = cursor.fetchall()
         self.pokelinks = self.pokelinks[0]
         cursor.execute("SELECT MAX(form_alt) FROM poke_form WHERE dex_id = ?", (self.id,))
         self.pokealts = cursor.fetchone()
@@ -571,3 +474,73 @@ class Pokedex:
         )
         embed.set_footer(text=text)
         return embed
+
+
+class RandomPokemon:
+    id: int
+    name: str
+    alt: int
+    label: str
+    genre: str
+    rarity: int
+    shiny: bool
+    linktype: int
+    link: str
+
+    def __init__(self, bot, interaction, linkType: int):
+        self.bot = bot
+        self.linkType = linkType
+        self.interaction = interaction
+
+        self._get_rarity()
+        self._get_shiny()
+        self._fetch_pokemon_details()
+
+        self.name = self.bot.translator.getLocalPokeString(interaction, "name" + str(self.id))
+
+        if self.genre == "f":
+            self.name += "\u2640"
+        if self.genre == "m":
+            self.name += "\u2642"
+
+    def _get_shiny(self):
+        self.shiny = True if random.randint(1, 256) == 1 else False
+        self.shiny = True
+
+    def _get_rarity(self):
+        rand = random.randint(1, 100)
+        if rand == 100:
+            self.rarity = [
+                5,
+                self.bot.translator.getLocalString(self.interaction, "legendary", []),
+            ]
+        elif rand >= 95 and rand <= 99:
+            self.rarity = [
+                4,
+                self.bot.translator.getLocalString(self.interaction, "superRare", []),
+            ]
+        elif rand >= 80 and rand <= 94:
+            self.rarity = [3, self.bot.translator.getLocalString(self.interaction, "rare", [])]
+        elif rand >= 55 and rand <= 79:
+            self.rarity = [2, self.bot.translator.getLocalString(self.interaction, "uncommon", [])]
+        else:
+            self.rarity = [1, self.bot.translator.getLocalString(self.interaction, "common", [])]
+
+    def _fetch_pokemon_details(self):
+        connection, cursor = getStaticReadingConn()
+        cursor.execute(
+            """SELECT dex_id, form_alt, form_label, form_sex, link_normal, link_shiny from poke_link
+            JOIN poke_form USING(dex_id, form_alt, form_sex)
+            JOIN poke_dex USING(dex_id)
+            WHERE dex_id = (SELECT dex_id FROM poke_dex WHERE dex_rarity = %s ORDER by RANDOM()) and link_type = %s
+            ORDER BY RANDOM() LIMIT 1"""
+            % (self.rarity[0], self.linkType),
+        )
+        temp = cursor.fetchone()
+        closeStaticConn(connection, cursor)
+
+        self.id = temp[0]
+        self.alt = temp[1]
+        self.label = temp[2]
+        self.genre = temp[3]
+        self.link = temp[5] if self.shiny else temp[4]
