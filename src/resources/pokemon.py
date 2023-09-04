@@ -128,6 +128,14 @@ class Pokemon:
         if self.genre == "m":
             self.name += "\u2642"
 
+        connection, cursor = getStaticReadingConn()
+        cursor.execute(
+            "SELECT evo_post, evo_post_alt, form_label FROM poke_evolution JOIN poke_form ON evo_post = poke_form.dex_id AND evo_post_alt = form_alt WHERE evo_pre = %s and evo_pre_alt = %s"
+            % (self.id, self.alt)
+        )
+        self.evolutions = cursor.fetchall()
+        closeStaticConn(connection, cursor)
+
     def next_alt(self):
         self.currentLink = (self.currentLink + 1) % len(self.alts)
         self._update_from_current_link()
@@ -152,14 +160,20 @@ class Pokemon:
             return True
         return False
 
-    def evolve(self):
-        pass
+    def evolve(self, evolution: int = 0):
+        self.id = self.evolutions[evolution][0]
+        self.alt = self.evolutions[evolution][1]
+        self._fetch_details(self.alt)
+        self._update_from_current_link()
 
     def toggleShiny(self):
         self.shiny = not self.shiny
 
     def getLink(self):
         return self.link_shiny if self.shiny else self.link_normal
+
+    def getEvolutions(self):
+        return self.evolutions
 
     def get_pokeinfo_embed(self):
         formString = self.bot.translator.getLocalString(

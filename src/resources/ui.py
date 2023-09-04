@@ -62,7 +62,8 @@ class PokeDropdown(discord.ui.Select):
         i = 0
 
         for evo in pokemon.evolutions:
-            label = evo[2] if evo[3] in noLabel else evo[3] + " " + evo[2]
+            name = self.bot.translator.getLocalPokeString(self.interaction, f"name{evo[0]}")
+            label = name if evo[2] in noLabel else evo[2] + " " + name
             options.append(discord.SelectOption(label=label, value=i))
             i += 1
         placeholder = self.bot.translator.getLocalString(self.interaction, "chooseEvolution", [])
@@ -72,7 +73,7 @@ class PokeDropdown(discord.ui.Select):
         await interaction.response.defer()
         self.pokemon.evolve(int(self.values[0]))
         await interaction.message.edit(
-            content=self.pokemon.shiny_link if self.pokemon.shiny else self.pokemon.link,
+            content=self.pokemon.getLink(),
             embed=self.pokemon.get_pokeinfo_embed(),
             view=self.buttonView,
         )
