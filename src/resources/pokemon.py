@@ -4,14 +4,22 @@ import discord
 
 from src.resources.connection import closeStaticConn, getStaticReadingConn
 
-poke_count = 1010
-
-
+# Init DB-dependent variables
 connection, cursor = getStaticReadingConn()
+
 cursor.execute("SELECT type_name, type_emoji_id from poke_type ORDER BY type_id")
 tmp = cursor.fetchall()
+TYPE_EMOJIS = [elem[1] for elem in tmp]
+
+cursor.execute("SELECT COUNT(*) FROM poke_dex")
+tmp = cursor.fetchone()
+POKE_COUNT = tmp[0]
+
+cursor.execute("SELECT COUNT(DISTINCT(link_type)) FROM poke_link")
+tmp = cursor.fetchone()
+NB_LINK_TYPES = tmp[0]
+
 closeStaticConn(connection, cursor)
-type_emojis = [elem[1] for elem in tmp]
 
 
 def get_current_link(bot, poke_id: int, poke_alt: int, poke_genre: str):
@@ -60,167 +68,131 @@ class Pokemon:
         self.interaction = interaction
         self.linkType = linkType
 
-        if pokeID <= poke_count and pokeID > 0:
-            self.id = pokeID
-            self.shiny = False
-            self.current_link = 1
-            self.alt = 0
-            self.update_properties()
+        if pokeID < 1 or pokeID > POKE_COUNT:
+            raise ValueError(f"Poke_id must be between 0 and {POKE_COUNT}.")
 
-        else:
-            raise ValueError(f"Poke_id must be between 0 and {poke_count}.")
+        self.id = pokeID
+        self.shiny = False
+        self.currentLink = 0
+        self._fetch_details()
+        self._update_from_current_link()
 
-    def update_properties(self):
-        connection, cursor = getStaticReadingConn()
+    def _fetch_details(self, form_alt: int = None, form_sex: str = None):
+        conn, cursor = getStaticReadingConn()
         cursor.execute(
-            "SELECT link_normal, link_shiny, form_sex, form_label, form_type1, form_type2 FROM poke_dex JOIN poke_form USING(dex_id) JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND link_type = ?",
-            (self.id, self.alt, self.linkType),
+            """SELECT dex_id, form_alt, form_sex, link_normal, link_shiny, form_label, form_type1, form_type2, evo_pre, evo_pre_alt, evo_method from poke_link
+            JOIN poke_form USING(dex_id, form_alt, form_sex)
+            JOIN poke_dex USING(dex_id)
+			LEFT JOIN poke_evolution ON evo_post = dex_id and evo_post_alt = form_alt
+            WHERE dex_id = %s and link_type = %s
+            ORDER BY form_alt, form_sex
+        """
+            % (self.id, self.linkType)
         )
-        temp = cursor.fetchone()
+        self.alts = cursor.fetchall()
+        closeStaticConn(conn, cursor)
+
+        self.currentLink = 0
+        if form_alt is not None:
+            for i in range(0, len(self.alts)):
+                row = self.alts[i]
+
+                if row[1] == form_alt and (form_sex is None or row[2] == form_sex):
+                    self.currentLink = i
+                    return
+
+            raise ValueError(
+                f"No such alt ({form_alt}), genre ({form_sex}) for Pokemon n°{self.id}"
+            )
+
+    def _update_from_current_link(self):
+        current_data = self.alts[self.currentLink]
+
+        self.id = current_data[0]
+        self.alt = current_data[1]
+        self.genre = current_data[2]
+        self.link_normal = current_data[3]
+        self.link_shiny = current_data[4]
+        self.label = current_data[5]
+        self.type1 = current_data[6]
+        self.type2 = current_data[7]
+        self.method = current_data[10]
 
         self.name = self.bot.translator.getLocalPokeString(self.interaction, "name" + str(self.id))
         self.description = self.bot.translator.getLocalPokeString(
             self.interaction, "desc" + str(self.id)
         )
-        self.link = temp[0]
-        self.shiny_link = temp[1]
-        self.genre = temp[2]
-        self.label = temp[3]
-        self.type1 = temp[4]
-        self.type2 = temp[5]
 
-        cursor.execute("SELECT * FROM poke_form WHERE dex_id = ?", (self.id,))
-        self.pokelinks = cursor.fetchall()
-        self.pokelinks = self.pokelinks[0]
-        cursor.execute("SELECT MAX(form_alt) FROM poke_form WHERE dex_id = ?", (self.id,))
-        self.pokealts = cursor.fetchone()
-        self.pokealts = self.pokealts[0]
-        self.devolution = get_devolution(self.bot, self.id, self.alt)
-        self.evolutions = get_evolutions(self.bot, self.id, self.alt)
-        closeStaticConn(connection, cursor)
+        if self.genre == "f":
+            self.name += "\u2640"
+        if self.genre == "m":
+            self.name += "\u2642"
 
     def next_alt(self):
-        if self.pokelinks > 1:
-            connection, cursor = getStaticReadingConn()
-            nextAlt = False
-            if self.genre == "f":
-                try:
-                    self.genre = "m"
-                    cursor.execute(
-                        "SELECT link_normal, link_shiny, form_label FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND form_sex = ? AND link_type = ?",
-                        (self.id, self.alt, self.genre, self.linkType),
-                    )
-                    temp = cursor.fetchone()
-                    self.link = temp[0]
-                    self.shiny_link = temp[1]
-                    self.label = temp[2]
-
-                except TypeError:
-                    nextAlt = True
-                    pass
-            else:
-                nextAlt = True
-
-            if nextAlt:
-                if self.alt != self.pokealts:
-                    self.alt += 1
-                else:
-                    self.alt = 0
-                cursor.execute(
-                    "SELECT link_normal, link_shiny, form_sex, form_label FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND link_type = ?",
-                    (self.id, self.alt, self.linkType),
-                )
-                temp = cursor.fetchone()
-                self.link = temp[0]
-                self.shiny_link = temp[1]
-                self.genre = temp[2]
-                self.label = temp[3]
-            self.evolutions = get_evolutions(self.bot, self.id, self.alt)
-            self.devolution = get_devolution(self.bot, self.id, self.alt)
-            self.current_link = get_current_link(self.bot, self.id, self.alt, self.genre)
-            closeStaticConn(connection, cursor)
+        self.currentLink = (self.currentLink + 1) % len(self.alts)
+        self._update_from_current_link()
 
     def prev_alt(self):
-        if self.pokelinks > 1:
-            connection, cursor = getStaticReadingConn()
-            nextAlt = False
-            if self.genre == "m":
-                try:
-                    self.genre = "f"
-                    cursor.execute(
-                        "SELECT link_normal, link_shiny, form_label FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) JOIN poke_type WHERE dex_id = ? AND form_alt = ? AND form_sex = ? AND link_type = ?",
-                        (self.id, self.alt, self.genre, self.linkType),
-                    )
-                    temp = cursor.fetchone()
-                    self.link = temp[0]
-                    self.shiny_link = temp[1]
-                    self.label = temp[2]
+        self.currentLink = (self.currentLink - 1) % len(self.alts)
+        self._update_from_current_link()
 
-                except TypeError:
-                    prev_alt = True
-                    pass
-            else:
-                prev_alt = True
+    def switchType(self):
+        self.linkType = (self.linkType + 1) % NB_LINK_TYPES
+        alt = self.alts[self.currentLink][1]
+        genre = self.alts[self.currentLink][2]
 
-            if prev_alt:
-                if self.alt != 0:
-                    self.alt -= 1
-                else:
-                    self.alt = self.pokealts
-                cursor.execute(
-                    "SELECT link_normal, link_shiny, form_sex, form_label FROM poke_form JOIN poke_link USING(dex_id, form_alt, form_sex) WHERE dex_id = ? AND form_alt = ? AND link_type = ? ORDER BY form_sex DESC",
-                    (self.id, self.alt, self.linkType),
-                )
-                temp = cursor.fetchone()
-                self.link = temp[0]
-                self.shiny_link = temp[1]
-                self.genre = temp[2]
-                self.label = temp[3]
-            self.devolution = get_devolution(self.bot, self.id, self.alt)
-            self.evolutions = get_evolutions(self.bot, self.id, self.alt)
-            self.current_link = get_current_link(self.bot, self.id, self.alt, self.genre)
-            closeStaticConn(connection, cursor)
+        self._fetch_details(alt, genre)
+        self._update_from_current_link()
+
+    def devolve(self):
+        if self.alts[self.currentLink][8] is not None:
+            self.id = self.alts[self.currentLink][8]
+            self._fetch_details(self.alts[self.currentLink][9])
+            self._update_from_current_link()
+            return True
+        return False
+
+    def evolve(self):
+        pass
+
+    def toggleShiny(self):
+        self.shiny = not self.shiny
+
+    def getLink(self):
+        return self.link_shiny if self.shiny else self.link_normal
 
     def get_pokeinfo_embed(self):
-        poke_sex = ""
-        if self.genre == "f":
-            poke_sex += "\u2640"
-        if self.genre == "m":
-            poke_sex += "\u2642"
-
         formString = self.bot.translator.getLocalString(
             self.interaction, "pokeForm", [("form", self.label)]
         )
-        if self.shiny:
-            e = discord.Embed(
-                title="N°" + str(self.id) + " : " + self.name + poke_sex + ":sparkles: ",
-                description=formString,
-            )
-            e.set_image(url=self.shiny_link)
-        else:
-            e = discord.Embed(
-                title="N°" + str(self.id) + " : " + self.name + poke_sex,
-                description=formString,
-            )
-            e.set_image(url=self.link)
 
+        # Title and image
+        e = discord.Embed(
+            title="N°" + str(self.id) + " : " + self.name + (":sparkles:" if self.shiny else ""),
+            description=formString,
+        )
+        e.set_image(url=self.link_shiny if self.shiny else self.link_normal)
+
+        # Description
         e.add_field(
             name=self.bot.translator.getLocalString(self.interaction, "description", []) + " :",
             value=self.description,
         )
-        types = f"{self.bot.translator.getLocalString(self.interaction, f'poketype{self.type1}', [])} <:poke_type:{type_emojis[self.type1]}>"
+        # Types
+        types = f"{self.bot.translator.getLocalString(self.interaction, f'poketype{self.type1}', [])} <:poke_type:{TYPE_EMOJIS[self.type1]}>"
         if self.type2:
-            types += f", {self.bot.translator.getLocalString(self.interaction, f'poketype{self.type2}', [])} <:poke_type:{type_emojis[self.type2]}>"
+            types += f", {self.bot.translator.getLocalString(self.interaction, f'poketype{self.type2}', [])} <:poke_type:{TYPE_EMOJIS[self.type2]}>"
         e.add_field(
             name=self.bot.translator.getLocalString(self.interaction, "type", []) + " :",
             value=types,
             inline=False,
         )
-        if self.devolution is not None:
+
+        if self.method:
             evolved = self.bot.translator.getLocalString(self.interaction, "evolvedBy", [])
-            name = self.bot.translator.getLocalString(self.interaction, "evolution", [])
+            field_name = self.bot.translator.getLocalString(self.interaction, "evolution", [])
             method = ""
-            arguments = self.devolution[2].split()
+            arguments = self.method.split()
 
             if arguments[0] == "friend" or arguments[0] == "trade" or arguments[0][:4] == "spec":
                 method = self.bot.translator.getLocalPokeEvo(self.interaction, arguments[0], {})
@@ -245,30 +217,14 @@ class Pokemon:
 
             method += "."
 
-            e.add_field(name=name + " :", value=evolved + " " + method, inline=False)
+            e.add_field(name=field_name + " :", value=evolved + " " + method, inline=False)
         text = self.bot.translator.getLocalString(
             self.interaction,
             "page",
-            [("current", str(self.current_link)), ("total", str(self.pokelinks))],
+            [("current", str(self.currentLink + 1)), ("total", str(len(self.alts)))],
         )
         e.set_footer(text=text)
         return e
-
-    def devolve(self):
-        self.id = self.devolution[0]
-        self.alt = self.devolution[1]
-        self.update_properties()
-        self.current_link = get_current_link(self.bot, self.id, self.alt, self.genre)
-
-    def evolve(self, choice: int = 0):
-        self.id = self.evolutions[choice][0]
-        self.alt = self.evolutions[choice][1]
-        self.update_properties()
-        self.current_link = get_current_link(self.bot, self.id, self.alt, self.genre)
-
-    def switchType(self):
-        self.linkType = (self.linkType + 1) % 2
-        self.update_properties()
 
 
 class Pokedex:
@@ -359,7 +315,7 @@ class Pokedex:
         embed.add_field(name="Pokémons : ", value=rarityCountStr)
         embed.add_field(
             name="Shinies✨ : ",
-            value=str(shiny[0]) + "/" + str(poke_count) + " shiny pokémons",
+            value=str(shiny[0]) + "/" + str(POKE_COUNT) + " shiny pokémons",
             inline=False,
         )
         embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
@@ -381,7 +337,7 @@ class Pokedex:
 
         closeStaticConn(connection, cursor)
 
-        self.page = (self.page) % (int(poke_count / 20) + 1)
+        self.page = (self.page) % (int(POKE_COUNT / 20) + 1)
 
         if Pokemons == []:
             list_pokemons = self.bot.translator.getLocalString(self.interaction, "noPoke", [])
@@ -391,7 +347,7 @@ class Pokedex:
             while Pokemons[list_index][0] <= self.page * 20 and list_index != len(Pokemons) - 1:
                 list_index += 1
             for i in range(self.page * 20, self.page * 20 + 20):
-                if i < poke_count:
+                if i < POKE_COUNT:
                     if Pokemons[list_index][0] == i + 1:
                         pokeName = self.bot.translator.getLocalPokeString(
                             self.interaction, "name" + str(Pokemons[list_index][0])
@@ -410,7 +366,7 @@ class Pokedex:
         )
         embed = discord.Embed(
             title=title,
-            description=str(number_of_pokemons) + "/" + str(poke_count) + " Pokémons",
+            description=str(number_of_pokemons) + "/" + str(POKE_COUNT) + " Pokémons",
         )
         embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
         embed.add_field(name="Pokémons :", value=list_pokemons, inline=True)
@@ -418,7 +374,7 @@ class Pokedex:
         text = self.bot.translator.getLocalString(
             self.interaction,
             "page",
-            [("current", str(self.page + 1)), ("total", str(int(poke_count / 20) + 1))],
+            [("current", str(self.page + 1)), ("total", str(int(POKE_COUNT / 20) + 1))],
         )
         embed.set_footer(text=text)
         return embed
@@ -460,7 +416,7 @@ class Pokedex:
         shinyString = self.bot.translator.getLocalString(self.interaction, "shinyPoke", [])
         embed = discord.Embed(
             title=title,
-            description=str(len(shinies)) + "/" + str(poke_count) + " " + shinyString,
+            description=str(len(shinies)) + "/" + str(POKE_COUNT) + " " + shinyString,
         )
         embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
         embed.add_field(name="Pokémons :", value=list_pokemons, inline=True)
@@ -496,7 +452,7 @@ class RandomPokemon:
         self._get_shiny()
         self._fetch_pokemon_details()
 
-        self.name = self.bot.translator.getLocalPokeString(interaction, "name" + str(self.id))
+        self.name = self.bot.translator.getLocalPokeString(self.interaction, "name" + str(self.id))
 
         if self.genre == "f":
             self.name += "\u2640"

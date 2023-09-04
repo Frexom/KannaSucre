@@ -3,7 +3,7 @@ import time
 import discord
 
 from src.resources.adapter import ContextAdapter
-from src.resources.pokemon import Pokedex, Pokemon, RandomPokemon, poke_count
+from src.resources.pokemon import POKE_COUNT, Pokedex, Pokemon, RandomPokemon
 from src.resources.ui import ClearView
 
 
@@ -141,7 +141,7 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
                 poke_id = id
 
             # If poke_id is Illegal
-            if poke_id > poke_count or poke_id <= 0:
+            if poke_id > POKE_COUNT or poke_id <= 0:
                 title = bot.translator.getLocalString(interaction, "pokeinfoNotFound", [])
                 description = bot.translator.getLocalString(interaction, "pokeinfoNoSuch", [])
                 e = discord.Embed(title=title, description=description)
@@ -190,7 +190,7 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
 
                 pokemon.prev_alt()
                 await interaction.editMessage(
-                    content=pokemon.shiny_link if pokemon.shiny else pokemon.link,
+                    content=pokemon.getLink(),
                     embed=pokemon.get_pokeinfo_embed(),
                 )
                 await interaction.defer()
@@ -201,10 +201,9 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
                 nonlocal pokemon
                 interaction = ContextAdapter(interaction)
 
-                if pokemon.devolution is not None:
-                    pokemon.devolve()
+                if pokemon.devolve():
                     await interaction.editMessage(
-                        content=pokemon.shiny_link if pokemon.shiny else pokemon.link,
+                        content=pokemon.getLink(),
                         embed=pokemon.get_pokeinfo_embed(),
                     )
                 await interaction.defer()
@@ -217,7 +216,7 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
 
                 pokemon.shiny = not pokemon.shiny
                 await interaction.editMessage(
-                    content=pokemon.shiny_link if pokemon.shiny else pokemon.link,
+                    content=pokemon.getLink(),
                     embed=pokemon.get_pokeinfo_embed(),
                 )
                 await interaction.defer()
@@ -240,7 +239,7 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
                     else:
                         pokemon.evolve()
                         await interaction.editMessage(
-                            content=pokemon.shiny_link if pokemon.shiny else pokemon.link,
+                            content=pokemon.getLink(),
                             embed=pokemon.get_pokeinfo_embed(),
                         )
 
@@ -252,7 +251,7 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
 
                 pokemon.next_alt()
                 await interaction.editMessage(
-                    content=pokemon.shiny_link if pokemon.shiny else pokemon.link,
+                    content=pokemon.getLink(),
                     embed=pokemon.get_pokeinfo_embed(),
                 )
                 await interaction.defer()
@@ -265,7 +264,7 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
 
                 pokemon.switchType()
                 await interaction.editMessage(
-                    content=pokemon.shiny_link if pokemon.shiny else pokemon.link,
+                    content=pokemon.getLink(),
                     embed=pokemon.get_pokeinfo_embed(),
                 )
                 content = bot.translator.getLocalString(
@@ -295,7 +294,7 @@ async def pokeinfoFunction(bot, interaction: ContextAdapter, id: int = None, nam
             buttonView.add_item(sugimori)
 
             await interaction.sendMessage(
-                content=pokemon.shiny_link if pokemon.shiny else pokemon.link,
+                content=pokemon.getLink(),
                 embed=pokemon.get_pokeinfo_embed(),
                 view=buttonView,
             )
@@ -461,7 +460,7 @@ async def pokerankFunction(bot, interaction: ContextAdapter):
                 + " - "
                 + str(result_list[i][0])
                 + "/"
-                + str(poke_count)
+                + str(POKE_COUNT)
                 + "\n"
             )
             i += 1
