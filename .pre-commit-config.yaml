@@ -24,3 +24,8 @@ repos:
     hooks :
     -   id : black
         args: [--config=./pyproject.toml]
+-   repo: https://github.com/Frexom/pre-commit-hooks
+    rev: 0.0.2
+    hooks :
+    -   id : crlf-to-lf
+        args: ["--ignore", "db", "ttf", "png", "--" ]
