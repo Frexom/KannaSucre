@@ -47,7 +47,6 @@ async def supportserverFunction(bot, interaction: ContextAdapter):
 
 async def dailyFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
-
         cursor = await bot.connection.cursor()
         await cursor.execute(
             "SELECT user_balance, user_last_daily_day FROM dis_user WHERE user_id = ?",
@@ -72,7 +71,6 @@ async def dailyFunction(bot, interaction: ContextAdapter):
                 f"That makes **{str(userWallet[0]+100)} KannaCoins** on your account."
             )
         else:
-
             timeLeft = (daysSince * 24 * 60 * 60) + 24 * 60 * 60 - now
 
             hours = int(timeLeft // (60 * 60))
@@ -85,7 +83,6 @@ async def dailyFunction(bot, interaction: ContextAdapter):
 
 async def servrankFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
-
         await interaction.defer()
 
         cursor = await bot.connection.cursor()
@@ -135,7 +132,6 @@ async def helpFunction(bot, interaction: ContextAdapter, command: str = None):
     if not interaction.getAuthor().bot:
         cursor = await bot.connection.cursor()
         if command == None:
-
             categories = []
             categories.append(bot.translator.getLocalString(interaction, "helpCatAdmin", []))
             categories.append(bot.translator.getLocalString(interaction, "helpCatMod", []))

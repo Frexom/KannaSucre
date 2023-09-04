@@ -26,7 +26,6 @@ async def sqlFunction(bot, interaction: ContextAdapter, query: str):
             else:
                 await interaction.sendMessage(content=query + "\n" + str(result), ephemeral=True)
         else:
-
             # Only getting rowcount, not comitting on this connection
             await cursor.execute(query)
             rowcount = cursor.rowcount
@@ -82,7 +81,6 @@ async def databaseFunction(bot, interaction: ContextAdapter):
 
 async def shutdownFunction(bot, interaction: ContextAdapter):
     if await bot.is_owner(interaction.getAuthor()):
-
         shutdownInteraction = interaction
         view = discord.ui.View()
 
@@ -173,7 +171,6 @@ async def reloadFunction(bot, interaction: ContextAdapter):
     content = "The following cogs have been reloaded : \n\n```\n"
 
     for filename in os.listdir("src/cogs/"):
-
         if os.path.isfile(f"{directory}/{filename}"):
             await bot.unload_extension(f"{path}.{filename[:-3]}")
             await bot.load_extension(f"{path}.{filename[:-3]}")

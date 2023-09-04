@@ -51,7 +51,6 @@ class Translator:
 
         if id is not None:
             if id not in self.locales.keys():
-
                 # Database query
                 connection, cursor = getStaticReadingConn()
                 cursor.execute("SELECT guild_locale FROM dis_guild WHERE guild_id = ?", (id,))
