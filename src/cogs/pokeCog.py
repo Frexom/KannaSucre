@@ -11,7 +11,7 @@ from src.functions.pokeFunctions import (
 )
 from src.resources.adapter import ContextAdapter
 from src.resources.mentions import get_target
-from src.resources.pokemon import poke_count
+from src.resources.pokemon import POKE_COUNT
 
 
 class PokeCog(commands.Cog):
@@ -68,7 +68,7 @@ class PokeCog(commands.Cog):
                 if len(message) > 1 and message[1].isdecimal():
                     page = int(message[1])
 
-                    outOfRange = page < 1 or page > int(poke_count / 20) + 1
+                    outOfRange = page < 1 or page > int(POKE_COUNT / 20) + 1
                     if outOfRange:
                         page = 1
 
