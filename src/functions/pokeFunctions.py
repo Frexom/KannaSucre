@@ -3,7 +3,7 @@ import time
 import discord
 
 from src.resources.adapter import ContextAdapter
-from src.resources.pokemon import Pokedex, Pokemon, poke_count
+from src.resources.pokemon import Pokedex, Pokemon, RandomPokemon, poke_count
 from src.resources.ui import ClearView
 
 
@@ -41,7 +41,7 @@ async def pokeFunction(bot, interaction: ContextAdapter):
                     (now, userID),
                 )
 
-            pokemon = Pokemon(bot, interaction=interaction, linkType=linkType)
+            pokemon = RandomPokemon(bot, interaction=interaction, linkType=linkType)
 
             await cursor.execute(
                 "SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?",
@@ -51,7 +51,7 @@ async def pokeFunction(bot, interaction: ContextAdapter):
 
             # Second chance
             if is_obtained:
-                pokemon = Pokemon(bot, interaction=interaction, linkType=linkType)
+                pokemon = RandomPokemon(bot, interaction=interaction, linkType=linkType)
 
             await cursor.execute(
                 "SELECT * FROM poke_obtained WHERE user_id = ? AND dex_id = ? AND form_alt = ?",
