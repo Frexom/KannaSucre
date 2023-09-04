@@ -1,4 +1,5 @@
 import random
+from typing import Any
 
 import discord
 
@@ -22,44 +23,10 @@ NB_LINK_TYPES = tmp[0]
 closeStaticConn(connection, cursor)
 
 
-def get_current_link(bot, poke_id: int, poke_alt: int, poke_genre: str):
-    connection, cursor = getStaticReadingConn()
-    cursor.execute(
-        "SELECT COUNT(*) FROM poke_form WHERE dex_id =? and form_alt <= ? and form_sex <= ?",
-        (poke_id, poke_alt, poke_genre),
-    )
-    temp = cursor.fetchone()
-    return temp[0]
-
-
-def get_devolution(bot, poke_id: int, poke_alt: int):
-    connection, cursor = getStaticReadingConn()
-    cursor.execute(
-        "SELECT evo_pre, evo_pre_alt, evo_method FROM poke_evolution WHERE evo_post = ? AND evo_post_alt = ?",
-        (poke_id, poke_alt),
-    )
-    temp = cursor.fetchone()
-    return None if temp == [] else temp
-
-
-def get_evolutions(bot, poke_id: int, poke_alt: int):
-    connection, cursor = getStaticReadingConn()
-    cursor.execute(
-        "SELECT DISTINCT evo_post, evo_post_alt, dex_name, form_label  FROM poke_evolution JOIN poke_dex ON evo_post = poke_dex.dex_id JOIN poke_form ON evo_post = poke_form.dex_id and evo_post_alt = form_alt WHERE evo_pre = ? and evo_pre_alt = ?",
-        (poke_id, poke_alt),
-    )
-    temp = cursor.fetchall()
-    if temp == []:
-        return None
-    else:
-        evolutions = []
-        uniques = []
-        for evo in temp:
-            checkUnique = str(evo[0]) + "." + str(evo[1])
-            if checkUnique not in uniques:
-                uniques.append(checkUnique)
-                evolutions.append(evo)
-        return evolutions
+def set_add(target: set, value: Any):
+    l = len(target)
+    target.add(value)
+    return len(target) != l
 
 
 class Pokemon:
@@ -134,6 +101,13 @@ class Pokemon:
             % (self.id, self.alt)
         )
         self.evolutions = cursor.fetchall()
+        s = set()
+        filtered_evolutions = []
+        for row in self.evolutions:
+            if set_add(s, f"{row[0]}-{row[1]}"):
+                filtered_evolutions.append(row)
+
+        self.evolutions = filtered_evolutions
         closeStaticConn(connection, cursor)
 
     def next_alt(self):
