@@ -9,7 +9,6 @@ from src.resources.ui import ClearView
 
 async def pokeFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
-
         # Not doidng it may cause bugs
         await interaction.defer()
 
@@ -440,7 +439,6 @@ async def pokedexFunction(
 
 async def pokerankFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
-
         await interaction.defer()
 
         cursor = await bot.connection.cursor()

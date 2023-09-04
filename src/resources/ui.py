@@ -62,7 +62,6 @@ class PokeDropdown(discord.ui.Select):
         i = 0
 
         for evo in pokemon.evolutions:
-
             label = evo[2] if evo[3] in noLabel else evo[3] + " " + evo[2]
             options.append(discord.SelectOption(label=label, value=i))
             i += 1
@@ -192,7 +191,6 @@ class DeleteLevelDropdown(discord.ui.Select):
         interaction = ContextAdapter(interaction)
         if not interaction.getAuthor().bot:
             if interaction.getAuthor().guild_permissions.manage_guild:
-
                 cursor = await interaction.getClient().connection.cursor()
                 await cursor.execute(
                     "DELETE FROM gld_reward WHERE guild_id = ? AND rew_level = ?",

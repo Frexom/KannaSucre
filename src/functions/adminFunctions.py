@@ -47,7 +47,6 @@ async def banFunction(
         if interaction.getGuild() is not None:
             if interaction.getAuthor().guild_permissions.ban_members:
                 if not user.guild_permissions.ban_members:
-
                     if reason != "" and reason is not None:
                         content = bot.translator.getLocalString(
                             interaction,
@@ -95,7 +94,6 @@ async def welcomeFunction(
     if not interaction.getAuthor().bot:
         if interaction.getGuild() is not None:
             if interaction.getAuthor().guild_permissions.manage_guild:
-
                 cursor = await bot.connection.cursor()
                 content = ""
 
@@ -230,7 +228,6 @@ async def giveawayFunction(
                 # Convert to seconds
                 duration = days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60
                 if duration != 0:
-
                     # Check if channel on guild
                     channelOnGuild = False
                     for checkChannel in interaction.getGuild().text_channels:
@@ -301,7 +298,6 @@ async def editlevelsFunction(bot, interaction: ContextAdapter):
     if not interaction.getAuthor().bot:
         if interaction.getGuild() is not None:
             if interaction.getAuthor().guild_permissions.manage_guild:
-
                 embed = LevelListEmbed(bot, interaction)
                 view = LevelListView(bot, interaction)
                 await interaction.sendMessage(embed=embed, view=view)

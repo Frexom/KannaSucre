@@ -167,7 +167,6 @@ class EventsCog(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if not message.author.bot:
-
             # Prefix
             if message.content.lower() == "ping":
                 prefix = Prefix.get_prefix(message)

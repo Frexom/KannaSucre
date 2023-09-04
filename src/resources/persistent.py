@@ -89,7 +89,6 @@ class GiveawayEmbed(discord.Embed):
         role: discord.Role,
         translator: Translator,
     ):
-
         # Create DatAtime object before changing duration
         ending = datetime.datetime.fromtimestamp(duration + time.time())
 

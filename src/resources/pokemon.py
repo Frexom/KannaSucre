@@ -127,7 +127,6 @@ def get_evolutions(bot, poke_id: int, poke_alt: int):
         evolutions = []
         uniques = []
         for evo in temp:
-
             checkUnique = str(evo[0]) + "." + str(evo[1])
             if checkUnique not in uniques:
                 uniques.append(checkUnique)
@@ -280,7 +279,6 @@ class Pokemon:
             closeStaticConn(connection, cursor)
 
     def get_pokeinfo_embed(self):
-
         poke_sex = ""
         if self.genre == "f":
             poke_sex += "\u2640"
@@ -465,7 +463,6 @@ class Pokedex:
         return embed
 
     def __get_pokedex_embed(self):
-
         connection, cursor = getStaticReadingConn()
         cursor.execute(
             "SELECT DISTINCT dex_id, dex_name, is_shiny FROM poke_dex JOIN poke_obtained USING(dex_id) WHERE user_id = ? ORDER BY dex_id;",
@@ -544,7 +541,6 @@ class Pokedex:
             count = 0
             for i in range(self.page * 20, (self.page + 1) * 20):
                 if len(shinies) > self.page * 20 + count:
-
                     list_pokemons += (
                         str(shinies[i][0])
                         + " - "

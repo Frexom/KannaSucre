@@ -13,7 +13,6 @@ async def levelFunction(bot, interaction: ContextAdapter, user: discord.User = N
         user = interaction.getAuthor()
 
     if not user.bot and not interaction.getAuthor().bot:
-
         cursor = await bot.connection.cursor()
         await cursor.execute(
             "SELECT user_level, user_xp, (SELECT COUNT(*) FROM com_history WHERE user_id = ?) as nbCommands FROM dis_user WHERE user_id = ?;",

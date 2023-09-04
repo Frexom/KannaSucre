@@ -50,7 +50,6 @@ async def clearFunction(bot, interaction: ContextAdapter, amount: int):
         if interaction.getGuild() is not None:
             if interaction.getAuthor().guild_permissions.manage_messages:
                 if amount <= 50:
-
                     if interaction.isContext():
                         amount += 1
                     else:
@@ -99,7 +98,6 @@ async def kickFunction(
         if interaction.getGuild() is not None:
             if interaction.getAuthor().guild_permissions.kick_members:
                 if not user.guild_permissions.kick_members:
-
                     if reason == "" or reason is None:
                         content = bot.translator.getLocalString(
                             interaction,
