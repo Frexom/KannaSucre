@@ -4,7 +4,7 @@ import discord
 
 from src.resources.adapter import ContextAdapter
 from src.resources.pokemon import POKE_COUNT, Pokedex, Pokemon, RandomPokemon
-from src.resources.ui import ClearView, PokeDropdown
+from src.resources.ui import ClearView, PokeDropdown, PokesortDropdown
 
 
 async def pokeFunction(bot, interaction: ContextAdapter):
@@ -373,20 +373,6 @@ async def pokedexFunction(
 
             open.callback = openCallback
 
-            label = bot.translator.getLocalString(interaction, "buttonShinies", [])
-            shinies = discord.ui.Button(label=label, emoji="✨")
-
-            async def shiniesCallback(interaction):
-                nonlocal openedView, pokedex
-                interaction = ContextAdapter(interaction)
-
-                pokedex.toggleShiny()
-                pokedex.open()
-                await interaction.editMessage(embed=pokedex.embed, view=openedView)
-                await interaction.defer()
-
-            shinies.callback = shiniesCallback
-
             label = bot.translator.getLocalString(interaction, "buttonClose", [])
             close = discord.ui.Button(label=label, emoji="🌐")
 
@@ -424,11 +410,34 @@ async def pokedexFunction(
 
             next.callback = nextCallback
 
+            label = bot.translator.getLocalString(interaction, "buttonSort", [])
+            sort = discord.ui.Button(label=label, emoji="#️⃣", row=2)
+
+            async def sortCallback(interaction):
+                nonlocal pokedex, openedView
+                interaction = ContextAdapter(interaction)
+                await interaction.defer()
+
+                dropdown = PokesortDropdown(bot, interaction, pokedex, openedView)
+
+                sortView = ClearView(interaction, timeout=90)
+                sortView.add_item(dropdown)
+
+                await interaction.editMessage(view=sortView)
+
+            sort.callback = sortCallback
+
+            filler1 = discord.ui.Button(label="⠀⠀⠀", row=2, disabled=True)
+            filler2 = discord.ui.Button(label="⠀⠀⠀", row=2, disabled=True)
+
             closedView.add_item(open)
-            closedView.add_item(shinies)
+
             openedView.add_item(prev)
             openedView.add_item(close)
             openedView.add_item(next)
+            openedView.add_item(filler1)
+            openedView.add_item(sort)
+            openedView.add_item(filler2)
 
             await interaction.sendMessage(embed=pokedex.embed, view=closedView)
         else:

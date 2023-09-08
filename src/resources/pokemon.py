@@ -221,36 +221,29 @@ class Pokedex:
         self.interaction = interaction
         self.page = page
         self.user = user
-        self.shiny = False
         self.embed = self.__get_closed_pokedex()
+        self.sorting_method = "ORDER BY dex_id"
 
     def next(self):
         self.page += 1
-        if self.shiny:
-            self.embed = self.__get_shiny_embed()
-        else:
-            self.embed = self.__get_pokedex_embed()
+        self.embed = self.__get_pokedex_embed()
 
     def prev(self):
         self.page += -1
-        if self.shiny:
-            self.embed = self.__get_shiny_embed()
-        else:
-            self.embed = self.__get_pokedex_embed()
+        self.embed = self.__get_pokedex_embed()
 
     def open(self):
-        if self.shiny:
-            self.embed = self.__get_shiny_embed()
-        else:
-            self.embed = self.__get_pokedex_embed()
+        self.embed = self.__get_pokedex_embed()
 
     def close(self):
         self.shiny = False
         self.page = 0
         self.embed = self.__get_closed_pokedex()
 
-    def toggleShiny(self):
-        self.shiny = True
+    def sort(self, sort_query: str):
+        self.sorting_method = sort_query
+        self.page = 0
+        self.embed = self.__get_pokedex_embed()
 
     def __get_closed_pokedex(self):
         connection, cursor = getStaticReadingConn()
@@ -311,44 +304,36 @@ class Pokedex:
 
     def __get_pokedex_embed(self):
         connection, cursor = getStaticReadingConn()
-        cursor.execute(
-            "SELECT DISTINCT dex_id, dex_name, is_shiny FROM poke_dex JOIN poke_obtained USING(dex_id) WHERE user_id = ? ORDER BY dex_id;",
-            (self.user.id,),
-        )
-        Pokemons = cursor.fetchall()
-        cursor.execute(
-            "SELECT COUNT(DISTINCT dex_id) FROM poke_obtained WHERE user_id = ?;",
-            (self.user.id,),
-        )
-        number_of_pokemons = cursor.fetchone()
-        number_of_pokemons = number_of_pokemons[0]
-
-        closeStaticConn(connection, cursor)
-
         self.page = (self.page) % (int(POKE_COUNT / 20) + 1)
 
-        if Pokemons == []:
+        cursor.execute(
+            f"SELECT dex_id, user_id, IFNULL(is_shiny, 0) as is_shiny, (SELECT COUNT(DISTINCT(dex_id)) FROM poke_obtained WHERE user_id = ?) FROM poke_dex LEFT JOIN (SELECT DISTINCT(dex_id), user_id, is_shiny FROM poke_obtained WHERE user_id = ?) USING(dex_id) {self.sorting_method} LIMIT ? OFFSET ?",
+            (self.user.id, self.user.id, 20, (self.page) * 20),
+        )
+        pokemons = cursor.fetchall()
+        if pokemons == []:
+            raise ValueError(
+                f"Pagination wasn't properly validated, SQL returned 0 rows.\nUserID:{self.user.id}, Page:{self.page}, Sort:{self.sorting_method}"
+            )
+
+        number_of_pokemons = pokemons[0][3]
+        closeStaticConn(connection, cursor)
+
+        if number_of_pokemons == 0:
             list_pokemons = self.bot.translator.getLocalString(self.interaction, "noPoke", [])
         else:
             list_pokemons = ""
-            list_index = 0
-            while Pokemons[list_index][0] <= self.page * 20 and list_index != len(Pokemons) - 1:
-                list_index += 1
-            for i in range(self.page * 20, self.page * 20 + 20):
-                if i < POKE_COUNT:
-                    if Pokemons[list_index][0] == i + 1:
-                        pokeName = self.bot.translator.getLocalPokeString(
-                            self.interaction, "name" + str(Pokemons[list_index][0])
-                        )
+            for pokemon in pokemons:
+                sparkles = ":sparkles:" if pokemon[2] else ""
+                name = ""
+                if pokemon[1] is not None:
+                    name = self.bot.translator.getLocalPokeString(
+                        self.interaction, f"name{pokemon[0]}"
+                    )
+                else:
+                    name = "----------"
+                list_pokemons += f"{pokemon[0]} - {name}{sparkles}\n"
 
-                        if Pokemons[list_index][2]:
-                            list_pokemons += str(i + 1) + " - " + pokeName + ":sparkles:\n"
-                        else:
-                            list_pokemons += str(i + 1) + " - " + pokeName + "\n"
-                        if list_index < len(Pokemons) - 1:
-                            list_index += 1
-                    else:
-                        list_pokemons += str(i + 1) + " - --------\n"
         title = self.bot.translator.getLocalString(
             self.interaction, "userPokedex", [("user", self.user.name)]
         )
@@ -363,58 +348,6 @@ class Pokedex:
             self.interaction,
             "page",
             [("current", str(self.page + 1)), ("total", str(int(POKE_COUNT / 20) + 1))],
-        )
-        embed.set_footer(text=text)
-        return embed
-
-    def __get_shiny_embed(self):
-        connection, cursor = getStaticReadingConn()
-        cursor.execute(
-            "SELECT DISTINCT dex_id FROM poke_obtained JOIN poke_dex USING(dex_id) WHERE is_shiny = 1 AND user_id = ? ORDER BY dex_id",
-            (self.user.id,),
-        )
-        shinies = cursor.fetchall()
-
-        closeStaticConn(connection, cursor)
-
-        self.page = (self.page) % (int(len(shinies) / 20) + 1)
-
-        if shinies == []:
-            list_pokemons = self.bot.translator.getLocalString(self.interaction, "noPoke", [])
-        else:
-            list_pokemons = ""
-            list_index = 0
-
-            count = 0
-            for i in range(self.page * 20, (self.page + 1) * 20):
-                if len(shinies) > self.page * 20 + count:
-                    list_pokemons += (
-                        str(shinies[i][0])
-                        + " - "
-                        + self.bot.translator.getLocalPokeString(
-                            self.interaction, f"name{shinies[i][0]}"
-                        )
-                        + ":sparkles:\n"
-                    )
-                count += 1
-
-        title = self.bot.translator.getLocalString(
-            self.interaction, "userShiny", [("user", self.user.display_name)]
-        )
-        shinyString = self.bot.translator.getLocalString(self.interaction, "shinyPoke", [])
-        embed = discord.Embed(
-            title=title,
-            description=str(len(shinies)) + "/" + str(POKE_COUNT) + " " + shinyString,
-        )
-        embed.set_thumbnail(url="https://www.g33kmania.com/wp-content/uploads/Pokemon-Pokedex.png")
-        embed.add_field(name="Pokémons :", value=list_pokemons, inline=True)
-        text = self.bot.translator.getLocalString(
-            self.interaction,
-            "page",
-            [
-                ("current", str(self.page + 1)),
-                ("total", str(int(len(shinies) / 20) + 1)),
-            ],
         )
         embed.set_footer(text=text)
         return embed

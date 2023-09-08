@@ -1864,3 +1864,6 @@ UPDATE poke_form SET form_type1 = 2, form_type2 = 14 WHERE dex_id = 1009 and for
 UPDATE poke_form SET form_type1 = 4, form_type2 = 10 WHERE dex_id = 1010 and form_alt = 0 and form_sex = 'x';
 UPDATE poke_form SET form_type1 = 0, form_type2 = null WHERE dex_id = 925 and form_alt = 1 and form_sex = 'x';
 UPDATE poke_form SET form_type1 = 0, form_type2 = null WHERE dex_id = 982 and form_alt = 1 and form_sex = 'n';
+
+
+DELETE FROM poke_dex WHERE dex_id = 0;
