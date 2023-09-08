@@ -195,3 +195,9 @@ poketype14%Dragon
 poketype15%Ténèbres
 poketype16%Acier
 poketype17%Fée
+pokedexSort0%Pokedex ID
+pokedexSort1%Rarity (Ascending)
+pokedexSort2%Rarity (Descending)
+pokedexSort3%Shinies first
+pokedexSortByWhat%Sort by what?
+buttonSort%Sort

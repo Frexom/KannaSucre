@@ -79,6 +79,45 @@ class PokeDropdown(discord.ui.Select):
         )
 
 
+sorting_queries = {
+    "0": "ORDER BY dex_id",
+    "1": "ORDER BY dex_rarity, dex_id",
+    "2": "ORDER BY dex_rarity DESC, dex_id",
+    "3": "ORDER BY is_shiny DESC, dex_id",
+}
+
+
+class PokesortDropdown(discord.ui.Select):
+    def __init__(self, bot, interaction, pokedex, buttonView: discord.ui.View):
+        self.bot = bot
+        self.pokedex = pokedex
+        self.buttonView = buttonView
+        self.interaction = interaction
+
+        labels = [
+            self.bot.translator.getLocalString(interaction, f"pokedexSort{x}", [])
+            for x in [0, 1, 2, 3]
+        ]
+        options = []
+
+        i = 0
+        for label in labels:
+            options.append(discord.SelectOption(label=label, value=i))
+            i += 1
+        placeholder = self.bot.translator.getLocalString(self.interaction, "pokedexSortByWhat", [])
+        super().__init__(placeholder=placeholder, options=options, min_values=1, max_values=1)
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+
+        sort = sorting_queries.get(str(self.values[0]), "ORDER BY dex_id")
+        self.pokedex.sort(sort)
+        await interaction.message.edit(
+            embed=self.pokedex.embed,
+            view=self.buttonView,
+        )
+
+
 """   Level Reward UI   """
 
 
