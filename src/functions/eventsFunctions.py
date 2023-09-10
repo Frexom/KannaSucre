@@ -278,7 +278,7 @@ class EventsCog(commands.Cog):
     async def on_user_update(self, before: discord.User, after: discord.User):
         if (before.global_name != after.global_name) or (before.name != after.name):
             cursor = await self.bot.connection.cursor()
-            global_name = after.global_name if after.global_name is not None else user.name
+            global_name = after.global_name if after.global_name is not None else after.name
             await cursor.execute(
                 "UPDATE dis_user SET user_name = ? WHERE user_id = ?",
                 (after.global_name, before.id),
