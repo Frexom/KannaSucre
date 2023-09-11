@@ -21,7 +21,7 @@ class Translator:
         for folder in subfolders:
             file = "src/resources/locales/{}/strings.csv".format(folder)
             with open(file, encoding="utf8") as f:
-                reader = csv.reader(f, delimiter="%")
+                reader = csv.reader(f, delimiter=",")
                 self.strings[folder] = {rows[0]: rows[1] for rows in reader}
 
     def loadPoke(self):
@@ -29,7 +29,7 @@ class Translator:
         for folder in subfolders:
             file = "src/resources/locales/{}/poke.csv".format(folder)
             with open(file, encoding="utf8") as f:
-                reader = csv.reader(f, delimiter="%")
+                reader = csv.reader(f, delimiter=",")
                 self.poke[folder] = {rows[0]: rows[1] for rows in reader}
 
     def loadPokeEvos(self):
@@ -37,7 +37,7 @@ class Translator:
         for folder in subfolders:
             file = "src/resources/locales/{}/evolutions.csv".format(folder)
             with open(file, encoding="utf8") as f:
-                reader = csv.reader(f, delimiter="%")
+                reader = csv.reader(f, delimiter=",")
                 self.evolutions[folder] = {rows[0]: rows[1] for rows in reader}
 
     def getLocaleFromInteraction(self, interaction):

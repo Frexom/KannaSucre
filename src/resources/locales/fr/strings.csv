@@ -1,203 +1,203 @@
-pokeCatch%Félicitations {user}, tu as attrapé {pokeName}.
-pokeRarity%C'est un pokémon **{rarity}**.
-pokeAlready%Tu as déjà attrapé ce Pokémon.😕
-pokeExtraRolls%Pokéballs +{number}.
-rollsHours%{user}, ta prochaine Pokéball sera disponible dans {hours} heure {minutes} minutes.\nPokéballs: `{number}`.
-rollsMinutes%{user}, ta prochaine Pokéball sera disponible dans {minutes} minutes.\nPokéballs: `{number}`.
-pokeNewForm%Tu as déjà attrapé ce Pokémon, mais c'est une nouvelle forme !🆕
-common%Commun
-uncommon%Peu commun
-rare%Rare
-superRare%Super Rare
-legendary%Légendaire
-missingPerms%Je suis désolée mais vous ne remplissez pas les conditions pour exécuter cette commande : `{commandName}`.\nCette commande nécessite la permission suivante : `{permission}`.
-lackPerms%Je suis désolée mais la personne ciblée a autant ou plus de permissions que vous. Vous ne pouvez pas la cibler avec cette commande : `{commandName}`.
-normal%Normal
-male%Mâle
-female%Femelle
-chooseEvolution%Choisis une évolution
-description%Description
-evolution%Évolution
-evolvedBy%A évolué en
-userPokedex%Pokédex de {user}
-shinies%Chromatiques✨ :
-shinyPoke%Pokémons chromatiques
-noPoke%Aucun Pokémon.
-newPrefix%Mon préfixe sur ce serveur est maintenant `{prefix}` :)
-banReason%Vous avez été banni⋅e de **{guild}**.\nRaison : `{reason}`.
-banNoReason%Vous avez été banni⋅e de **{guild}**.\nAucune raison n'a été donnée.
-userBanned%Utilisateur banni.
-welcomeDisabled%Les messages de bienvenue et de départ sont désactivés, utilisez `/welcome channel : ...` pour les rétablir.
-welcomeChannel%Les messages de bienvenue seront maintenant envoyés dans <#{channel}>.
-kannaMissPerms%Je n'ai pas assez de permissions pour faire cela !
-kannaError%Une erreur est survenue, elle sera signalée au programmeur.
-hugLonely%{user}, on dirait que tu te sens seul⋅e, prends mon câlin! ❤️
-hugUser%{user}, {otherUser} t'a fait un câlin ! ❤️
-userStand%{user}, tu es le porteur du stand **{standName}**.
-pruneUser%{number} messages de `{user}` ont été supprimés de `{guild}`.
-clearMessages%{number} messages ont été supprimés :D
-clearMore%Vous ne pouvez pas effacer plus de 50 messages en même temps.
-kickNoReason%Vous avez été expulsé⋅e de **{guild}**.\nAucune raison n'a été donnée.
-kickReason%Vous avez été expulsé⋅e de **{guild}**.\nMotif :`{reason}`.
-userKicked%Utilisateur expulsé.
-isShiny%Attends, il est chromatique ?!? ✨
-pokeinfoNotFound%Introuvable :(
-pokeinfoNoSuch%Ce Pokémon n'existe pas.
-pokeinfoInput%J'ai besoin de l'ID du Pokémon ou de son nom.
-commandBot%Cette commande n'est pas prise en charge pour les bots.
-rollsAvailable%{user}, tu peux lancer une Pokéball.\nPokéballs:`{number}`.
-diceRoll%Tu as lancé un dé entre 1 et {maxNumber}, tu es tombé·e sur un **{randomNumber}** !
-servericon%Ce serveur ne possède pas d'icône.
-usericon%Cet utilisateur n'a pas de photo de profil.
-noAccess%Désolée, je n'ai pas accès à ce salon.
-newLanguage%À partir de maintenant, je parlerai français !
-userShiny%Pokémons chromatiques de {user}
-page%page {current}/{total}
-welcome%<@{memberID}> a rejoint le serveur! Yayy!!
-supportServer%Une question sur KannaSucre? Besoin d'aiide avec une commande? Voir les dernières mises à jour?\nVous pouvez rejoindre le serveur communautaire de KannaSucre avec ce lien :\n
-channelGuild%Ce salon n'est pas sur ce serveur!
-announceAuthor%*Message envoyé par {user} :*\n
-announceLink%Envoyé!\nCliquez ici pour voir le message :
-goodbye%{memberName} a quitté le serveur :(
-prefixNoSpace%Il ne peut pas y avoir d'espace dans le prefix!
-togglelevelsEnabled%La fonctionnalité de niveaux est activée!
-togglelevelsDisabled%La fonctionnalité de niveaux est déactivée.
-levelUp%Félicitations {user}, tu es passé niveau {number}!
-buttonEvolve%Évoluer
-buttonDevolve%Dés-évoluer
-buttonShiny%Chromatique
-buttonOpen%Ouvrir
-buttonShinies%Chromatiques
-buttonClose%Refermer
-pokerank%Poké-classement de KannaSucre :
-pokerankRanking%Classement :
-pokeForm%Forme {form}
-welcomeRole%Le rôle `@{role}` sera donné aux nouveaux arrivants!
-welcomeNoRole%Aucun rôle ne sera donné aux nouveaux arrivants.
-errorWelcomeRole%__Message venant de **{guild}** :__\n\nJe n'ai pas assez de permissions pour donner aux nouveaux arrivants leur rôle de bienvenue.\nSi vous voulez désactiver cette fonctionnalité, utilisez `/welcome` sans arguments sur **{guild}**.\nSi vous voulez que la fonctionnalité marche, vérifiez que mon rôle possède la permission `Gérer les rôles`, et que mon rôle est plus haut que le rôle de bienvenue.
-clearShort%Supprime des messages
-clearDesc%Supprime un nombre de message donné (maximum 50).
-kickShort%Expulse un membre
-kickDesc%Expulse un membre donné, une raison peut être spécifiée.
-banShort%Bannit un membre
-banDesc%Bannit un membre donné, une raison peut être spécifiée.
-prefixShort%Change le préfixe du bot
-prefixDesc%Change le préfix du bot pour ce serveur uniquement. Tout type de préfixe peut être utilisé (même avec plusieurs caractères).
-hugShort%Câline quelqu'un!
-hugDesc%Câline quelqu'un, c'est tout!
-welcomeShort%Définit le salon/rôle de bienvenue.
-welcomeDesc%Définit le salon où les arrivées et départs seront envoyés, et le rôle à donner aux nouveaux arrivants.
-diceShort%Lance un dé
-diceDesc%Lance un dé entre 1 et un nombre donné.
-servericonShort%Affiche l'icône du serveur
-servericonDesc%Affiche l'icône du serveur en haute résolution.
-pokeShort%Attrape un Pokémon!
-pokeDesc%Attrape un Pokémon pour ton Pokédex, tous les Pokémons jusqu'à Legendes Pokémon : Arceus sont disponibles!
-pokedexShort%Affiche ton Pokédex
-pokedexDesc%Montre ton Pokédex, avec tous les Pokémons que tu as attrapé.
-helpShort%Affiche ce message
-helpDesc%Affiche soit toutes les commandes disponibles, ou les détails d'une commande spécifique.
-levelShort%Affiche ton niveau et ton XP
-levelDesc%Affiche ton niveau et ton XP, c'est tout.
-pokerankShort%Affiche les meilleurs dresseurs Pokémons de KannaSucre!
-pokerankDesc%Affiche le top 10 des meilleurs dresseurs Pokémon du bot!
-standShort%Affiche votre stand respectif
-standDesc%Affiche ton stand de JJBA, ton stand est lié à toi et tu ne peux en changer.
-usericonShort%Affiche l'icône d'un utilisateur
-usericonDesc%Affiche l'icône d'un utilisateur donné.
-pruneShort%Supprime les messages d'un utilisateur
-pruneDesc%Supprime tous les messages d'un utilisateur donné parmi les 200 derniers message de chaque salon.
-rollsShort%Affiche vos détails pour la commande poke.
-rollsDesc%Affiche ton nombre de Pokérolls, et quand sera ton prochain Pokéroll gratuit.
-pokeinfoShort%Affiche les infos d'un Pokémon
-pokeinfoDesc%Affiche certaines infos sur un Pokémon donné. Vous pouvez utiliser la commande avec le numéro de Pokédex, ou le nom du Pokémon!
-announceShort%Envoie un message personnalisé dans un salon
-announceDesc%Envoie un message personnalisé dans un salon donné, votre nom d'utilisateur sera cité.
-languageShort%Change la langue du bot!
-languageDesc%Change la langue dans laquelle le bot enverra ses messages, pour le moment, uniquement Anglais et Français sont disponibles.
-supportserverShort%Envoie un lien d'invitation au serveur de KannaSucre!
-supportserverDesc%Envoie un lien pour rejoindre le serveur de KannaSucre, pour obtenir de l'aide ou donner des suggestions.
-togglelevelsShort%Active ou désactive les niveaux
-togglelevelsDesc%Active ou désactive la fonctionnalité de niveaux. Cette dernière est désactivée par défaut.
-helpTitle%Guide de KannaSucre, commande {command} :
-helpCatAdmin%__Commandes administrateur :__
-helpCatMod%__Commandes de modération :__
-helpCatUtil%__Commandes utilitaires :__
-helpCatMisc%__Commandes diverses :__
-helpBigTitle%Guide de KannaSucre :
-helpUserPerms%Permissions utilisateur :
-helpKannaPerms%Permissions de Kanna :
-helpNo%non
-helpYes%oui
-helpMorePerms%Est-ce que le bot a besoin de plus de permissions que la cible de la commande?
-helpExample%Example :
-helpNoCommand%Aucune commande appellée `{name}` trouvée.
-giveawayDesc%Crée un nouveau giveaway dans un salon défini sur une période définie !
-giveawayShort%Crée un nouveau giveaway !
-giveawayCreated%Vous avez créé un giveaway !
-giveawayNoDuration%Veuillez renseigner la durée.
-giveawayStarted%Un nouveau giveaway a commencé !
-giveawayDuration%Durée :
-giveawayDays%{days} jours
-giveawayHours%{hours} heures
-giveawayMinutes%{minutes} minutes
-giveawayEnds%Finit le :
-giveawayNone%Aucun
-giveawayPrize%Prix :
-giveawayRegister%Participer !
-giveawayAlreadyRegistered%Tu participes déjà à ce giveaway !
-giveawayRegistered%Ton inscription à ce giveaway a bien été prise en compte !
-giveawayMissRole%Je suis désolée, tu n'as pas le rôle requis pour participer à ce giveaway.
-giveawayEnded%Ce giveaway n'existe pas, il est probablement déjà terminé !
-giveawayRole%Rôle requis :
-giveawayLost%Ce giveaway est terminé, mais personne n'a participé :/
-giveawayWon%Ce giveaway est terminé ! **{number}** personnes ont participé ! \nFélicitations à <@{userId}> qui a remporté `{prize}` !
-pokeinfoLinktype0%Attention ! Tu as activé les sprites au style Sugimori. Ces sprites sont plus beaux, mais beaucoup de formes alternatives sont manquantes. Ça signifie que tu ne verras pas la différence entre les formes des Pokémons, mais tu attraperas tout de même différentes formes.
-pokeinfoLinktype1%Tu as réactivé les sprites HOME.
-giveawayPrefix%Je suis désolée, la commande giveaway repose sur trop de paramètres pour être utilisée sous forme d'une commande à préfixe, essayez plutôt `/giveaway` !
-clearDelete%Je supprime!
-levelUpRole%Félicitations {user}, tu es passé·e niveau {number} !\n En guise de récompense, tu as obtenu le rôle `{role}` !
-cancel%Annuler
-refresh%Actualiser
-editlevelNoReward%Il n'y pas de récompense de niveau.
-editLevelReward%Niveau {level}: <@&{roleID}>\n
-editlevelTitle%Récompenses de niveau de {guild}
-editlevelFooter%Utilisez la commande /addlevel pour ajouter des récompenses de niveau !
-editlevelDeleteLabel%Supprimer un niveau.
-editlevelChooseDelete%Choisissez un niveau à supprimer.
-editlevelDeleted%Le rôle récompense `niveau {level}` a été supprimé.
-addlevelSuccess%Le rôle récompense `@{role}` au niveau {level} est créé !
-addlevelFailure%Il y a déjà une récompense pour le niveau {level}.
-addlevelEveryone%Veuillez saisir un rôle valide !
-addlevelShort%Ajoute une récompense de niveau
-addlevelDesc%Configurez l'assignation automatique de rôles à vos membres lorsqu'ils atteignent un certain niveau sur KannaSucre !
-editlevelsShort%Modifie les récompenses de rôle
-editlevelsDesc%Affichez et supprimez les récompenses de niveau actuelles !
-servrankEmpty%Personne n'a encore de niveau, activez-les avec /togglelevels!
-servrankRanking%Classement des niveaux de {guild} :
-servrankLevel%{username}: Niveau {level}
-type%Type(s)
-poketype0%Normal
-poketype1%Feu
-poketype2%Eau
-poketype3%Électrik
-poketype4%Plante
-poketype5%Glace
-poketype6%Combat
-poketype7%Poison
-poketype8%Sol
-poketype9%Vol
-poketype10%Psy
-poketype11%Insecte
-poketype12%Roche
-poketype13%Spectre
-poketype14%Dragon
-poketype15%Ténèbres
-poketype16%Acier
-poketype17%Fée
-pokedexSort0%Pokedex ID
-pokedexSort1%Rarity (Ascending)
-pokedexSort2%Rarity (Descending)
-pokedexSort3%Shinies first
-pokedexSortByWhat%Sort by what?
-buttonSort%Sort
+"pokeCatch","Félicitations {user}, tu as attrapé {pokeName}."
+"pokeRarity","C'est un pokémon **{rarity}**."
+"pokeAlready","Tu as déjà attrapé ce Pokémon.😕"
+"pokeExtraRolls","Pokéballs +{number}."
+"rollsHours","{user}, ta prochaine Pokéball sera disponible dans {hours} heure {minutes} minutes.\nPokéballs: `{number}`."
+"rollsMinutes","{user}, ta prochaine Pokéball sera disponible dans {minutes} minutes.\nPokéballs: `{number}`."
+"pokeNewForm","Tu as déjà attrapé ce Pokémon, mais c'est une nouvelle forme !🆕"
+"common","Commun"
+"uncommon","Peu commun"
+"rare","Rare"
+"superRare","Super Rare"
+"legendary","Légendaire"
+"missingPerms","Je suis désolée mais vous ne remplissez pas les conditions pour exécuter cette commande : `{commandName}`.\nCette commande nécessite la permission suivante : `{permission}`."
+"lackPerms","Je suis désolée mais la personne ciblée a autant ou plus de permissions que vous. Vous ne pouvez pas la cibler avec cette commande : `{commandName}`."
+"normal","Normal"
+"male","Mâle"
+"female","Femelle"
+"chooseEvolution","Choisis une évolution"
+"description","Description"
+"evolution","Évolution"
+"evolvedBy","A évolué en "
+"userPokedex","Pokédex de {user}"
+"shinies","Chromatiques✨ : "
+"shinyPoke","Pokémons chromatiques"
+"noPoke","Aucun Pokémon."
+"newPrefix","Mon préfixe sur ce serveur est maintenant `{prefix}` :)"
+"banReason","Vous avez été banni⋅e de **{guild}**.\nRaison : `{reason}`."
+"banNoReason","Vous avez été banni⋅e de **{guild}**.\nAucune raison n'a été donnée."
+"userBanned","Utilisateur banni."
+"welcomeDisabled","Les messages de bienvenue et de départ sont désactivés, utilisez `/welcome channel : ...` pour les rétablir."
+"welcomeChannel","Les messages de bienvenue seront maintenant envoyés dans <#{channel}>."
+"kannaMissPerms","Je n'ai pas assez de permissions pour faire cela !"
+"kannaError","Une erreur est survenue, elle sera signalée au programmeur."
+"hugLonely","{user}, on dirait que tu te sens seul⋅e, prends mon câlin! ❤️"
+"hugUser","{user}, {otherUser} t'a fait un câlin ! ❤️"
+"userStand","{user}, tu es le porteur du stand **{standName}**."
+"pruneUser","{number} messages de `{user}` ont été supprimés de `{guild}`."
+"clearMessages","{number} messages ont été supprimés :D"
+"clearMore","Vous ne pouvez pas effacer plus de 50 messages en même temps."
+"kickNoReason","Vous avez été expulsé⋅e de **{guild}**.\nAucune raison n'a été donnée."
+"kickReason","Vous avez été expulsé⋅e de **{guild}**.\nMotif :`{reason}`."
+"userKicked","Utilisateur expulsé."
+"isShiny","Attends, il est chromatique ?!? ✨"
+"pokeinfoNotFound","Introuvable :("
+"pokeinfoNoSuch","Ce Pokémon n'existe pas."
+"pokeinfoInput","J'ai besoin de l'ID du Pokémon ou de son nom."
+"commandBot","Cette commande n'est pas prise en charge pour les bots."
+"rollsAvailable","{user}, tu peux lancer une Pokéball.\nPokéballs:`{number}`."
+"diceRoll","Tu as lancé un dé entre 1 et {maxNumber}, tu es tombé·e sur un **{randomNumber}** !"
+"servericon","Ce serveur ne possède pas d'icône."
+"usericon","Cet utilisateur n'a pas de photo de profil."
+"noAccess","Désolée, je n'ai pas accès à ce salon."
+"newLanguage","À partir de maintenant, je parlerai français !"
+"userShiny","Pokémons chromatiques de {user}"
+"page","page {current}/{total}"
+"welcome","<@{memberID}> a rejoint le serveur! Yayy!!"
+"supportServer","Une question sur KannaSucre? Besoin d'aiide avec une commande? Voir les dernières mises à jour?\nVous pouvez rejoindre le serveur communautaire de KannaSucre avec ce lien :\n"
+"channelGuild","Ce salon n'est pas sur ce serveur!"
+"announceAuthor","*Message envoyé par {user} :*\n"
+"announceLink","Envoyé!\nCliquez ici pour voir le message :"
+"goodbye","{memberName} a quitté le serveur :("
+"prefixNoSpace","Il ne peut pas y avoir d'espace dans le prefix!"
+"togglelevelsEnabled","La fonctionnalité de niveaux est activée!"
+"togglelevelsDisabled","La fonctionnalité de niveaux est déactivée."
+"levelUp","Félicitations {user}, tu es passé niveau {number}!"
+"buttonEvolve","Évoluer"
+"buttonDevolve","Dés-évoluer"
+"buttonShiny","Chromatique"
+"buttonOpen","Ouvrir"
+"buttonShinies","Chromatiques"
+"buttonClose","Refermer"
+"pokerank","Poké-classement de KannaSucre :"
+"pokerankRanking","Classement :"
+"pokeForm","Forme {form}"
+"welcomeRole","Le rôle `@{role}` sera donné aux nouveaux arrivants!"
+"welcomeNoRole","Aucun rôle ne sera donné aux nouveaux arrivants."
+"errorWelcomeRole","__Message venant de **{guild}** :__\n\nJe n'ai pas assez de permissions pour donner aux nouveaux arrivants leur rôle de bienvenue.\nSi vous voulez désactiver cette fonctionnalité, utilisez `/welcome` sans arguments sur **{guild}**.\nSi vous voulez que la fonctionnalité marche, vérifiez que mon rôle possède la permission `Gérer les rôles`, et que mon rôle est plus haut que le rôle de bienvenue."
+"clearShort","Supprime des messages"
+"clearDesc","Supprime un nombre de message donné (maximum 50)."
+"kickShort","Expulse un membre"
+"kickDesc","Expulse un membre donné, une raison peut être spécifiée."
+"banShort","Bannit un membre"
+"banDesc","Bannit un membre donné, une raison peut être spécifiée."
+"prefixShort","Change le préfixe du bot"
+"prefixDesc","Change le préfix du bot pour ce serveur uniquement. Tout type de préfixe peut être utilisé (même avec plusieurs caractères)."
+"hugShort","Câline quelqu'un!"
+"hugDesc","Câline quelqu'un, c'est tout!"
+"welcomeShort","Définit le salon/rôle de bienvenue."
+"welcomeDesc","Définit le salon où les arrivées et départs seront envoyés, et le rôle à donner aux nouveaux arrivants."
+"diceShort","Lance un dé"
+"diceDesc","Lance un dé entre 1 et un nombre donné."
+"servericonShort","Affiche l'icône du serveur"
+"servericonDesc","Affiche l'icône du serveur en haute résolution."
+"pokeShort","Attrape un Pokémon!"
+"pokeDesc","Attrape un Pokémon pour ton Pokédex, tous les Pokémons jusqu'à Legendes Pokémon : Arceus sont disponibles!"
+"pokedexShort","Affiche ton Pokédex"
+"pokedexDesc","Montre ton Pokédex, avec tous les Pokémons que tu as attrapé."
+"helpShort","Affiche ce message"
+"helpDesc","Affiche soit toutes les commandes disponibles, ou les détails d'une commande spécifique."
+"levelShort","Affiche ton niveau et ton XP"
+"levelDesc","Affiche ton niveau et ton XP, c'est tout."
+"pokerankShort","Affiche les meilleurs dresseurs Pokémons de KannaSucre!"
+"pokerankDesc","Affiche le top 10 des meilleurs dresseurs Pokémon du bot!"
+"standShort","Affiche votre stand respectif"
+"standDesc","Affiche ton stand de JJBA, ton stand est lié à toi et tu ne peux en changer."
+"usericonShort","Affiche l'icône d'un utilisateur"
+"usericonDesc","Affiche l'icône d'un utilisateur donné."
+"pruneShort","Supprime les messages d'un utilisateur"
+"pruneDesc","Supprime tous les messages d'un utilisateur donné parmi les 200 derniers message de chaque salon."
+"rollsShort","Affiche vos détails pour la commande poke."
+"rollsDesc","Affiche ton nombre de Pokérolls, et quand sera ton prochain Pokéroll gratuit."
+"pokeinfoShort","Affiche les infos d'un Pokémon"
+"pokeinfoDesc","Affiche certaines infos sur un Pokémon donné. Vous pouvez utiliser la commande avec le numéro de Pokédex, ou le nom du Pokémon!"
+"announceShort","Envoie un message personnalisé dans un salon"
+"announceDesc","Envoie un message personnalisé dans un salon donné, votre nom d'utilisateur sera cité."
+"languageShort","Change la langue du bot!"
+"languageDesc","Change la langue dans laquelle le bot enverra ses messages, pour le moment, uniquement Anglais et Français sont disponibles."
+"supportserverShort","Envoie un lien d'invitation au serveur de KannaSucre!"
+"supportserverDesc","Envoie un lien pour rejoindre le serveur de KannaSucre, pour obtenir de l'aide ou donner des suggestions."
+"togglelevelsShort","Active ou désactive les niveaux"
+"togglelevelsDesc","Active ou désactive la fonctionnalité de niveaux. Cette dernière est désactivée par défaut."
+"helpTitle","Guide de KannaSucre, commande {command} :"
+"helpCatAdmin","__Commandes administrateur :__"
+"helpCatMod","__Commandes de modération :__"
+"helpCatUtil","__Commandes utilitaires :__"
+"helpCatMisc","__Commandes diverses :__"
+"helpBigTitle","Guide de KannaSucre :"
+"helpUserPerms","Permissions utilisateur :"
+"helpKannaPerms","Permissions de Kanna :"
+"helpNo","non"
+"helpYes","oui"
+"helpMorePerms","Est-ce que le bot a besoin de plus de permissions que la cible de la commande?"
+"helpExample","Example :"
+"helpNoCommand","Aucune commande appellée `{name}` trouvée."
+"giveawayDesc","Crée un nouveau giveaway dans un salon défini sur une période définie !"
+"giveawayShort","Crée un nouveau giveaway !"
+"giveawayCreated","Vous avez créé un giveaway !"
+"giveawayNoDuration","Veuillez renseigner la durée."
+"giveawayStarted","Un nouveau giveaway a commencé !"
+"giveawayDuration","Durée :"
+"giveawayDays","{days} jours "
+"giveawayHours","{hours} heures "
+"giveawayMinutes","{minutes} minutes "
+"giveawayEnds","Finit le :"
+"giveawayNone","Aucun"
+"giveawayPrize","Prix :"
+"giveawayRegister","Participer !"
+"giveawayAlreadyRegistered","Tu participes déjà à ce giveaway !"
+"giveawayRegistered","Ton inscription à ce giveaway a bien été prise en compte !"
+"giveawayMissRole","Je suis désolée, tu n'as pas le rôle requis pour participer à ce giveaway."
+"giveawayEnded","Ce giveaway n'existe pas, il est probablement déjà terminé !"
+"giveawayRole","Rôle requis :"
+"giveawayLost","Ce giveaway est terminé, mais personne n'a participé :/"
+"giveawayWon","Ce giveaway est terminé ! **{number}** personnes ont participé ! \nFélicitations à <@{userId}> qui a remporté `{prize}` !"
+"pokeinfoLinktype0","Attention ! Tu as activé les sprites au style Sugimori. Ces sprites sont plus beaux, mais beaucoup de formes alternatives sont manquantes. Ça signifie que tu ne verras pas la différence entre les formes des Pokémons, mais tu attraperas tout de même différentes formes."
+"pokeinfoLinktype1","Tu as réactivé les sprites HOME."
+"giveawayPrefix","Je suis désolée, la commande giveaway repose sur trop de paramètres pour être utilisée sous forme d'une commande à préfixe, essayez plutôt `/giveaway` !"
+"clearDelete","Je supprime!"
+"levelUpRole","Félicitations {user}, tu es passé·e niveau {number} !\n En guise de récompense, tu as obtenu le rôle `{role}` !"
+"cancel","Annuler"
+"refresh","Actualiser"
+"editlevelNoReward","Il n'y pas de récompense de niveau."
+"editLevelReward","Niveau {level}: <@&{roleID}>\n"
+"editlevelTitle","Récompenses de niveau de {guild}"
+"editlevelFooter","Utilisez la commande /addlevel pour ajouter des récompenses de niveau !"
+"editlevelDeleteLabel","Supprimer un niveau."
+"editlevelChooseDelete","Choisissez un niveau à supprimer."
+"editlevelDeleted","Le rôle récompense `niveau {level}` a été supprimé."
+"addlevelSuccess","Le rôle récompense `@{role}` au niveau {level} est créé !"
+"addlevelFailure","Il y a déjà une récompense pour le niveau {level}."
+"addlevelEveryone","Veuillez saisir un rôle valide !"
+"addlevelShort","Ajoute une récompense de niveau"
+"addlevelDesc","Configurez l'assignation automatique de rôles à vos membres lorsqu'ils atteignent un certain niveau sur KannaSucre !"
+"editlevelsShort","Modifie les récompenses de rôle"
+"editlevelsDesc","Affichez et supprimez les récompenses de niveau actuelles !"
+"servrankEmpty","Personne n'a encore de niveau, activez-les avec /togglelevels!"
+"servrankRanking","Classement des niveaux de {guild} :"
+"servrankLevel","{username}: Niveau {level}"
+"type","Type(s)"
+"poketype0","Normal"
+"poketype1","Feu"
+"poketype2","Eau"
+"poketype3","Électrik"
+"poketype4","Plante"
+"poketype5","Glace"
+"poketype6","Combat"
+"poketype7","Poison"
+"poketype8","Sol"
+"poketype9","Vol"
+"poketype10","Psy"
+"poketype11","Insecte"
+"poketype12","Roche"
+"poketype13","Spectre"
+"poketype14","Dragon"
+"poketype15","Ténèbres"
+"poketype16","Acier"
+"poketype17","Fée"
+"pokedexSort0","Pokedex ID"
+"pokedexSort1","Rarity (Ascending)"
+"pokedexSort2","Rarity (Descending)"
+"pokedexSort3","Shinies first"
+"pokedexSortByWhat","Sort by what?"
+"buttonSort","Sort"
