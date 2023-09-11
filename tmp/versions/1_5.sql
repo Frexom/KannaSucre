@@ -1867,3 +1867,6 @@ UPDATE poke_form SET form_type1 = 0, form_type2 = null WHERE dex_id = 982 and fo
 
 
 DELETE FROM poke_dex WHERE dex_id = 0;
+
+
+INSERT INTO db_updates(updates) VALUES ("1.5 Done!");
