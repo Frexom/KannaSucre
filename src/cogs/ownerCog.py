@@ -130,7 +130,7 @@ class OwnerCog(commands.Cog):
         isLongEnough = len(msg) > 2
 
         if isLongEnough and msg[1].lower() in validStatuses:
-            activity = discord.Game(" ".join(msg[2:]))
+            activity = " ".join(msg[2:])
             await statusFunction(self.bot, ContextAdapter(context), msg[1].lower(), activity)
         else:
             await context.send(content=f"```{context.prefix}status online/dnd/idle *activity*```")
@@ -149,10 +149,11 @@ class OwnerCog(commands.Cog):
     async def slashStatus(
         self,
         interaction: discord.Interaction,
-        status: app_commands.Choice[str] = "online",
-        activity: str = "Now with Slash commands!",
+        status: app_commands.Choice[str] = None,
+        activity: str = None,
     ):
-        await statusFunction(self.bot, ContextAdapter(interaction), status.value, activity)
+        status = status.value if status else "online"
+        await statusFunction(self.bot, ContextAdapter(interaction), status, activity)
 
     @commands.command(name="reload")
     @commands.is_owner()

@@ -40,8 +40,10 @@ async def on_ready():
         await setup_func(bot, bot.guilds[i])
 
     # Appearance
-    game = discord.Game("Now with slash commands!")
-    await bot.change_presence(status=discord.Status.online, activity=game)
+    with open(".activity", "r") as activity:
+        game = discord.Game(activity.read())
+        await bot.change_presence(status=discord.Status.online, activity=game)
+
     random.seed(time.time())
     try:
         checkEndedGiveaways.start()

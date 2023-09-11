@@ -152,14 +152,22 @@ async def guildcountFunction(bot, interaction: ContextAdapter):
 async def statusFunction(
     bot,
     interaction: ContextAdapter,
-    status: str = "online",
-    activity: str = "Now with Slash commands!",
+    status: str,
+    activity: str,
 ):
     if await bot.is_owner(interaction.getAuthor()):
-        activity = discord.Game(activity)
+        if not activity:
+            with open(".activity", "r") as activity_file:
+                activity = activity_file.read()
+        else:
+            with open(".activity", "w") as activity_file:
+                activity_file.write(activity)
+
+        game = discord.Game(activity)
         status = status.value if isinstance(status, app_commands.Choice) else status
-        await bot.change_presence(status=status, activity=activity)
+        await bot.change_presence(status=status, activity=game)
         await interaction.sendMessage(content=f"Changed status to `{activity}`!")
+
     else:
         await interaction.sendMessage(content="You don't have the permission to use that.")
 
