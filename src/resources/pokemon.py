@@ -382,7 +382,6 @@ class RandomPokemon:
 
     def _get_shiny(self):
         rate = 10 if self.bot.shinyFever else 128
-        print(rate)
         self.shiny = True if random.randint(1, rate) == 1 else False
 
     def _get_rarity(self):
