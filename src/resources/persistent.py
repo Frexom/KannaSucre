@@ -21,6 +21,8 @@ class PersistentBot(commands.Bot):
 
         self.translator = Translator()
 
+        self.shinyFever = False
+
     async def setup_hook(self) -> None:
         self.add_view(GiveawayView(self.translator))
 

@@ -6,6 +6,7 @@ from discord.ext import commands
 
 from src.functions.ownerFunctions import (
     databaseFunction,
+    eventFunction,
     guildcountFunction,
     previewFunction,
     reloadFunction,
@@ -164,6 +165,19 @@ class OwnerCog(commands.Cog):
     @app_commands.guilds(int(os.environ["TESTGUILDID"]))
     async def slashReload(self, interaction: discord.Interaction):
         await reloadFunction(self.bot, ContextAdapter(interaction))
+
+    @commands.command(name="event")
+    @commands.is_owner()
+    async def event(self, context):
+        words = context.message.content.split(" ")
+        if "event" not in words[-1]:
+            await eventFunction(self.bot, ContextAdapter(context), words[-1])
+
+    @app_commands.command(name="event", description="Start or stop a KannaSucre event!")
+    @app_commands.describe(event="The event to toggle!")
+    @app_commands.guilds(int(os.environ["TESTGUILDID"]))
+    async def slashEvent(self, interaction: discord.Interaction, event: str):
+        await eventFunction(self.bot, ContextAdapter(interaction), event)
 
 
 async def setup(bot):
