@@ -73,7 +73,6 @@ async def hugFunction(bot, interaction: ContextAdapter, user: discord.Member | d
 
 
 async def standFunction(bot, interaction: ContextAdapter):
-    print("started command!")
     if not interaction.getAuthor().bot:
         cursor = await bot.connection.cursor()
         await cursor.execute(
@@ -103,5 +102,4 @@ async def standFunction(bot, interaction: ContextAdapter):
         )
         e = discord.Embed(title=title, colour=discord.Colour(0x635F))
         e.set_image(url=stand[1])
-        print("sent it!")
         await interaction.sendMessage(content=stand[1], embed=e)

@@ -26,7 +26,6 @@ class FunCog(commands.Cog):
 
     @commands.command(name="stand")
     async def stand(self, context):
-        print("yep")
         await standFunction(self.bot, ContextAdapter(context))
 
     @app_commands.command(
