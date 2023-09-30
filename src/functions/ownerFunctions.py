@@ -172,7 +172,7 @@ async def statusFunction(
         await interaction.sendMessage(content="You don't have the permission to use that.")
 
 
-async def reloadFunction(bot, interaction: ContextAdapter):
+async def reloadFunction(bot, interaction: ContextAdapter, event: str):
     path = "src.cogs"
     directory = "src/cogs"
 
@@ -187,3 +187,15 @@ async def reloadFunction(bot, interaction: ContextAdapter):
 
     content += "```"
     await interaction.sendMessage(content=content)
+
+
+async def eventFunction(bot, interaction: ContextAdapter, event: str):
+    eventState = None
+
+    if event.lower() == "shinyfever":
+        eventState = not bot.shinyFever
+        bot.shinyFever = eventState
+    else:
+        raise ValueError(f"Event `{event}` not found")
+
+    await interaction.sendMessage(content=f"The event `{event}` has been set to `{eventState}`.")
