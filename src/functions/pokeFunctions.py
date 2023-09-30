@@ -22,14 +22,16 @@ async def pokeFunction(bot, interaction: ContextAdapter):
         )
         data = await cursor.fetchone()
 
+        time_for_new_rolls = 600 if bot.shinyFever else 7200
+
         last_roll = data[0]
         pity = data[1]
         linkType = data[2]
         now = time.time()
         time_since = int(now - last_roll)
 
-        if time_since > 7200 or pity >= 1:
-            if time_since < 7200:
+        if time_since > time_for_new_rolls or pity >= 1:
+            if time_since < time_for_new_rolls:
                 pity -= 1
                 await cursor.execute(
                     "UPDATE dis_user SET user_pity = ? WHERE user_id = ?",
@@ -314,9 +316,11 @@ async def rollsFunction(bot, interaction: ContextAdapter):
     data = await cursor.fetchone()
     last_roll = data[0]
     pity = data[1]
+
     now = time.time()
+    time_for_new_rolls = 600 if bot.shinyFever else 7200
     time_since = int(now - last_roll)
-    time_left = int(7200 - time_since)
+    time_left = int(time_for_new_rolls - time_since)
     userName = interaction.getAuthor().display_name
     if time_left <= 0:
         content = bot.translator.getLocalString(
