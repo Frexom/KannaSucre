@@ -196,6 +196,7 @@ async def eventFunction(bot, interaction: ContextAdapter, event: str):
         eventState = not bot.shinyFever
         bot.shinyFever = eventState
     else:
-        raise ValueError(f"Event `{event}` not found")
+        await interaction.sendMessage(content=f"Event `{event}` not found")
+        return
 
     await interaction.sendMessage(content=f"The event `{event}` has been set to `{eventState}`.")
