@@ -486,7 +486,8 @@ UPDATE poke_link SET link_shiny = 'https://i.ibb.co/jT1Mj1t/1010-000-x-s.png' WH
 
 --- Pokémon types
 
-CREATE TABLE poke_type (type_id int, type_name text, type_emoji_id int);
+DROP TABLE IF EXISTS poke_type;
+CREATE TABLE poke_type (type_id int PRIMARY KEY, type_name text, type_emoji_id int);
 INSERT INTO poke_type (type_id, type_name, type_emoji_id) VALUES (0, "Normal", 1145160069965697096);
 INSERT INTO poke_type (type_id, type_name, type_emoji_id) VALUES (1, "Fire", 1145160059266027620);
 INSERT INTO poke_type (type_id, type_name, type_emoji_id) VALUES (2, "Water", 1145160056657166386);
@@ -716,9 +717,9 @@ UPDATE poke_form SET form_type1 = 3, form_type2 = 9 WHERE dex_id = 145 and form_
 UPDATE poke_form SET form_type1 = 6, form_type2 = 9 WHERE dex_id = 145 and form_alt = 1 and form_sex = 'x';
 UPDATE poke_form SET form_type1 = 1, form_type2 = 9 WHERE dex_id = 146 and form_alt = 0 and form_sex = 'x';
 UPDATE poke_form SET form_type1 = 15, form_type2 = 9 WHERE dex_id = 146 and form_alt = 1 and form_sex = 'x';
-UPDATE poke_form SET form_type1 = 13, form_type2 = null WHERE dex_id = 147 and form_alt = 0 and form_sex = 'n';
-UPDATE poke_form SET form_type1 = 13, form_type2 = null WHERE dex_id = 148 and form_alt = 0 and form_sex = 'n';
-UPDATE poke_form SET form_type1 = 13, form_type2 = 9 WHERE dex_id = 149 and form_alt = 0 and form_sex = 'n';
+UPDATE poke_form SET form_type1 = 14, form_type2 = null WHERE dex_id = 147 and form_alt = 0 and form_sex = 'n';
+UPDATE poke_form SET form_type1 = 14, form_type2 = null WHERE dex_id = 148 and form_alt = 0 and form_sex = 'n';
+UPDATE poke_form SET form_type1 = 14, form_type2 = 9 WHERE dex_id = 149 and form_alt = 0 and form_sex = 'n';
 UPDATE poke_form SET form_type1 = 10, form_type2 = null WHERE dex_id = 150 and form_alt = 0 and form_sex = 'x';
 UPDATE poke_form SET form_type1 = 10, form_type2 = null WHERE dex_id = 151 and form_alt = 0 and form_sex = 'x';
 UPDATE poke_form SET form_type1 = 4, form_type2 = null WHERE dex_id = 152 and form_alt = 0 and form_sex = 'n';
