@@ -17,25 +17,25 @@ class Translator:
         self.loadPokeEvos()
 
     def loadStrings(self):
-        subfolders = [f.name for f in os.scandir("src/resources/locales") if f.is_dir()]
+        subfolders = [f.name for f in os.scandir("src/locales") if f.is_dir()]
         for folder in subfolders:
-            file = "src/resources/locales/{}/strings.csv".format(folder)
+            file = "src/locales/{}/strings.csv".format(folder)
             with open(file, encoding="utf8") as f:
                 reader = csv.reader(f, delimiter=",")
                 self.strings[folder] = {rows[0]: rows[1] for rows in reader}
 
     def loadPoke(self):
-        subfolders = [f.name for f in os.scandir("src/resources/locales") if f.is_dir()]
+        subfolders = [f.name for f in os.scandir("src/locales") if f.is_dir()]
         for folder in subfolders:
-            file = "src/resources/locales/{}/poke.csv".format(folder)
+            file = "src/locales/{}/poke.csv".format(folder)
             with open(file, encoding="utf8") as f:
                 reader = csv.reader(f, delimiter=",")
                 self.poke[folder] = {rows[0]: rows[1] for rows in reader}
 
     def loadPokeEvos(self):
-        subfolders = [f.name for f in os.scandir("src/resources/locales") if f.is_dir()]
+        subfolders = [f.name for f in os.scandir("src/locales") if f.is_dir()]
         for folder in subfolders:
-            file = "src/resources/locales/{}/evolutions.csv".format(folder)
+            file = "src/locales/{}/evolutions.csv".format(folder)
             with open(file, encoding="utf8") as f:
                 reader = csv.reader(f, delimiter=",")
                 self.evolutions[folder] = {rows[0]: rows[1] for rows in reader}

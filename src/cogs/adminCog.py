@@ -94,7 +94,7 @@ class AdminCog(commands.Cog):
     @commands.command(name="language")
     async def language(self, context):
         words = context.message.content.split(" ")
-        locales = ["en", "fr"]  # tr soon
+        locales = ["en", "fr", "tr"]
         if len(words) >= 2 and words[1] in locales:
             language = words[1]
             await languageFunction(self.bot, ContextAdapter(context), language)
@@ -108,6 +108,7 @@ class AdminCog(commands.Cog):
         language=[
             app_commands.Choice(name="English", value="en"),
             app_commands.Choice(name="French", value="fr"),
+            app_commands.Choice(name="Trukish (BETA)", value="tr"),
         ]
     )
     @app_commands.describe(language="The language you want KannaSucre to use.")
